@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tabhost"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/histroy_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:text="this is test" />
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <TabWidget
+            android:id="@android:id/tabs"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true" />
+
+        <FrameLayout
+            android:id="@android:id/tabcontent"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_above="@android:id/tabs" >
+
+            <LinearLayout
+                android:id="@+id/transhistroy"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/temp1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="" />
+			     <LinearLayout
+			         android:layout_width="fill_parent"
+			         android:layout_height="wrap_content" >
+			
+			         <Spinner
+			             android:id="@+id/spinner_trans_currency"
+			             android:layout_width="0dp"
+			             android:layout_height="wrap_content"
+			             android:layout_weight="1" />
+			
+			         <Spinner
+			             android:id="@+id/spinner_trans_type"
+			             android:layout_width="0dp"
+			             android:layout_height="wrap_content"
+			             android:layout_weight="1" />
+			
+			         <Spinner
+			             android:id="@+id/spinner_trans_status"
+			             android:layout_width="0dp"
+			             android:layout_height="wrap_content"
+			             android:layout_weight="1" />
+			     </LinearLayout>
+
+                <ListView
+                    android:id="@+id/trans_his_list"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" >
+                </ListView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tradehistroy"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/temp2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="" />
+			     <LinearLayout
+			         android:layout_width="fill_parent"
+			         android:layout_height="wrap_content" >
+			
+			         <Spinner
+			             android:id="@+id/spinner_trade_pair"
+			             android:layout_width="0dp"
+			             android:layout_height="wrap_content"
+			             android:layout_weight="1" />
+			
+			         <Spinner
+			             android:id="@+id/spinner_trade_type"
+			             android:layout_width="0dp"
+			             android:layout_height="wrap_content"
+			             android:layout_weight="1" />
+			
+			         <Spinner
+			             android:id="@+id/spinner_trade_yours"
+			             android:layout_width="0dp"
+			             android:layout_height="wrap_content"
+			             android:layout_weight="1" />
+			     </LinearLayout>
+
+                <ListView
+                    android:id="@+id/trade_his_list"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" >
+                </ListView>
+            </LinearLayout>
+        </FrameLayout>
+    </RelativeLayout>
+
+</TabHost>

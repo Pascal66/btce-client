@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">"BTCE Client"</string>
+    <string name="buy">"BUY"</string>
+    <string name="sell">"SELL"</string>
+    <string name="trade">"GO"</string>
+    <string name="volume">"Volume"</string>
+    <string name="funds">"Funds"</string>
+    <string name="trans">"Trans"</string>
+    <string name="act_order">"Active Orders"</string>
+    <string name="fee">"Fee"</string>
+    <string name="ready_info">"everything is ready"</string>
+    <string name="price_hint">"Price"</string>
+    <string name="amount_hint">"Amount"</string>
+    <string name="price_buy">"Buy Price"</string>
+    <string name="price_sell">"Sell Price"</string>
+    
+	<!-- menu -->
+    <string name="exit">"Exit"</string>
+    <string name="update">"Update"</string>
+    <string name="depth">"Depth"</string>
+    <string name="setting">"Setting"</string>
+    <string name="clear">"Clear"</string>
+    <string name="save">"Save"</string>
+    <string name="price">"Price"</string>
+    <!-- information -->
+    <string name="invalid_amount">"Invalid Amount"</string>
+    <string name="invalid_price">"Invalid Price"</string>
+    <string name="update_info_ing">"Updating information of "</string>
+    <string name="fee_ing">"Getting fee of "</string>
+    <string name="fee_ok">"Get fee successful"</string>
+    <string name="fee_error">"Get fee Error: "</string>
+    <string name="ticker_ing">"Getting ticker of "</string>
+    <string name="ticker_ok">"Get ticker successful"</string>
+    <string name="ticker_error">"Get ticker Error: "</string>
+    <string name="trades_ing">"Getting trades of "</string>
+    <string name="trades_ok">"Get trades successful"</string>
+    <string name="trades_error">"Get trades Error: "</string>
+    <string name="depth_ing">"Getting depth of "</string>
+    <string name="depth_ok">"Get depth successful"</string>
+    <string name="depth_error">"Get depth Error: "</string>
+    <string name="trade_sell_ing" formatted="false">"Selling %f %s at %f %s"</string>
+    <string name="trade_buy_ing" formatted="false">"Buying %f %s at %f %s"</string>
+    <string name="trade_ok">"Trade successful"</string>
+    <string name="trade_ok_order" formatted="false">"Created order: %d received: %f remains: %f"</string>
+    <string name="trade_error">"Trade Error: "</string>
+    <string name="user_info_ing">"Getting user information"</string>
+    <string name="user_info_ok">"Get user information successful"</string>
+    <string name="user_info_error">"Get user information Error: "</string>
+    <string name="chart_ing">"Getting chart information of "</string>
+    <string name="chart_ok" formatted="false">"Get %s chart information successful"</string>
+    <string name="chart_error">"Get chart information Error: "</string>
+    <string name="all_chart_ing">"Getting all pair\'s chart information"</string>
+    <string name="all_chart_error">"Get all pair\'s chart information Error: "</string>
+    <string name="cancel_order_error">"Cancel order Error: "</string>
+    <string name="cancel_order_ok">"Canceled the order: "</string>
+    <string name="cancel_order_ing">"Canceling the order: "</string>
+    <string name="cancel_order_question">"Cancel this order?"</string>
+    <string name="order_list_ing">"Getting the order list..."</string>
+    <string name="order_list_ok">"Get order list successful"</string>
+    <string name="order_list_error">"Get order list Error: "</string>
+    <string name="histroy_trans">"TransHistory"</string>
+    <string name="histroy_trade">"TradeHistory"</string>
+    <string name="history_ing">"Getting history list..."</string>
+    <string name="history_error">"Getting history Error: "</string>
+    <string name="trans_history_error">"Get transaction history Error: "</string>
+    <string name="trans_history_ok">"Get transaction history successful"</string>
+    <string name="trade_history_error">"Get trade history Error: "</string>
+    <string name="trade_history_ok">"Get trade history successful"</string>
+    <string name="unknown_task">"BTETask: Unknown Task"</string>
+    <string name="task_error">"BTETask Error: "</string>
+    <string name="Progress_title">"Loading..."</string>
+    <string name="Progress_message">"Please wait..."</string>
+
+    <string-array name="trans_type_array">
+        <item> types </item>
+        <item> 1 </item>
+        <item> 2 </item>
+        <item> 3 </item>
+        <item> 4 </item>
+        <item> 5 </item>
+    </string-array>
+    <string-array name="trans_status_array">
+        <item> status </item>
+        <item> 1 </item>
+        <item> 2 </item>
+        <item> 3 </item>
+        <item> 4 </item>
+        <item> 5 </item>
+    </string-array>
+    <string-array name="trade_type_array">
+        <item> All </item>
+        <item> Sell </item>
+        <item> Buy </item>
+    </string-array>
+    <string-array name="trade_owner_array">
+        <item> All </item>
+        <item> Yours </item>
+        <item> Others </item>
+    </string-array>
+    <string-array name="order_status_array">
+        <item> All </item>
+        <item> Active </item>
+        <item> Filled </item>
+        <item> Canceled </item>
+        <item> "Partly filled" </item>
+    </string-array>
+
+</resources>

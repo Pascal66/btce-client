@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.googlecode.BtceClient.ResizeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:KChart="http://schemas.android.com/apk/res/com.googlecode.BtceClient"
+    android:id="@+id/root_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <view
+        android:id="@+id/candlestick_view"
+        android:layout_width="fill_parent"
+        android:layout_height="240dp"
+        class="com.googlecode.BtceClient.CandleStickView"
+        KChart:bgColor="#000000"
+        KChart:block_downColor="#DC143C"
+        KChart:block_lineColor="#00FF7F"
+        KChart:block_upColor="#00FF7F"
+        KChart:frameColor="#00FFFF"
+        KChart:gridColor="#00FFFF"
+        KChart:textSize="12sp"
+        KChart:text_infoColor="#D3D3D3"
+        KChart:text_infoSize="12sp"
+        KChart:text_xColor="#483D8B"
+        KChart:text_yColor="#40E0D0" />
+
+    <TextView
+        android:id="@+id/status_view"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:text="" />
+
+    <LinearLayout
+        android:id="@+id/text_area"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+<!-- 
+        <ImageButton
+            android:id="@+id/btn_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:src="@drawable/i_refresh" />
+ -->
+        <EditText
+            android:id="@+id/trade_price"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:ems="10"
+            android:hint="@string/price_hint"
+            android:inputType="numberDecimal"
+            android:maxLines="1" />
+
+        <ToggleButton
+            android:id="@+id/is_sell"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text=""
+            android:textOff="@string/buy"
+            android:textOn="@string/sell" />
+
+        <EditText
+            android:id="@+id/trade_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:ems="10"
+            android:hint="@string/amount_hint"
+            android:inputType="numberDecimal"
+            android:maxLines="1" />
+
+        <Button
+            android:id="@+id/trade_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="@string/trade" />
+    </LinearLayout>
+
+    <ViewFlipper
+        android:id="@+id/flipper"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:flipInterval="1000"
+        android:inAnimation="@anim/push_left_in"
+        android:outAnimation="@anim/push_left_out"
+        android:persistentDrawingCache="animation" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal" >
+<!-- 
+            <Button
+                android:id="@+id/get_info"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:text="G" />
+-->
+            <ListView
+                android:id="@+id/user_info_list"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" >
+            </ListView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <ListView
+                android:id="@+id/user_trades_list"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" >
+            </ListView>
+
+            <TextView
+                android:id="@+id/user_trades_text"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="null" />
+        </LinearLayout>
+
+    </ViewFlipper>
+
+</com.googlecode.BtceClient.ResizeLayout>

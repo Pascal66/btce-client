@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <EditText
+        android:id="@+id/host"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="Proxy Host"
+        android:ems="10" >
+        <requestFocus />
+    </EditText>
+    
+    <EditText
+        android:id="@+id/port"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="Proxy Port"
+        android:ems="10"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/user"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="Proxy Username"
+        android:ems="10" />
+
+    <EditText
+        android:id="@+id/pswd"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="Proxy password"
+        android:ems="10"
+        android:inputType="textPassword" />
+
+</LinearLayout>

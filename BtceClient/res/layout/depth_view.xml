@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.googlecode.BtceClient.ResizeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:DChart="http://schemas.android.com/apk/res/com.googlecode.BtceClient"
+    android:id="@+id/root_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <view
+        android:id="@+id/depthchart_view"
+        android:layout_width="fill_parent"
+        android:layout_height="240dp"
+        class="com.googlecode.BtceClient.DepthView"
+        DChart:dp_bgColor="#FF000000"
+        DChart:dp_frameColor="#FF00FFFF"
+        DChart:dp_gridColor="#FF00FFFF"
+        DChart:dp_infoColor="#FF00FFFF"
+        DChart:dp_infoSize="12sp"
+        DChart:dp_textColor="#FFD3D3D3"
+        DChart:dp_bidlineColor="#FF75B103"
+        DChart:dp_bidlineSize="3"
+        DChart:dp_bidfillColor="#7F75B103"
+        DChart:dp_asklineColor="#FF4E8CD9"
+        DChart:dp_asklineSize="3"
+        DChart:dp_askfillColor="#7F4E8CD9"
+        DChart:dp_pointColor="#FF00FF00"
+        DChart:dp_pointSize="10"
+        DChart:dp_focusLineColor="#FFFFFFFF" />
+
+    <TextView
+        android:id="@+id/status_view"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:text="" />
+
+    <ListView
+        android:id="@+id/user_depth_list"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
+
+</com.googlecode.BtceClient.ResizeLayout>
