@@ -18,6 +18,6 @@ public class BTCEPairs extends HashMap<String, String> {
 		this.put("trc_btc", "23");
 		this.put("ppc_btc", "24");
 		this.put("ftc_btc", "25");
-		this.put("cnc_btc", "26");
+		//this.put("cnc_btc", "26");
 	}
 }
