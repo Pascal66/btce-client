@@ -40,58 +40,65 @@ public class PriceActivity extends Activity {
 
 	DecimalFormat formatter6 = new DecimalFormat();
 
-	static final private int SETTING_ID = Menu.FIRST;
+	// static final private int SETTING_ID = Menu.FIRST;
+	//
+	// @Override
+	// public boolean onCreateOptionsMenu(Menu menu) {
+	// super.onCreateOptionsMenu(menu);
+	//
+	// /* the context menu currently has only one option */
+	// menu.add(0, SETTING_ID, 0, R.string.setting);
+	// return true;
+	// }
+	//
+	// @Override
+	// public boolean onOptionsItemSelected(MenuItem item) {
+	// Intent intent = new Intent();
+	// switch (item.getItemId()) {
+	// case SETTING_ID:
+	// // intent.setClass(PriceActivity.this, SettingActivity.class);
+	// // startActivityForResult(intent, SETTING_ID);
+	// show_setting_dlg();
+	// }
+	// return super.onOptionsItemSelected(item);
+	// }
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-
-		/* the context menu currently has only one option */
-		menu.add(0, SETTING_ID, 0, R.string.setting);
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		show_setting_dlg();
 		return true;
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		Intent intent = new Intent();
-		switch (item.getItemId()) {
-		case SETTING_ID:
-			// intent.setClass(PriceActivity.this, SettingActivity.class);
-			// startActivityForResult(intent, SETTING_ID);
-			final View candle_view = m_inflater.inflate(R.layout.setting_price,
-					null);
-			((TextView) candle_view.findViewById(R.id.number)).setText(""
-					+ item_number);
-			((TextView) candle_view.findViewById(R.id.step)).setText(""
-					+ item_step);
-			((TextView) candle_view.findViewById(R.id.fee)).setText(""
-					+ item_fee);
-			AlertDialog dlg = new AlertDialog.Builder(PriceActivity.this)
-					.setTitle("Number & Step:")
-					.setIcon(android.R.drawable.ic_dialog_info)
-					.setView(candle_view)
-					.setPositiveButton("OK", ocl_candle)
-					.setNegativeButton(
-							"Cancel",
-							new android.content.DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									AlertDialog dlg = (AlertDialog) dialog;
-									im_ctrl.hideSoftInputFromWindow(dlg
-											.findViewById(R.id.number)
-											.getWindowToken(), 0);
-									im_ctrl.hideSoftInputFromWindow(dlg
-											.findViewById(R.id.step)
-											.getWindowToken(), 0);
-									im_ctrl.hideSoftInputFromWindow(dlg
-											.findViewById(R.id.fee)
-											.getWindowToken(), 0);
-								}
-							}).show();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+	void show_setting_dlg() {
+		final View candle_view = m_inflater.inflate(R.layout.setting_price,
+				null);
+		((TextView) candle_view.findViewById(R.id.number)).setText(""
+				+ item_number);
+		((TextView) candle_view.findViewById(R.id.step))
+				.setText("" + item_step);
+		((TextView) candle_view.findViewById(R.id.fee)).setText("" + item_fee);
+		AlertDialog dlg = new AlertDialog.Builder(PriceActivity.this)
+				.setTitle("Number & Step:")
+				.setIcon(android.R.drawable.ic_dialog_info)
+				.setView(candle_view)
+				.setPositiveButton("OK", ocl_candle)
+				.setNegativeButton("Cancel",
+						new android.content.DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								AlertDialog dlg = (AlertDialog) dialog;
+								im_ctrl.hideSoftInputFromWindow(dlg
+										.findViewById(R.id.number)
+										.getWindowToken(), 0);
+								im_ctrl.hideSoftInputFromWindow(dlg
+										.findViewById(R.id.step)
+										.getWindowToken(), 0);
+								im_ctrl.hideSoftInputFromWindow(dlg
+										.findViewById(R.id.fee)
+										.getWindowToken(), 0);
+							}
+						}).show();
 	}
 
 	android.content.DialogInterface.OnClickListener ocl_candle = new android.content.DialogInterface.OnClickListener() {
