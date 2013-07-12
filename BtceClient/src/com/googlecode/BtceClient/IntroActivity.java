@@ -240,7 +240,20 @@ public class IntroActivity extends Activity implements OnGestureListener,
 						.setIcon(android.R.drawable.ic_dialog_info)
 						.setView(candle_view)
 						.setPositiveButton("OK", ocl_candle)
-						.setNegativeButton("Cancel", null).show();
+						.setNegativeButton("Cancel", 
+								new android.content.DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								AlertDialog dlg = (AlertDialog) dialog;
+								im_ctrl.hideSoftInputFromWindow(dlg
+										.findViewById(R.id.number)
+										.getWindowToken(), 0);
+								im_ctrl.hideSoftInputFromWindow(dlg
+										.findViewById(R.id.period)
+										.getWindowToken(), 0);
+							}
+						}).show();
 			}
 				break;
 			case TIMER_WIFI: {
