@@ -47,11 +47,6 @@ public class TradesActivity extends Activity {
 	btce_params m_params;
 	DecimalFormat formatter6 = new DecimalFormat();
 
-	private class depth_item {
-		double price;
-		double amount;
-	};
-
 	private ProgressDialog progressDialog;
 
 	@SuppressLint("HandlerLeak")

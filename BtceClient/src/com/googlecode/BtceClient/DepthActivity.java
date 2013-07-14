@@ -49,9 +49,6 @@ public class DepthActivity extends Activity {
 	btce_params m_params;
 	DecimalFormat formatter8 = new DecimalFormat();
 
-	//List<depth_item> m_ask_items = new ArrayList<depth_item>();
-	//List<depth_item> m_bid_items = new ArrayList<depth_item>();
-
 	private ProgressDialog progressDialog;
 
 	@SuppressLint("HandlerLeak")
@@ -79,7 +76,7 @@ public class DepthActivity extends Activity {
 
 		formatter8.setMaximumFractionDigits(8);
 		formatter8.setGroupingUsed(false);
-		
+
 		setContentView(R.layout.depth_view);
 		dp_chart = (DepthView) findViewById(R.id.depthchart_view);
 		m_depth_list = (ListView) findViewById(R.id.user_depth_list);
@@ -180,7 +177,7 @@ public class DepthActivity extends Activity {
 			try {
 				JSONObject fetch_result = null;
 				fetch_result = new JSONObject(result);
-				//feedJosn_depth(fetch_result);
+				// feedJosn_depth(fetch_result);
 				dp_chart.feedJosn_depth(fetch_result);
 
 			} catch (JSONException e) {
@@ -197,39 +194,6 @@ public class DepthActivity extends Activity {
 			m_statusView.setText(statusStr);
 		}
 	}
-//
-//	public int feedJosn_depth(JSONObject obj) {
-//		m_ask_items.clear();
-//		m_bid_items.clear();
-//		try {
-//			JSONArray asks = obj.getJSONArray("asks");
-//			JSONArray bids = obj.getJSONArray("bids");
-//			int min_len = Math.min(asks.length(), bids.length());
-//			for (int i = 0; i < min_len; ++i) {
-//				JSONArray ask = asks.getJSONArray(i);
-//				JSONArray bid = bids.getJSONArray(i);
-//				depth_item a = new depth_item(), b = new depth_item();
-//				a.price = ask.getDouble(0);
-//				a.amount = ask.getDouble(1);
-//				b.price = bid.getDouble(0);
-//				b.amount = bid.getDouble(1);
-//				m_ask_items.add(a);
-//				m_bid_items.add(b);
-//			}
-//			m_depth_list.setAdapter(new depth_list_Adapter(
-//					getApplicationContext()));
-//			update_statusStr(System.currentTimeMillis() / 1000, this
-//					.getResources().getString(R.string.depth_ok));
-//		} catch (JSONException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			update_statusStr(
-//					System.currentTimeMillis() / 1000,
-//					this.getResources().getString(R.string.depth_error)
-//							+ e.getMessage());
-//		}
-//		return m_ask_items.size();
-//	}
 
 	private class depth_list_Adapter extends BaseAdapter {
 		public depth_list_Adapter(Context c) {
@@ -237,7 +201,7 @@ public class DepthActivity extends Activity {
 
 		@Override
 		public int getCount() {
-			return dp_chart.m_ask_items.size()-1;
+			return dp_chart.m_ask_items.size() - 1;
 		}
 
 		@Override
@@ -261,13 +225,13 @@ public class DepthActivity extends Activity {
 				tv = convertView;
 
 			t = (TextView) tv.findViewById(R.id.ask_amount);
-			t.setText("" + dp_chart.m_ask_items.get(pos+1).amount);
+			t.setText("" + dp_chart.m_ask_items.get(pos + 1).amount);
 			t = (TextView) tv.findViewById(R.id.ask_rate);
-			t.setText(formatter8.format(dp_chart.m_ask_items.get(pos+1).price));
+			t.setText(formatter8.format(dp_chart.m_ask_items.get(pos + 1).price));
 			t = (TextView) tv.findViewById(R.id.bid_amount);
-			t.setText("" + dp_chart.m_bid_items.get(pos+1).amount);
+			t.setText("" + dp_chart.m_bid_items.get(pos + 1).amount);
 			t = (TextView) tv.findViewById(R.id.bid_rate);
-			t.setText(formatter8.format(dp_chart.m_bid_items.get(pos+1).price));
+			t.setText(formatter8.format(dp_chart.m_bid_items.get(pos + 1).price));
 
 			return tv;
 		}
