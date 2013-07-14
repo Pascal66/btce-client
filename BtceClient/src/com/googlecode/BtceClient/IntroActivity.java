@@ -64,8 +64,8 @@ import com.googlecode.BtceClient.BTCEHelper.btce_params;
  * @author spdffxyp <spdffxyp@gmail.com>
  * @version May 2013
  */
-public class IntroActivity extends Activity implements OnGestureListener,
-		OnDoubleTapListener {
+public class IntroActivity extends Activity /*implements OnGestureListener,
+		OnDoubleTapListener*/ {
 	@Override
 	public void finish() {
 		// TODO Auto-generated method stub
@@ -85,11 +85,13 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		savePreference();
 	}
 
-	static final private int EXIT_ID = Menu.FIRST;
-	static final private int UPDATE_ALL_CHART = Menu.FIRST + 1;
-	static final private int DEPTH_VIEW = Menu.FIRST + 2;
-	static final private int SETTING_ID = Menu.FIRST + 3128;
-	static final private int PRICE_ID = Menu.FIRST + 3129;
+	static final private int MENU_BASE = Menu.FIRST+100;
+	static final private int EXIT_ID = MENU_BASE;
+	static final private int UPDATE_ALL_CHART = MENU_BASE + 1;
+	static final private int DEPTH_VIEW = MENU_BASE + 2;
+	static final private int TRADES_VIEW = MENU_BASE + 3;
+	static final private int SETTING_ID = MENU_BASE + 3128;
+	static final private int PRICE_ID = MENU_BASE + 3129;
 
 	static final int ALL_PAIR_PRICE = 0;
 	static final int ALL_PAIR_VOLUMES = 1;
@@ -110,11 +112,11 @@ public class IntroActivity extends Activity implements OnGestureListener,
 	private EditText m_amount;
 	private ToggleButton m_issell_btn;
 	private ListView m_info_list;
-	private ListView m_trades_list;
+	//private ListView m_trades_list;
 	// private ListView m_depth_list;
 
-	private ViewFlipper mViewFlipper;
-	private GestureDetector mGestureDetector;
+	//private ViewFlipper mViewFlipper;
+	//private GestureDetector mGestureDetector;
 
 	private int chart_height = 0;
 	private int input_area_height = 0;
@@ -122,9 +124,9 @@ public class IntroActivity extends Activity implements OnGestureListener,
 	DecimalFormat formatter6 = new DecimalFormat();
 	DecimalFormat formatter8 = new DecimalFormat();
 	List<Map<String, String>> m_info_data = new ArrayList<Map<String, String>>();
-	List<trades_item> m_trade_items = new ArrayList<trades_item>();
-	List<depth_item> m_ask_items = new ArrayList<depth_item>();
-	List<depth_item> m_bid_items = new ArrayList<depth_item>();
+	//List<trades_item> m_trade_items = new ArrayList<trades_item>();
+	//List<depth_item> m_ask_items = new ArrayList<depth_item>();
+	//List<depth_item> m_bid_items = new ArrayList<depth_item>();
 	Bundle m_last_price = new Bundle();
 	Bundle m_pair_funds;
 	DBManager m_dbmgr;
@@ -158,19 +160,19 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		double buy = 0;
 		double sell = 0;
 	};
-
-	private class trades_item {
-		long date = 0;
-		double price = 0;
-		double amount = 0;
-		long tid = 0;
-		int trade_type = 0;// 0 for ask, else for bid
-	};
-
-	private class depth_item {
-		double price;
-		double amount;
-	};
+//
+//	private class trades_item {
+//		long date = 0;
+//		double price = 0;
+//		double amount = 0;
+//		long tid = 0;
+//		int trade_type = 0;// 0 for ask, else for bid
+//	};
+//
+//	private class depth_item {
+//		double price;
+//		double amount;
+//	};
 
 	private static final int MSG_RESIZE = 1;
 	private static final int MSG_KCHART_DBCLK = 2;
@@ -612,7 +614,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		// m_btn_getinfo.setOnClickListener(temp_handler);
 		m_info_list = (ListView) findViewById(R.id.user_info_list);
 
-		m_trades_list = (ListView) findViewById(R.id.user_trades_list);
+		//m_trades_list = (ListView) findViewById(R.id.user_trades_list);
 		m_inflater = LayoutInflater.from(this);
 
 		str_volume = this.getResources().getString(R.string.volume);
@@ -666,8 +668,8 @@ public class IntroActivity extends Activity implements OnGestureListener,
 					}
 				});
 
-		mGestureDetector = new GestureDetector(this);
-		mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
+		//mGestureDetector = new GestureDetector(this);
+		//mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
 		/* Get the Input Method Manager for controlling the soft keyboard */
 		im_ctrl = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
@@ -676,7 +678,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				// TODO Auto-generated method stub
-				mGestureDetector.onTouchEvent(event);
+				//mGestureDetector.onTouchEvent(event);
 				return false;
 			}
 		});
@@ -706,14 +708,14 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			}
 		});
 
-		m_trades_list.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// TODO Auto-generated method stub
-				mGestureDetector.onTouchEvent(event);
-				return false;
-			}
-		});
+//		m_trades_list.setOnTouchListener(new OnTouchListener() {
+//			@Override
+//			public boolean onTouch(View v, MotionEvent event) {
+//				// TODO Auto-generated method stub
+//				mGestureDetector.onTouchEvent(event);
+//				return false;
+//			}
+//		});
 
 		initialData();
 		loadPreference();
@@ -791,52 +793,52 @@ public class IntroActivity extends Activity implements OnGestureListener,
 	public boolean onDown(MotionEvent e) {
 		return false;
 	}
-
-	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-			float velocityY) {
-
-		if (e1.getX() > e2.getX() + 100
-				&& Math.abs(e1.getY() - e2.getY()) < Math.abs(e1.getX()
-						- e2.getX()) / 2) {
-			mViewFlipper.setInAnimation(getApplicationContext(),
-					R.anim.push_left_in);
-			mViewFlipper.setOutAnimation(getApplicationContext(),
-					R.anim.push_left_out);
-			mViewFlipper.showNext();
-		} else if (e1.getX() < e2.getX() - 100
-				&& Math.abs(e1.getY() - e2.getY()) < Math.abs(e1.getX()
-						- e2.getX()) / 2) {
-			mViewFlipper.setInAnimation(getApplicationContext(),
-					R.anim.push_right_in);
-			mViewFlipper.setOutAnimation(getApplicationContext(),
-					R.anim.push_right_out);
-			mViewFlipper.showPrevious();
-		} else {
-			return false;
-		}
-		return true;
-
-	}
-
-	public void onLongPress(MotionEvent e) {
-	}
-
-	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-			float distanceY) {
-		return false;
-	}
-
-	public void onShowPress(MotionEvent e) {
-	}
-
-	public boolean onSingleTapUp(MotionEvent e) {
-		return false;
-	}
-
-	public boolean onTouchEvent(MotionEvent event) {
-		mGestureDetector.onTouchEvent(event);
-		return true;
-	}
+//
+//	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+//			float velocityY) {
+//
+//		if (e1.getX() > e2.getX() + 100
+//				&& Math.abs(e1.getY() - e2.getY()) < Math.abs(e1.getX()
+//						- e2.getX()) / 2) {
+//			mViewFlipper.setInAnimation(getApplicationContext(),
+//					R.anim.push_left_in);
+//			mViewFlipper.setOutAnimation(getApplicationContext(),
+//					R.anim.push_left_out);
+//			mViewFlipper.showNext();
+//		} else if (e1.getX() < e2.getX() - 100
+//				&& Math.abs(e1.getY() - e2.getY()) < Math.abs(e1.getX()
+//						- e2.getX()) / 2) {
+//			mViewFlipper.setInAnimation(getApplicationContext(),
+//					R.anim.push_right_in);
+//			mViewFlipper.setOutAnimation(getApplicationContext(),
+//					R.anim.push_right_out);
+//			mViewFlipper.showPrevious();
+//		} else {
+//			return false;
+//		}
+//		return true;
+//
+//	}
+//
+//	public void onLongPress(MotionEvent e) {
+//	}
+//
+//	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+//			float distanceY) {
+//		return false;
+//	}
+//
+//	public void onShowPress(MotionEvent e) {
+//	}
+//
+//	public boolean onSingleTapUp(MotionEvent e) {
+//		return false;
+//	}
+//
+//	public boolean onTouchEvent(MotionEvent event) {
+//		mGestureDetector.onTouchEvent(event);
+//		return true;
+//	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -845,8 +847,9 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		/* the context menu currently has only one option */
 		menu.add(0, EXIT_ID, 0, R.string.exit);
 		menu.add(0, UPDATE_ALL_CHART, 0, R.string.update);
-		menu.add(0, DEPTH_VIEW, 0, R.string.depth);
 		menu.add(0, PRICE_ID, 0, R.string.price);
+		menu.add(0, DEPTH_VIEW, 0, R.string.depth);
+		menu.add(0, TRADES_VIEW, 0, R.string.trades);
 		menu.add(0, SETTING_ID, 0, R.string.setting);
 		return true;
 	}
@@ -875,6 +878,10 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		case DEPTH_VIEW:
 			intent.setClass(IntroActivity.this, DepthActivity.class);
 			startActivityForResult(intent, DEPTH_VIEW);
+			return true;
+		case TRADES_VIEW:
+			intent.setClass(IntroActivity.this, TradesActivity.class);
+			startActivityForResult(intent, TRADES_VIEW);
 			return true;
 		case PRICE_ID:
 			intent.setClass(IntroActivity.this, PriceActivity.class);
@@ -1057,9 +1064,9 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				m_params.method = BTCEHelper.btce_methods.TICKER;
 				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
 						.execute());
-				m_params.method = BTCEHelper.btce_methods.TRADES;
-				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
-						.execute());
+//				m_params.method = BTCEHelper.btce_methods.TRADES;
+//				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
+//						.execute());
 				m_params.method = BTCEHelper.btce_methods.GET_INFO;
 				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
 						.execute());
@@ -1144,58 +1151,56 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		}
 		return error;
 	}
-
-	public int feedJosn_trades(String string) {
-		m_trade_items.clear();
-		JSONArray obj = null;
-		try {
-			obj = new JSONArray(string);
-		} catch (JSONException e) {
-			try {
-				JSONObject error = new JSONObject(string);
-				// if (1 != error.getInt("success")) {
-				update_statusStr(System.currentTimeMillis() / 1000, this
-						.getResources().getString(R.string.trades_error)
-						+ error.getString("error"));
-				return 0;
-				// }
-			} catch (JSONException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				update_statusStr(System.currentTimeMillis() / 1000,
-						this.getResources().getString(R.string.trades_error)
-								+ e1.getMessage());
-				return 0;
-			}
-		}
-		if (null == obj)
-			return 0;
-		try {
-			for (int i = 0; i < obj.length(); ++i) {
-				trades_item item = new trades_item();
-				JSONObject e = obj.getJSONObject(i);
-				item.amount = e.getDouble("amount");
-				item.date = e.getLong("date");
-				item.price = e.getDouble("price");
-				item.tid = e.getLong("tid");
-				item.trade_type = e.getString("trade_type").equals("ask") ? 0
-						: 1;
-				m_trade_items.add(item);
-			}
-			m_trades_list.setAdapter(new trades_list_Adapter(
-					getApplicationContext()));
-			update_statusStr(System.currentTimeMillis() / 1000, this
-					.getResources().getString(R.string.trades_ok));
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			update_statusStr(
-					System.currentTimeMillis() / 1000,
-					this.getResources().getString(R.string.trades_error)
-							+ e.getMessage());
-		}
-		return m_trade_items.size();
-	}
+//
+//	public int feedJosn_trades(String string) {
+//		m_trade_items.clear();
+//		JSONArray obj = null;
+//		try {
+//			obj = new JSONArray(string);
+//		} catch (JSONException e) {
+//			try {
+//				JSONObject error = new JSONObject(string);
+//				// if (1 != error.getInt("success")) {
+//				update_statusStr(System.currentTimeMillis() / 1000, this
+//						.getResources().getString(R.string.trades_error)
+//						+ error.getString("error"));
+//				return 0;
+//				// }
+//			} catch (JSONException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//				update_statusStr(System.currentTimeMillis() / 1000,
+//						this.getResources().getString(R.string.trades_error)
+//								+ e1.getMessage());
+//				return 0;
+//			}
+//		}
+//		try {
+//			for (int i = 0; i < obj.length(); ++i) {
+//				trades_item item = new trades_item();
+//				JSONObject e = obj.getJSONObject(i);
+//				item.amount = e.getDouble("amount");
+//				item.date = e.getLong("date");
+//				item.price = e.getDouble("price");
+//				item.tid = e.getLong("tid");
+//				item.trade_type = e.getString("trade_type").equals("ask") ? 0
+//						: 1;
+//				m_trade_items.add(item);
+//			}
+//			m_trades_list.setAdapter(new trades_list_Adapter(
+//					getApplicationContext()));
+//			update_statusStr(System.currentTimeMillis() / 1000, this
+//					.getResources().getString(R.string.trades_ok));
+//		} catch (JSONException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			update_statusStr(
+//					System.currentTimeMillis() / 1000,
+//					this.getResources().getString(R.string.trades_error)
+//							+ e.getMessage());
+//		}
+//		return m_trade_items.size();
+//	}
 
 	public int feedJosn_trade(JSONObject obj) {
 		try {
@@ -1366,13 +1371,13 @@ public class IntroActivity extends Activity implements OnGestureListener,
 								R.string.fee_ing)
 								+ param.pair);
 				break;
-			case TRADES:
-				update_statusStr(
-						System.currentTimeMillis() / 1000,
-						IntroActivity.this.getResources().getString(
-								R.string.trades_ing)
-								+ param.pair);
-				break;
+//			case TRADES:
+//				update_statusStr(
+//						System.currentTimeMillis() / 1000,
+//						IntroActivity.this.getResources().getString(
+//								R.string.trades_ing)
+//								+ param.pair);
+//				break;
 			default:
 				update_statusStr(
 						System.currentTimeMillis() / 1000,
@@ -1415,9 +1420,9 @@ public class IntroActivity extends Activity implements OnGestureListener,
 					fetch_result = new JSONObject(result);
 					feedJosn_fee(fetch_result);
 					break;
-				case TRADES:
-					feedJosn_trades(result);
-					break;
+				//case TRADES:
+				//	feedJosn_trades(result);
+				//	break;
 				}
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -1469,46 +1474,46 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			return tv;
 		}
 	}
-
-	private class trades_list_Adapter extends BaseAdapter {
-		public trades_list_Adapter(Context c) {
-		}
-
-		@Override
-		public int getCount() {
-			return m_trade_items.size();
-		}
-
-		@Override
-		public Object getItem(int arg0) {
-			return null;
-		}
-
-		@Override
-		public long getItemId(int pos) {
-			return pos;
-		}
-
-		@Override
-		public View getView(int pos, View convertView, ViewGroup parent) {
-			View tv = null;
-			TextView t;
-
-			if (convertView == null)
-				tv = m_inflater.inflate(R.layout.trades_item, parent, false);
-			else
-				tv = convertView;
-
-			t = (TextView) tv.findViewById(R.id.trades_amount);
-			t.setText(formatter6.format(m_trade_items.get(pos).amount));
-			t = (TextView) tv.findViewById(R.id.trades_rate);
-			t.setText(formatter6.format(m_trade_items.get(pos).price));
-			t = (TextView) tv.findViewById(R.id.trades_time);
-			t.setText(error_time_format.format(m_trade_items.get(pos).date * 1000));
-			t = (TextView) tv.findViewById(R.id.trades_type);
-			t.setText(0 == m_trade_items.get(pos).trade_type ? "Ask" : "Bid");
-
-			return tv;
-		}
-	}
+//
+//	private class trades_list_Adapter extends BaseAdapter {
+//		public trades_list_Adapter(Context c) {
+//		}
+//
+//		@Override
+//		public int getCount() {
+//			return m_trade_items.size();
+//		}
+//
+//		@Override
+//		public Object getItem(int arg0) {
+//			return null;
+//		}
+//
+//		@Override
+//		public long getItemId(int pos) {
+//			return pos;
+//		}
+//
+//		@Override
+//		public View getView(int pos, View convertView, ViewGroup parent) {
+//			View tv = null;
+//			TextView t;
+//
+//			if (convertView == null)
+//				tv = m_inflater.inflate(R.layout.trades_item, parent, false);
+//			else
+//				tv = convertView;
+//
+//			t = (TextView) tv.findViewById(R.id.trades_amount);
+//			t.setText(formatter6.format(m_trade_items.get(pos).amount));
+//			t = (TextView) tv.findViewById(R.id.trades_rate);
+//			t.setText(formatter6.format(m_trade_items.get(pos).price));
+//			t = (TextView) tv.findViewById(R.id.trades_time);
+//			t.setText(error_time_format.format(m_trade_items.get(pos).date * 1000));
+//			t = (TextView) tv.findViewById(R.id.trades_type);
+//			t.setText(0 == m_trade_items.get(pos).trade_type ? "Ask" : "Bid");
+//
+//			return tv;
+//		}
+//	}
 }

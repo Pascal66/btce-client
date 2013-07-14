@@ -6,12 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import com.googlecode.BtceClient.R;
-import com.googlecode.BtceClient.BTCEHelper.btce_params;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -31,11 +27,13 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class DepthActivity extends Activity {
+import com.googlecode.BtceClient.BTCEHelper.btce_params;
+
+public class TradesActivity extends Activity {
 	static final private int UPDATE_ID = Menu.FIRST;
 
-	DepthView dp_chart;
-	ListView m_depth_list;
+	TradesView td_chart;
+	ListView m_trades_list;
 	TextView m_statusView;
 	private LayoutInflater m_inflater;
 
@@ -47,10 +45,12 @@ public class DepthActivity extends Activity {
 	private static final int MSG_RESIZE = 1;
 	private InputHandler mHandler = new InputHandler();
 	btce_params m_params;
-	DecimalFormat formatter8 = new DecimalFormat();
+	DecimalFormat formatter6 = new DecimalFormat();
 
-	//List<depth_item> m_ask_items = new ArrayList<depth_item>();
-	//List<depth_item> m_bid_items = new ArrayList<depth_item>();
+	private class depth_item {
+		double price;
+		double amount;
+	};
 
 	private ProgressDialog progressDialog;
 
@@ -77,12 +77,12 @@ public class DepthActivity extends Activity {
 		m_params = ((MyApp) getApplicationContext()).app_params;
 		m_logs = ((MyApp) getApplicationContext()).app_logs;
 
-		formatter8.setMaximumFractionDigits(8);
-		formatter8.setGroupingUsed(false);
+		formatter6.setMaximumFractionDigits(6);
+		formatter6.setGroupingUsed(false);
 		
-		setContentView(R.layout.depth_view);
-		dp_chart = (DepthView) findViewById(R.id.depthchart_view);
-		m_depth_list = (ListView) findViewById(R.id.user_depth_list);
+		setContentView(R.layout.trades_view);
+		td_chart = (TradesView) findViewById(R.id.tradeschart_view);
+		m_trades_list = (ListView) findViewById(R.id.user_trades_list);
 		m_statusView = (TextView) findViewById(R.id.status_view);
 		m_inflater = LayoutInflater.from(this);
 		ResizeLayout layout = (ResizeLayout) findViewById(R.id.root_layout);
@@ -101,13 +101,13 @@ public class DepthActivity extends Activity {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				Intent intent = new Intent();
-				intent.setClass(DepthActivity.this, LogViewActivity.class);
+				intent.setClass(TradesActivity.this, LogViewActivity.class);
 				startActivity(intent);
 
 			}
 
 		});
-		update_depth();
+		update_trades();
 	}
 
 	@Override
@@ -122,15 +122,15 @@ public class DepthActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case UPDATE_ID:
-			update_depth();
+			update_trades();
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
-	public void update_depth() {
+	public void update_trades() {
 		btce_params temp_param = m_params.getparams();
-		temp_param.method = BTCEHelper.btce_methods.DEPTH;
-		new DepthTask(temp_param).execute(null);
+		temp_param.method = BTCEHelper.btce_methods.TRADES;
+		new TradesTask(temp_param).execute(null);
 	}
 
 	public void update_statusStr(long time_in_second, String info) {
@@ -140,10 +140,10 @@ public class DepthActivity extends Activity {
 	}
 
 	/* Params (Integer), Progress (Integer), Result (String) */
-	private class DepthTask extends AsyncTask<Integer, Integer, String> {
+	private class TradesTask extends AsyncTask<Integer, Integer, String> {
 		btce_params param;
 
-		DepthTask(btce_params param) {
+		TradesTask(btce_params param) {
 			this.param = param;
 		}
 
@@ -152,15 +152,15 @@ public class DepthActivity extends Activity {
 			// TODO Auto-generated method stub
 			super.onPreExecute();
 			progressDialog = ProgressDialog.show(
-					DepthActivity.this,
-					DepthActivity.this.getResources().getString(
-							R.string.Progress_title), DepthActivity.this
+					TradesActivity.this,
+					TradesActivity.this.getResources().getString(
+							R.string.Progress_title), TradesActivity.this
 							.getResources()
 							.getString(R.string.Progress_message), true, false);
 			update_statusStr(
 					System.currentTimeMillis() / 1000,
-					DepthActivity.this.getResources().getString(
-							R.string.depth_ing)
+					TradesActivity.this.getResources().getString(
+							R.string.trades_ing)
 							+ param.pair);
 			m_statusView.setText(statusStr);
 		}
@@ -178,66 +178,35 @@ public class DepthActivity extends Activity {
 		protected void onPostExecute(String result) {
 			progressDialog.dismiss();
 			try {
-				JSONObject fetch_result = null;
-				fetch_result = new JSONObject(result);
-				//feedJosn_depth(fetch_result);
-				dp_chart.feedJosn_depth(fetch_result);
+				//JSONObject fetch_result = null;
+				//fetch_result = new JSONObject(result);
+				//feedJosn_trades(result);
+				td_chart.feedJosn_trades(result);
+				update_statusStr(System.currentTimeMillis() / 1000, TradesActivity.this
+						.getResources().getString(R.string.trades_ok));
 
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				update_statusStr(
 						System.currentTimeMillis() / 1000,
-						DepthActivity.this.getResources().getString(
-								R.string.depth_error)
+						TradesActivity.this.getResources().getString(
+								R.string.trades_error)
 								+ e.getMessage());
 			}
-			m_depth_list.setAdapter(new depth_list_Adapter(
+			m_trades_list.setAdapter(new trades_list_Adapter(
 					getApplicationContext()));
 			m_statusView.setText(statusStr);
 		}
 	}
-//
-//	public int feedJosn_depth(JSONObject obj) {
-//		m_ask_items.clear();
-//		m_bid_items.clear();
-//		try {
-//			JSONArray asks = obj.getJSONArray("asks");
-//			JSONArray bids = obj.getJSONArray("bids");
-//			int min_len = Math.min(asks.length(), bids.length());
-//			for (int i = 0; i < min_len; ++i) {
-//				JSONArray ask = asks.getJSONArray(i);
-//				JSONArray bid = bids.getJSONArray(i);
-//				depth_item a = new depth_item(), b = new depth_item();
-//				a.price = ask.getDouble(0);
-//				a.amount = ask.getDouble(1);
-//				b.price = bid.getDouble(0);
-//				b.amount = bid.getDouble(1);
-//				m_ask_items.add(a);
-//				m_bid_items.add(b);
-//			}
-//			m_depth_list.setAdapter(new depth_list_Adapter(
-//					getApplicationContext()));
-//			update_statusStr(System.currentTimeMillis() / 1000, this
-//					.getResources().getString(R.string.depth_ok));
-//		} catch (JSONException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			update_statusStr(
-//					System.currentTimeMillis() / 1000,
-//					this.getResources().getString(R.string.depth_error)
-//							+ e.getMessage());
-//		}
-//		return m_ask_items.size();
-//	}
 
-	private class depth_list_Adapter extends BaseAdapter {
-		public depth_list_Adapter(Context c) {
+	private class trades_list_Adapter extends BaseAdapter {
+		public trades_list_Adapter(Context c) {
 		}
 
 		@Override
 		public int getCount() {
-			return dp_chart.m_ask_items.size()-1;
+			return td_chart.m_trades_items.size();
 		}
 
 		@Override
@@ -256,18 +225,18 @@ public class DepthActivity extends Activity {
 			TextView t;
 
 			if (convertView == null)
-				tv = m_inflater.inflate(R.layout.depth_item, parent, false);
+				tv = m_inflater.inflate(R.layout.trades_item, parent, false);
 			else
 				tv = convertView;
 
-			t = (TextView) tv.findViewById(R.id.ask_amount);
-			t.setText("" + dp_chart.m_ask_items.get(pos+1).amount);
-			t = (TextView) tv.findViewById(R.id.ask_rate);
-			t.setText(formatter8.format(dp_chart.m_ask_items.get(pos+1).price));
-			t = (TextView) tv.findViewById(R.id.bid_amount);
-			t.setText("" + dp_chart.m_bid_items.get(pos+1).amount);
-			t = (TextView) tv.findViewById(R.id.bid_rate);
-			t.setText(formatter8.format(dp_chart.m_bid_items.get(pos+1).price));
+			t = (TextView) tv.findViewById(R.id.trades_amount);
+			t.setText(formatter6.format(td_chart.m_trades_items.get(pos).amount));
+			t = (TextView) tv.findViewById(R.id.trades_rate);
+			t.setText(formatter6.format(td_chart.m_trades_items.get(pos).price));
+			t = (TextView) tv.findViewById(R.id.trades_time);
+			t.setText(error_time_format.format(td_chart.m_trades_items.get(pos).date * 1000));
+			t = (TextView) tv.findViewById(R.id.trades_type);
+			t.setText(0 == td_chart.m_trades_items.get(pos).trade_type ? "Ask" : "Bid");
 
 			return tv;
 		}

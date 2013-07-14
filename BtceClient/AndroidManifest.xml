@@ -37,6 +37,10 @@
                   android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
+        <activity android:name="com.googlecode.BtceClient.TradesActivity"
+                  android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
         <activity android:name="com.googlecode.BtceClient.PriceActivity"
                   android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar"
                   android:configChanges="keyboardHidden|orientation">

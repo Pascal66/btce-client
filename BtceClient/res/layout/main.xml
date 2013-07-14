@@ -77,7 +77,7 @@
             android:layout_height="fill_parent"
             android:text="@string/trade" />
     </LinearLayout>
-
+<!-- 
     <ViewFlipper
         android:id="@+id/flipper"
         android:layout_width="fill_parent"
@@ -86,7 +86,7 @@
         android:inAnimation="@anim/push_left_in"
         android:outAnimation="@anim/push_left_out"
         android:persistentDrawingCache="animation" >
-
+-->
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -104,7 +104,7 @@
                 android:layout_height="fill_parent" >
             </ListView>
         </LinearLayout>
-
+<!-- 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -125,5 +125,5 @@
         </LinearLayout>
 
     </ViewFlipper>
-
+-->
 </com.googlecode.BtceClient.ResizeLayout>

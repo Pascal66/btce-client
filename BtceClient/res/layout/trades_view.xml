@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.googlecode.BtceClient.ResizeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:TChart="http://schemas.android.com/apk/res/com.googlecode.BtceClient"
+    android:id="@+id/root_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <view
+        android:id="@+id/tradeschart_view"
+        android:layout_width="fill_parent"
+        android:layout_height="240dp"
+        class="com.googlecode.BtceClient.TradesView"
+        TChart:td_bgColor="#FF000000"
+        TChart:td_frameColor="#FF00FFFF"
+        TChart:td_gridColor="#FF00FFFF"
+        TChart:td_infoColor="#FF00FFFF"
+        TChart:td_infoSize="12sp"
+        TChart:td_textColor="#FFD3D3D3"
+        TChart:td_bidlineColor="#FF75B103"
+        TChart:td_bidlineSize="3"
+        TChart:td_bidfillColor="#7F75B103"
+        TChart:td_asklineColor="#FF4E8CD9"
+        TChart:td_asklineSize="3"
+        TChart:td_askfillColor="#7F4E8CD9"
+        TChart:td_pointColor="#FF00FF00"
+        TChart:td_pointSize="10"
+        TChart:td_pricelineColor="#FF00FF00"
+        TChart:td_focusLineColor="#FFFFFFFF" />
+
+    <TextView
+        android:id="@+id/status_view"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:text="" />
+
+    <ListView
+        android:id="@+id/user_trades_list"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
+
+</com.googlecode.BtceClient.ResizeLayout>

@@ -20,6 +20,7 @@
     <string name="exit">"Exit"</string>
     <string name="update">"Update"</string>
     <string name="depth">"Depth"</string>
+    <string name="trades">"Trades"</string>
     <string name="setting">"Setting"</string>
     <string name="clear">"Clear"</string>
     <string name="save">"Save"</string>

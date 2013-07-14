@@ -32,11 +32,14 @@ public class DepthView extends View {
 
 	Path ask_path = new Path();
 	Path bid_path = new Path();
+	Path ask_path_open = new Path();
+	Path bid_path_open = new Path();
 
 	int bgColor = 0, frameColor = 0, gridColor = 0, textColor = 0;
-	int bid_line_color = 0, bid_fill_color=0,ask_line_color = 0, ask_fill_color=0;
-	int point_color=0,focus_line_color=0;;
-	int point_size = 10,bid_line_size=3,ask_line_size=3;
+	int bid_line_color = 0, bid_fill_color = 0, ask_line_color = 0,
+			ask_fill_color = 0;
+	int point_color = 0, focus_line_color = 0;;
+	int point_size = 10, bid_line_size = 3, ask_line_size = 3;
 	float textSize = 0;
 	int text_infoColor = 0;
 	// margin of this view
@@ -63,8 +66,10 @@ public class DepthView extends View {
 	float ex = bx;
 	float ey = by;
 	boolean mousedown = false;
+	double amount_k = 0;
+	double amount_b = 0;
 
-	private class depth_item {
+	class depth_item {
 		double price = 0;
 		double amount = 0;
 		double amount_sum = 0;
@@ -106,18 +111,9 @@ public class DepthView extends View {
 				m_ask_items.add(a);
 				m_bid_items.add(b);
 			}
-			// update_path();
-			// m_depth_list.setAdapter(new depth_list_Adapter(
-			// getApplicationContext()));
-			// update_statusStr(System.currentTimeMillis() / 1000, this
-			// .getResources().getString(R.string.depth_ok));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			// update_statusStr(
-			// System.currentTimeMillis() / 1000,
-			// this.getResources().getString(R.string.depth_error)
-			// + e.getMessage() + e.toString());
 		}
 		int rt = m_ask_items.size();
 		if (rt != 0) {
@@ -126,6 +122,7 @@ public class DepthView extends View {
 			m_bid_items.add(0, m);
 			m_ask_items.add(0, m);
 		}
+		update_path();
 		this.invalidate();
 		return rt;
 	}
@@ -155,40 +152,50 @@ public class DepthView extends View {
 				0XFFD3D3D3);
 		bid_line_color = array.getColor(R.styleable.DepthView_dp_bidlineColor,
 				0XFF75B103);
-		bid_line_size = array.getColor(R.styleable.DepthView_dp_bidlineSize,
-				3);
-		bid_fill_color=array.getColor(R.styleable.DepthView_dp_bidfillColor,
+		bid_line_size = array.getColor(R.styleable.DepthView_dp_bidlineSize, 3);
+		bid_fill_color = array.getColor(R.styleable.DepthView_dp_bidfillColor,
 				0X7F75B103);
 		ask_line_color = array.getColor(R.styleable.DepthView_dp_asklineColor,
 				0XFF4E8CD9);
-		ask_line_size = array.getColor(R.styleable.DepthView_dp_asklineSize,
-				3);
-		ask_fill_color=array.getColor(R.styleable.DepthView_dp_askfillColor,
+		ask_line_size = array.getColor(R.styleable.DepthView_dp_asklineSize, 3);
+		ask_fill_color = array.getColor(R.styleable.DepthView_dp_askfillColor,
 				0X7F4E8CD9);
-		point_color=array.getColor(R.styleable.DepthView_dp_pointColor,
+		point_color = array.getColor(R.styleable.DepthView_dp_pointColor,
 				0XFF00FF00);
 		point_size = array.getInteger(R.styleable.DepthView_dp_pointSize, 10);
-		focus_line_color=array.getColor(R.styleable.DepthView_dp_focusLineColor,
-				0XFFFFFFFF);
+		focus_line_color = array.getColor(
+				R.styleable.DepthView_dp_focusLineColor, 0XFFFFFFFF);
 		// mPaint.setColor(textColor);
 		mPaint.setTextSize(textSize);
 		mPaint.setAntiAlias(true);
 		array.recycle();
 
-		//feedJosn_depth(data);
+		// feedJosn_depth(data);
 	}
 
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		// TODO Auto-generated method stub
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		update_path();
+	}
+
+	public void set_chart_rect() {
+		r_chart.set((int) (margin_left + y_text_width + margin_space),
+				(int) (margin_top + text_infoSize + margin_space),
+				this.getMeasuredWidth() - margin_right,
+				this.getMeasuredHeight() - margin_bottom);
 	}
 
 	public void update_path() {
-		ask_path = new Path();
-		bid_path = new Path();
+		ask_path.reset();
+		bid_path.reset();
+		// ask_path_open.reset();
+		// bid_path_open.reset();
 		if (0 == m_ask_items.size())
 			return;
-		//Log.e("ttt", "update");
+
+		set_chart_rect();
+		// Log.e("ttt", "update");
 		double amount_V_max = Math.max(
 				m_ask_items.get(m_ask_items.size() - 1).amount_sum,
 				m_bid_items.get(m_bid_items.size() - 1).amount_sum);
@@ -197,9 +204,9 @@ public class DepthView extends View {
 
 		double amount_K_max = amount_V_max;
 		double amount_K_min = 0;
-		double amount_k = (r_chart.top - r_chart.bottom)
+		amount_k = (r_chart.top - r_chart.bottom)
 				/ (amount_K_max - amount_K_min);
-		double amount_b = r_chart.top - amount_k * amount_K_max;
+		amount_b = r_chart.top - amount_k * amount_K_max;
 
 		double price_K_max = price_V_max;
 		double price_K_min = price_V_min;
@@ -233,6 +240,8 @@ public class DepthView extends View {
 			// * amount_k + amount_b) - (m_ask_items.get(i-1).amount_sum
 			// * amount_k + amount_b)));
 		}
+		ask_path_open.set(ask_path);
+		bid_path_open.set(bid_path);
 		ask_path.lineTo(m_ask_items.get(m_ask_items.size() - 1).x_price,
 				(float) (0 * amount_k + amount_b));
 		bid_path.lineTo(m_bid_items.get(m_bid_items.size() - 1).x_price,
@@ -252,9 +261,7 @@ public class DepthView extends View {
 		mPaint.setColor(bgColor);
 		canvas.drawRect(0, 0, width, height, mPaint);
 
-		r_chart.set((int) (margin_left + y_text_width + margin_space),
-				(int) (margin_top + text_infoSize + margin_space), width
-						- margin_right, height - margin_bottom);
+		set_chart_rect();
 		// draw the axis
 		mPaint.setStyle(Style.STROKE);
 		mPaint.setStrokeWidth(1);
@@ -269,79 +276,22 @@ public class DepthView extends View {
 		}
 		if (0 == m_ask_items.size() || 0 == m_bid_items.size())
 			return;
-		//update_path();
-
-		ask_path = new Path();
-		bid_path = new Path();
-		if (0 == m_ask_items.size())
-			return;
-		//Log.e("ttt", "update");
-		double amount_V_max = Math.max(
-				m_ask_items.get(m_ask_items.size() - 1).amount_sum,
-				m_bid_items.get(m_bid_items.size() - 1).amount_sum);
-		double price_V_min = m_bid_items.get(m_bid_items.size() - 1).price;
-		double price_V_max = m_ask_items.get(m_ask_items.size() - 1).price;
-
-		double amount_K_max = amount_V_max;
-		double amount_K_min = 0;
-		double amount_k = (r_chart.top - r_chart.bottom)
-				/ (amount_K_max - amount_K_min);
-		double amount_b = r_chart.top - amount_k * amount_K_max;
-
-		double price_K_max = price_V_max;
-		double price_K_min = price_V_min;
-		double price_k = (r_chart.right - r_chart.left)
-				/ (price_K_max - price_K_min);
-		double price_b = r_chart.right - price_k * price_K_max;
-
-		ask_path.moveTo((float) (m_ask_items.get(0).price * price_k + price_b),
-				(float) (0 * amount_k + amount_b));
-		bid_path.moveTo((float) (m_bid_items.get(0).price * price_k + price_b),
-				(float) (0 * amount_k + amount_b));
-		m_ask_items.get(0).x_price = (float) (m_ask_items.get(0).price
-				* price_k + price_b);
-		m_bid_items.get(0).x_price = (float) (m_bid_items.get(0).price
-				* price_k + price_b);
-		for (int i = 1; i < m_ask_items.size(); ++i) {
-			m_ask_items.get(i).x_price = (float) (m_ask_items.get(i).price
-					* price_k + price_b);
-			m_bid_items.get(i).x_price = (float) (m_bid_items.get(i).price
-					* price_k + price_b);
-			ask_path.lineTo(
-					m_ask_items.get(i).x_price,
-					(float) (m_ask_items.get(i).amount_sum * amount_k + amount_b));
-			bid_path.lineTo(
-					m_bid_items.get(i).x_price,
-					(float) (m_bid_items.get(i).amount_sum * amount_k + amount_b));
-			// ask_path.rLineTo(
-			// m_ask_items.get(i).x_price - m_ask_items.get(i - 1).x_price,
-			// 0);
-			// ask_path.rLineTo(0, (float) ((m_ask_items.get(i).amount_sum
-			// * amount_k + amount_b) - (m_ask_items.get(i-1).amount_sum
-			// * amount_k + amount_b)));
-		}
 
 		mPaint.setStrokeCap(Paint.Cap.ROUND);
 		mPaint.setColor(ask_line_color);
 		mPaint.setStrokeWidth(ask_line_size);
-		canvas.drawPath(ask_path, mPaint);
+		canvas.drawPath(ask_path_open, mPaint);
 		mPaint.setColor(bid_line_color);
 		mPaint.setStrokeWidth(bid_line_size);
-		canvas.drawPath(bid_path, mPaint);
+		canvas.drawPath(bid_path_open, mPaint);
 		mPaint.setStrokeWidth(1);
 
-		ask_path.lineTo(m_ask_items.get(m_ask_items.size() - 1).x_price,
-				(float) (0 * amount_k + amount_b));
-		bid_path.lineTo(m_bid_items.get(m_bid_items.size() - 1).x_price,
-				(float) (0 * amount_k + amount_b));
-		ask_path.close();
-		bid_path.close();
 		mPaint.setStyle(Paint.Style.FILL);
 		mPaint.setColor(ask_fill_color);
 		canvas.drawPath(ask_path, mPaint);
 		mPaint.setColor(bid_fill_color);
 		canvas.drawPath(bid_path, mPaint);
-		
+
 		if (mousedown) {
 			if (ex < m_bid_items.get(0).x_price) {
 				for (int i = 1; i < m_bid_items.size(); ++i) {
@@ -353,11 +303,14 @@ public class DepthView extends View {
 								r_chart.bottom, mPaint);
 						mPaint.setStrokeWidth(point_size);
 						mPaint.setColor(point_color);
-						canvas.drawPoint(m_bid_items.get(i).x_price, (float) (m_bid_items.get(i).amount_sum * amount_k + amount_b), mPaint);
+						canvas.drawPoint(m_bid_items.get(i).x_price,
+								(float) (m_bid_items.get(i).amount_sum
+										* amount_k + amount_b), mPaint);
 						int info_text_y = (int) (margin_top + text_infoSize);
 						// draw the info text
 						String info = "Bid: "
-								+ CandleStickView.my_formatter(m_bid_items.get(i).price,6)
+								+ CandleStickView.my_formatter(
+										m_bid_items.get(i).price, 6)
 								+ " / "
 								+ CandleStickView.my_formatter(
 										m_bid_items.get(i).amount, 8)
@@ -381,10 +334,13 @@ public class DepthView extends View {
 						int info_text_y = (int) (margin_top + text_infoSize);
 						mPaint.setStrokeWidth(point_size);
 						mPaint.setColor(point_color);
-						canvas.drawPoint(m_ask_items.get(i).x_price, (float) (m_ask_items.get(i).amount_sum * amount_k + amount_b), mPaint);
+						canvas.drawPoint(m_ask_items.get(i).x_price,
+								(float) (m_ask_items.get(i).amount_sum
+										* amount_k + amount_b), mPaint);
 						// draw the info text
 						String info = "Ask: "
-								+ CandleStickView.my_formatter(m_ask_items.get(i).price,6)
+								+ CandleStickView.my_formatter(
+										m_ask_items.get(i).price, 6)
 								+ " / "
 								+ CandleStickView.my_formatter(
 										m_ask_items.get(i).amount, 8)
