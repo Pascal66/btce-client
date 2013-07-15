@@ -18,7 +18,7 @@ public class MyApp extends Application {
 	public Bundle app_pair_funds = new Bundle();
 	public DBManager app_dbmgr = null;
 	public int app_trans_num = 0;
-	//BTCEPairs app_all_pairs = new BTCEPairs();
+	// BTCEPairs app_all_pairs = new BTCEPairs();
 	int app_candlestick_number = 24;
 	int app_candlestick_period = 1;
 	int app_timer_wifi_period = 0, app_timer_mobile_period = 0;

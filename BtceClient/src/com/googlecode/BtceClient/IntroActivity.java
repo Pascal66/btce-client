@@ -129,6 +129,8 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 	//List<depth_item> m_bid_items = new ArrayList<depth_item>();
 	Bundle m_last_price = new Bundle();
 	Bundle m_pair_funds;
+	static String str_last_price = "last_price";
+	static String str_value = "value";
 	DBManager m_dbmgr;
 	int order_num = 0;
 	Date temp_date = new Date();
@@ -689,11 +691,12 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 				Intent intent = new Intent();
 				if (position == ALL_PAIR_PRICE) {
 					intent.setClass(IntroActivity.this, PairFoundActivity.class);
-					intent.putExtras(m_last_price);
+					intent.putExtra(str_value,m_last_price);
 					startActivityForResult(intent, position);
 				} else if (position == ALL_PAIR_FUNDS) {
 					intent.setClass(IntroActivity.this, PairFoundActivity.class);
-					intent.putExtras(m_pair_funds);
+					intent.putExtra(str_value,m_pair_funds);
+					intent.putExtra(str_last_price, m_last_price);
 					startActivityForResult(intent, position);
 				} else if (position == ALL_PAIR_TRANS) {
 					intent.setClass(IntroActivity.this, HistroyActivity.class);

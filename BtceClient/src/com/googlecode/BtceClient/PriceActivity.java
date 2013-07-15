@@ -66,7 +66,7 @@ public class PriceActivity extends Activity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		show_setting_dlg();
-		//return true;
+		// return true;
 		return false;
 	}
 

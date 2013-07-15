@@ -187,7 +187,7 @@ public class DBManager {
 		if (iswhere)
 			query_str += " WHERE" + str_where;
 		query_str += " ORDER BY _id DESC";
-		if (0<limit)
+		if (0 < limit)
 			query_str += " LIMIT " + limit;
 		Cursor c = his_db.rawQuery(query_str, null);
 		ArrayList<trans_his_item> return_list = new ArrayList<trans_his_item>();
@@ -259,7 +259,7 @@ public class DBManager {
 		if (iswhere)
 			query_str += " WHERE" + str_where;
 		query_str += " ORDER BY _id DESC";
-		if (0<limit)
+		if (0 < limit)
 			query_str += " LIMIT " + limit;
 		Cursor c = his_db.rawQuery(query_str, null);
 		ArrayList<trade_his_item> return_list = new ArrayList<trade_his_item>();

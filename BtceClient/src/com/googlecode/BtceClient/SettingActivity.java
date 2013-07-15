@@ -205,26 +205,34 @@ public class SettingActivity extends Activity {
 		public void onClick(DialogInterface dialog, int which) {
 			AlertDialog dlg = (AlertDialog) dialog;
 			try {
-				((MyApp) getApplicationContext()).app_timer_wifi_period = Integer.parseInt(((TextView) dlg
-						.findViewById(R.id.timer_wifi_current_pair)).getText().toString());
+				((MyApp) getApplicationContext()).app_timer_wifi_period = Integer
+						.parseInt(((TextView) dlg
+								.findViewById(R.id.timer_wifi_current_pair))
+								.getText().toString());
 			} catch (NumberFormatException e) {
 				((MyApp) getApplicationContext()).app_timer_wifi_period = 1;
 			}
 			try {
-				((MyApp) getApplicationContext()).app_timer_mobile_period = Integer.parseInt(((TextView) dlg
-						.findViewById(R.id.timer_mobile_current_pair)).getText().toString());
+				((MyApp) getApplicationContext()).app_timer_mobile_period = Integer
+						.parseInt(((TextView) dlg
+								.findViewById(R.id.timer_mobile_current_pair))
+								.getText().toString());
 			} catch (NumberFormatException e) {
 				((MyApp) getApplicationContext()).app_timer_mobile_period = 5;
 			}
 			try {
-				((MyApp) getApplicationContext()).app_timer_wifi_period_all = Integer.parseInt(((TextView) dlg
-						.findViewById(R.id.timer_wifi_all_pair)).getText().toString());
+				((MyApp) getApplicationContext()).app_timer_wifi_period_all = Integer
+						.parseInt(((TextView) dlg
+								.findViewById(R.id.timer_wifi_all_pair))
+								.getText().toString());
 			} catch (NumberFormatException e) {
 				((MyApp) getApplicationContext()).app_timer_wifi_period_all = 2;
 			}
 			try {
-				((MyApp) getApplicationContext()).app_timer_mobile_period_all = Integer.parseInt(((TextView) dlg
-						.findViewById(R.id.timer_mobile_all_pair)).getText().toString());
+				((MyApp) getApplicationContext()).app_timer_mobile_period_all = Integer
+						.parseInt(((TextView) dlg
+								.findViewById(R.id.timer_mobile_all_pair))
+								.getText().toString());
 			} catch (NumberFormatException e) {
 				((MyApp) getApplicationContext()).app_timer_mobile_period_all = 0;
 			}
@@ -233,6 +241,7 @@ public class SettingActivity extends Activity {
 					getApplicationContext()));
 		}
 	};
+
 	// OnClickListener ocl_candle = new OnClickListener() {
 	// @Override
 	// public void onClick(DialogInterface dialog, int which) {

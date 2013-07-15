@@ -195,10 +195,10 @@ public class TradesView extends View {
 	}
 
 	public double cacu(double v, double max) {
-		double rt = Math.log(Math.E/v*max)*v;
+		double rt = Math.log(Math.E / v * max) * v;
 		return rt;
 	}
-	
+
 	public void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 
@@ -228,7 +228,7 @@ public class TradesView extends View {
 
 		// draw price&amount line
 		price_path.reset();
-		// if (0 == m_trades_items.size())
+		// if (m_trades_items.isEmpty())
 		// return;
 		//
 		// set_chart_rect();
@@ -252,14 +252,15 @@ public class TradesView extends View {
 		float amount_line_space = block_width - amount_line_width;
 
 		int size = m_trades_items.size();
-		price_path.moveTo((float) (r_chart.left + block_width / 2 + 0
-				* block_width), (float) (m_trades_items.get(size - 0 - 1).price
-				* price_k + price_b));
-		r_block.set((int) (r_chart.left + block_width / 2 + 0
-				* block_width - amount_line_width / 2),
-				(int) (cacu(m_trades_items.get(size - 0 - 1).amount,amount_V_max) * amount_k + amount_b),
-				(int) (r_chart.left + block_width / 2 + 0
-						* block_width + amount_line_width / 2),
+		price_path
+				.moveTo((float) (r_chart.left + block_width / 2 + 0 * block_width),
+						(float) (m_trades_items.get(size - 0 - 1).price
+								* price_k + price_b));
+		r_block.set(
+				(int) (r_chart.left + block_width / 2 + 0 * block_width - amount_line_width / 2),
+				(int) (cacu(m_trades_items.get(size - 0 - 1).amount,
+						amount_V_max) * amount_k + amount_b),
+				(int) (r_chart.left + block_width / 2 + 0 * block_width + amount_line_width / 2),
 				r_chart.bottom);
 		if (0 == m_trades_items.get(0).trade_type)
 			mPaint.setColor(ask_line_color);
@@ -275,7 +276,8 @@ public class TradesView extends View {
 					* price_k + price_b));
 			r_block.set((int) (r_chart.left + block_width / 2 + (size - i - 1)
 					* block_width - amount_line_width / 2),
-					(int) (cacu(m_trades_items.get(i).amount,amount_V_max) * amount_k + amount_b),
+					(int) (cacu(m_trades_items.get(i).amount, amount_V_max)
+							* amount_k + amount_b),
 					(int) (r_chart.left + block_width / 2 + (size - i - 1)
 							* block_width + amount_line_width / 2),
 					r_chart.bottom);
@@ -319,8 +321,8 @@ public class TradesView extends View {
 				canvas.drawPoint(
 						r_chart.left + block_width / 2 + (size - i - 1)
 								* block_width,
-						(float) (cacu(m_trades_items.get(i).amount,amount_V_max) * amount_k + amount_b),
-						mPaint);
+						(float) (cacu(m_trades_items.get(i).amount,
+								amount_V_max) * amount_k + amount_b), mPaint);
 				// draw the info text
 				String info = (m_trades_items.get(i).trade_type == 0 ? "Ask:"
 						: "Bid:")

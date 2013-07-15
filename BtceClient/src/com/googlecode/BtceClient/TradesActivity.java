@@ -74,7 +74,7 @@ public class TradesActivity extends Activity {
 
 		formatter6.setMaximumFractionDigits(6);
 		formatter6.setGroupingUsed(false);
-		
+
 		setContentView(R.layout.trades_view);
 		td_chart = (TradesView) findViewById(R.id.tradeschart_view);
 		m_trades_list = (ListView) findViewById(R.id.user_trades_list);
@@ -173,12 +173,14 @@ public class TradesActivity extends Activity {
 		protected void onPostExecute(String result) {
 			progressDialog.dismiss();
 			try {
-				//JSONObject fetch_result = null;
-				//fetch_result = new JSONObject(result);
-				//feedJosn_trades(result);
+				// JSONObject fetch_result = null;
+				// fetch_result = new JSONObject(result);
+				// feedJosn_trades(result);
 				td_chart.feedJosn_trades(result);
-				update_statusStr(System.currentTimeMillis() / 1000, TradesActivity.this
-						.getResources().getString(R.string.trades_ok));
+				update_statusStr(
+						System.currentTimeMillis() / 1000,
+						TradesActivity.this.getResources().getString(
+								R.string.trades_ok));
 
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -231,7 +233,8 @@ public class TradesActivity extends Activity {
 			t = (TextView) tv.findViewById(R.id.trades_time);
 			t.setText(error_time_format.format(td_chart.m_trades_items.get(pos).date * 1000));
 			t = (TextView) tv.findViewById(R.id.trades_type);
-			t.setText(0 == td_chart.m_trades_items.get(pos).trade_type ? "Ask" : "Bid");
+			t.setText(0 == td_chart.m_trades_items.get(pos).trade_type ? "Ask"
+					: "Bid");
 
 			return tv;
 		}

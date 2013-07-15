@@ -150,16 +150,17 @@ public class OrdersViewActivity extends Activity {
 
 		temp_adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_spinner_item, getResources()
-				.getStringArray(R.array.trade_type_array));
+						.getStringArray(R.array.trade_type_array));
 		temp_adapter
 				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		s_type.setAdapter(temp_adapter);
 		s_type.setOnItemSelectedListener(new SpinnerSelectedListener());
 
-		order_status_string = getResources().getStringArray(R.array.order_status_array);
+		order_status_string = getResources().getStringArray(
+				R.array.order_status_array);
 		temp_adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_spinner_item, order_status_string);
-		//temp_adapter.insert("All", 0);
+		// temp_adapter.insert("All", 0);
 		temp_adapter
 				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		s_status.setAdapter(temp_adapter);
@@ -226,7 +227,7 @@ public class OrdersViewActivity extends Activity {
 
 		m_dbmgr = ((MyApp) getApplicationContext()).app_dbmgr;
 		active_orders_num = m_dbmgr.get_order_active();
-		if(0 == active_orders_num)
+		if (0 == active_orders_num)
 			s_status.setSelection(0);
 		if (active_orders_num != this.getIntent().getIntExtra("number", -1))
 			update_orders();
@@ -434,7 +435,7 @@ public class OrdersViewActivity extends Activity {
 			t = (TextView) tv.findViewById(R.id.order_rate);
 			t.setText("" + formatter8.format(m_orders.get(pos).rate));
 			t = (TextView) tv.findViewById(R.id.order_status);
-			t.setText(order_status_string[m_orders.get(pos).status+1]);
+			t.setText(order_status_string[m_orders.get(pos).status + 1]);
 			t = (TextView) tv.findViewById(R.id.order_time);
 			temp_date.setTime(m_orders.get(pos).time * 1000);
 			t.setText("id:" + m_orders.get(pos).id + " "

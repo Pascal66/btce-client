@@ -35,30 +35,30 @@ public class DBChartHelper extends SQLiteOpenHelper {
 	// called if the version is changed
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-//		if(1==oldVersion && 2==newVersion) {
-//			BTCEPairs p = new BTCEPairs();
-//			for (String pair : p.keySet()) {
-//				String query_str = "SELECT * FROM " + pair+ " ORDER BY _id ASC";
-//				Cursor c = db.rawQuery(query_str, null);
-//				Vector<ChartItem> return_list = new Vector<ChartItem>();
-//				while (c.moveToNext()) {
-//					ChartItem item = new ChartItem();
-//					item.time = c.getLong(c.getColumnIndex("_id"));
-//					item.open = c.getDouble(c.getColumnIndex("open"));
-//					item.close = c.getDouble(c.getColumnIndex("close"));
-//					item.high = c.getDouble(c.getColumnIndex("high"));
-//					item.low = c.getDouble(c.getColumnIndex("low"));
-//					return_list.add(item);
-//				}
-//				
-//				for(ChartItem item : return_list) {
-//					String strFilter = "_id=" + item.time;
-//					ContentValues args = new ContentValues();
-//					args.put("_id", item.time - 8*60*60);
-//					db.update(pair, args, strFilter, null);
-//				}
-//			}
-//			
-//		}
+		// if(1==oldVersion && 2==newVersion) {
+		// BTCEPairs p = new BTCEPairs();
+		// for (String pair : p.keySet()) {
+		// String query_str = "SELECT * FROM " + pair+ " ORDER BY _id ASC";
+		// Cursor c = db.rawQuery(query_str, null);
+		// Vector<ChartItem> return_list = new Vector<ChartItem>();
+		// while (c.moveToNext()) {
+		// ChartItem item = new ChartItem();
+		// item.time = c.getLong(c.getColumnIndex("_id"));
+		// item.open = c.getDouble(c.getColumnIndex("open"));
+		// item.close = c.getDouble(c.getColumnIndex("close"));
+		// item.high = c.getDouble(c.getColumnIndex("high"));
+		// item.low = c.getDouble(c.getColumnIndex("low"));
+		// return_list.add(item);
+		// }
+		//
+		// for(ChartItem item : return_list) {
+		// String strFilter = "_id=" + item.time;
+		// ContentValues args = new ContentValues();
+		// args.put("_id", item.time - 8*60*60);
+		// db.update(pair, args, strFilter, null);
+		// }
+		// }
+		//
+		// }
 	}
 }

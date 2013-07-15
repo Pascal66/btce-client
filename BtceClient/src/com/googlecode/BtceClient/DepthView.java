@@ -191,7 +191,7 @@ public class DepthView extends View {
 		bid_path.reset();
 		// ask_path_open.reset();
 		// bid_path_open.reset();
-		if (0 == m_ask_items.size())
+		if (m_ask_items.isEmpty())
 			return;
 
 		set_chart_rect();
@@ -274,7 +274,7 @@ public class DepthView extends View {
 					/ num_rows, r_chart.right,
 					r_chart.top + i * r_chart.height() / num_rows, mPaint);
 		}
-		if (0 == m_ask_items.size() || 0 == m_bid_items.size())
+		if (m_ask_items.isEmpty() || m_bid_items.isEmpty())
 			return;
 
 		mPaint.setStrokeCap(Paint.Cap.ROUND);

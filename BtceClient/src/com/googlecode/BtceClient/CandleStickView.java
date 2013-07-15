@@ -89,8 +89,10 @@ public class CandleStickView extends View {
 	float ex = bx;
 	float ey = by;
 	boolean mousedown = false;
-	SimpleDateFormat chart_date_format = new SimpleDateFormat("dd.MM.yy HH:mm",Locale.UK);
-	SimpleDateFormat print_date_format = new SimpleDateFormat("dd.MM.yy HH:mm",Locale.UK);
+	SimpleDateFormat chart_date_format = new SimpleDateFormat("dd.MM.yy HH:mm",
+			Locale.UK);
+	SimpleDateFormat print_date_format = new SimpleDateFormat("dd.MM.yy HH:mm",
+			Locale.UK);
 	Date temp_date = new Date();
 
 	public static class ChartItem {
@@ -225,8 +227,9 @@ public class CandleStickView extends View {
 
 				String chart_time = jitem.getString(0);
 				try {
-					item.time = chart_date_format.parse(chart_time).getTime()/1000;
-					//Log.e("time",""+item.time+" vs "+System.currentTimeMillis() / 1000);
+					item.time = chart_date_format.parse(chart_time).getTime() / 1000;
+					// Log.e("time",""+item.time+" vs "+System.currentTimeMillis()
+					// / 1000);
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -246,7 +249,7 @@ public class CandleStickView extends View {
 	}
 
 	public Vector<ChartItem> translate_items(Vector<ChartItem> original) {
-		if (0 == original.size())
+		if (original.isEmpty())
 			return original;
 		Vector<ChartItem> rtvalue = new Vector<ChartItem>();
 		ChartItem new_item = new ChartItem();
@@ -264,7 +267,7 @@ public class CandleStickView extends View {
 			}
 			// plus 1800(30 minutes)
 			if ((original.get(i + 1).time - new_item.time) >= k_times * 1800) {
-			// if (0 == (original.get(i).time + 1800) % (k_times * 1800)) {
+				// if (0 == (original.get(i).time + 1800) % (k_times * 1800)) {
 				new_item.close = original.get(i).close;
 				rtvalue.add(new_item);
 				new_item = new ChartItem();
@@ -272,13 +275,15 @@ public class CandleStickView extends View {
 			}
 		}
 		if (0 != new_item.time) {
-			new_item.high = Math.max(original.get(original.size() - 1).high, new_item.high);
-			new_item.low = Math.min(original.get(original.size() - 1).low, new_item.low);
+			new_item.high = Math.max(original.get(original.size() - 1).high,
+					new_item.high);
+			new_item.low = Math.min(original.get(original.size() - 1).low,
+					new_item.low);
 			new_item.close = original.get(original.size() - 1).close;
 			rtvalue.add(new_item);
-		}else {
-			new_item.time = original.get(original.size() - 1).time / (k_times * 1800)
-					* (k_times * 1800);
+		} else {
+			new_item.time = original.get(original.size() - 1).time
+					/ (k_times * 1800) * (k_times * 1800);
 			new_item.open = original.get(original.size() - 1).open;
 			new_item.high = original.get(original.size() - 1).high;
 			new_item.low = original.get(original.size() - 1).low;
@@ -359,7 +364,7 @@ public class CandleStickView extends View {
 					/ num_rows, r_chart.right,
 					r_chart.top + i * r_chart.height() / num_rows, mPaint);
 		}
-		if (0 == m_items.size())
+		if (m_items.isEmpty())
 			return;
 
 		// build candle blocks
