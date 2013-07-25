@@ -126,6 +126,11 @@ public class SettingActivity extends Activity {
 							.setPositiveButton("OK", ocl_timer)
 							.setNegativeButton("Cancel", null).show();
 
+				} else if (position == 5) {
+					((MyApp) getApplicationContext()).app_update_all_pair_depth_trades = !((MyApp) getApplicationContext()).app_update_all_pair_depth_trades;
+					update_list_data();
+					m_settingList.setAdapter(new setting_list_Adapter(
+							getApplicationContext()));
 				}
 				// else if (position == 4) {
 				// final View candle_view = m_inflater.inflate(
@@ -310,6 +315,15 @@ public class SettingActivity extends Activity {
 				+ " / "
 				+ ((MyApp) getApplicationContext()).app_timer_mobile_period_all;
 		item.img_id = android.R.drawable.ic_menu_more;
+		m_setting_data.add(item);
+
+		item = new setting_item();
+		item.key = "Update all Pair";
+		item.value = "";
+		if (((MyApp) getApplicationContext()).app_update_all_pair_depth_trades)
+			item.img_id = android.R.drawable.checkbox_on_background;
+		else
+			item.img_id = android.R.drawable.checkbox_off_background;
 		m_setting_data.add(item);
 
 		// item = new setting_item();

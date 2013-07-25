@@ -74,7 +74,7 @@ public class TradesView extends View {
 
 	SimpleDateFormat error_time_format = new SimpleDateFormat("HH:mm:ss");
 
-	class trades_item {
+	public static class trades_item {
 		long date = 0;
 		double price = 0;
 		double amount = 0;

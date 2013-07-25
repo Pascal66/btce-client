@@ -8,6 +8,8 @@ import com.googlecode.BtceClient.HistroyActivity.trade_his_item;
 import com.googlecode.BtceClient.HistroyActivity.trans_his_item;
 import com.googlecode.BtceClient.CandleStickView.ChartItem;
 import com.googlecode.BtceClient.OrdersViewActivity.order_info;
+import com.googlecode.BtceClient.TradesView.trades_item;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -19,6 +21,10 @@ public class DBManager {
 	private SQLiteDatabase his_db;
 	private DBChartHelper chart_helper;
 	private SQLiteDatabase chart_db;
+	private DBDepthHelper depth_helper;
+	private SQLiteDatabase depth_db;
+	private DBTradesHelper trades_helper;
+	private SQLiteDatabase trades_db;
 	private BTCEPairs all_pairs = new BTCEPairs();
 	Bundle m_pair_funds;
 
@@ -33,7 +39,19 @@ public class DBManager {
 		his_db = his_helper.getWritableDatabase();
 		chart_helper = new DBChartHelper(context);
 		chart_db = chart_helper.getWritableDatabase();
+		depth_helper = new DBDepthHelper(context);
+		depth_db = depth_helper.getWritableDatabase();
+		trades_helper = new DBTradesHelper(context);
+		trades_db = trades_helper.getWritableDatabase();
 		m_pair_funds = ((MyApp) context.getApplicationContext()).app_pair_funds;
+	}
+
+	// close database
+	public void closeDB() {
+		his_db.close();
+		chart_db.close();
+		depth_db.close();
+		trades_db.close();
 	}
 
 	public int update_trans(ArrayList<trans_his_item> trans_list) {
@@ -113,6 +131,48 @@ public class DBManager {
 		return chart_items.size();
 	}
 
+	public int update_trades(ArrayList<trades_item> trades_items, String pair) {
+		long last_tid = get_last_trades_tid(pair);
+		trades_db.beginTransaction();
+		try {
+			for (trades_item item : trades_items) {
+				if (last_tid > item.tid)
+					continue;
+				trades_db.execSQL("INSERT OR REPLACE INTO " + pair
+						+ " VALUES(?, ?, ?, ?, ?)", new Object[] { item.tid,
+						item.price, item.amount, item.date, item.trade_type });
+			}
+			trades_db.setTransactionSuccessful();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			trades_db.endTransaction();
+		}
+		return trades_items.size();
+	}
+
+	public int update_depth(String depth, String pair, long timestamp) {
+		Cursor c = depth_db.rawQuery("SELECT * FROM " + pair
+				+ " ORDER BY _id DESC LIMIT 1", null);
+		if (0 != c.getCount()) {
+			c.moveToNext();
+			if (c.getString(c.getColumnIndex("depth")).equals(depth))
+				return 0;
+		}
+		depth_db.beginTransaction();
+		try {
+			depth_db.execSQL(
+					"INSERT OR REPLACE INTO " + pair + " VALUES(?, ?)",
+					new Object[] { timestamp, depth });
+			depth_db.setTransactionSuccessful();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			depth_db.endTransaction();
+		}
+		return 0;
+	}
+
 	public int get_trans_count() {
 		return his_db.rawQuery(
 				"SELECT _id FROM " + DBHistroyHelper.trans_table, null)
@@ -156,6 +216,15 @@ public class DBManager {
 
 	public long get_last_chart_time(String pair) {
 		Cursor c = chart_db.rawQuery("SELECT _id FROM " + pair
+				+ " ORDER BY _id DESC LIMIT 1", null);
+		if (0 == c.getCount())
+			return 0;
+		c.moveToNext();
+		return c.getLong(0);
+	}
+
+	public long get_last_trades_tid(String pair) {
+		Cursor c = trades_db.rawQuery("SELECT _id FROM " + pair
 				+ " ORDER BY _id DESC LIMIT 1", null);
 		if (0 == c.getCount())
 			return 0;
@@ -405,9 +474,40 @@ public class DBManager {
 		return return_list;
 	}
 
-	// close database
-	public void closeDB() {
-		his_db.close();
-		chart_db.close();
+	public Vector<trades_item> get_trades_data(String pair, int limit,
+			long last_tid) {
+		String query_str = "SELECT * FROM " + pair;
+		if (0 < last_tid)
+			query_str += " WHERE _id < " + last_tid;
+		query_str += " ORDER BY _id DESC";
+		if (0 < limit)
+			query_str += " LIMIT " + limit;
+		Cursor c = trades_db.rawQuery(query_str, null);
+		Vector<trades_item> return_list = new Vector<trades_item>();
+		while (c.moveToNext()) {
+			trades_item item = new trades_item();
+			item.tid = c.getLong(c.getColumnIndex("_id"));
+			item.price = c.getDouble(c.getColumnIndex("price"));
+			item.amount = c.getDouble(c.getColumnIndex("amount"));
+			item.date = c.getLong(c.getColumnIndex("date"));
+			item.trade_type = c.getInt(c.getColumnIndex("trade_type"));
+			return_list.add(0, item);
+		}
+		return return_list;
+	}
+
+	public Vector<String> get_depth_data(String pair, int limit, long last_time) {
+		String query_str = "SELECT * FROM " + pair;
+		if (0 < last_time)
+			query_str += " WHERE _id < " + last_time;
+		query_str += " ORDER BY _id DESC";
+		if (0 < limit)
+			query_str += " LIMIT " + limit;
+		Cursor c = depth_db.rawQuery(query_str, null);
+		Vector<String> return_list = new Vector<String>();
+		while (c.moveToNext()) {
+			return_list.add(0, c.getString(c.getColumnIndex("depth")));
+		}
+		return return_list;
 	}
 }

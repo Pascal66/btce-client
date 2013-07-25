@@ -59,13 +59,16 @@ import android.widget.ViewFlipper;
 
 import com.googlecode.BtceClient.R;
 import com.googlecode.BtceClient.BTCEHelper.btce_params;
+import com.googlecode.BtceClient.TradesView.trades_item;
 
 /**
  * @author spdffxyp <spdffxyp@gmail.com>
  * @version May 2013
  */
-public class IntroActivity extends Activity /*implements OnGestureListener,
-		OnDoubleTapListener*/ {
+public class IntroActivity extends Activity /*
+											 * implements OnGestureListener,
+											 * OnDoubleTapListener
+											 */{
 	@Override
 	public void finish() {
 		// TODO Auto-generated method stub
@@ -85,7 +88,7 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 		savePreference();
 	}
 
-	static final private int MENU_BASE = Menu.FIRST+100;
+	static final private int MENU_BASE = Menu.FIRST + 100;
 	static final private int EXIT_ID = MENU_BASE;
 	static final private int UPDATE_ALL_CHART = MENU_BASE + 1;
 	static final private int DEPTH_VIEW = MENU_BASE + 2;
@@ -112,11 +115,11 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 	private EditText m_amount;
 	private ToggleButton m_issell_btn;
 	private ListView m_info_list;
-	//private ListView m_trades_list;
+	// private ListView m_trades_list;
 	// private ListView m_depth_list;
 
-	//private ViewFlipper mViewFlipper;
-	//private GestureDetector mGestureDetector;
+	// private ViewFlipper mViewFlipper;
+	// private GestureDetector mGestureDetector;
 
 	private int chart_height = 0;
 	private int input_area_height = 0;
@@ -124,9 +127,9 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 	DecimalFormat formatter6 = new DecimalFormat();
 	DecimalFormat formatter8 = new DecimalFormat();
 	List<Map<String, String>> m_info_data = new ArrayList<Map<String, String>>();
-	//List<trades_item> m_trade_items = new ArrayList<trades_item>();
-	//List<depth_item> m_ask_items = new ArrayList<depth_item>();
-	//List<depth_item> m_bid_items = new ArrayList<depth_item>();
+	// List<trades_item> m_trade_items = new ArrayList<trades_item>();
+	// List<depth_item> m_ask_items = new ArrayList<depth_item>();
+	// List<depth_item> m_bid_items = new ArrayList<depth_item>();
 	Bundle m_last_price = new Bundle();
 	Bundle m_pair_funds;
 	static String str_last_price = "last_price";
@@ -140,6 +143,9 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 	boolean keyboard_is_shown = false;
 	String str_volume, str_funds, str_trans, str_actorder, str_fee;
 
+	String depth_str, trades_str;
+	ArrayList<trades_item> m_trades_items = new ArrayList<trades_item>();
+
 	btce_params m_params;
 
 	Vector<BTCETask> btce_tasks = new Vector<BTCETask>();
@@ -150,7 +156,6 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 	Timer timer_wifi_all, timer_mobile_all;
 
 	// BTCEPairs all_pairs;
-
 	private class ticker {
 		long server_time = 0;
 		double high = 0;
@@ -162,19 +167,6 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 		double buy = 0;
 		double sell = 0;
 	};
-//
-//	private class trades_item {
-//		long date = 0;
-//		double price = 0;
-//		double amount = 0;
-//		long tid = 0;
-//		int trade_type = 0;// 0 for ask, else for bid
-//	};
-//
-//	private class depth_item {
-//		double price;
-//		double amount;
-//	};
 
 	private static final int MSG_RESIZE = 1;
 	private static final int MSG_KCHART_DBCLK = 2;
@@ -244,20 +236,21 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 						.setIcon(android.R.drawable.ic_dialog_info)
 						.setView(candle_view)
 						.setPositiveButton("OK", ocl_candle)
-						.setNegativeButton("Cancel", 
+						.setNegativeButton(
+								"Cancel",
 								new android.content.DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								AlertDialog dlg = (AlertDialog) dialog;
-								im_ctrl.hideSoftInputFromWindow(dlg
-										.findViewById(R.id.number)
-										.getWindowToken(), 0);
-								im_ctrl.hideSoftInputFromWindow(dlg
-										.findViewById(R.id.period)
-										.getWindowToken(), 0);
-							}
-						}).show();
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										AlertDialog dlg = (AlertDialog) dialog;
+										im_ctrl.hideSoftInputFromWindow(dlg
+												.findViewById(R.id.number)
+												.getWindowToken(), 0);
+										im_ctrl.hideSoftInputFromWindow(dlg
+												.findViewById(R.id.period)
+												.getWindowToken(), 0);
+									}
+								}).show();
 			}
 				break;
 			case TIMER_WIFI: {
@@ -390,6 +383,8 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 				.getInt("timer_wifi_all", 2);
 		((MyApp) getApplicationContext()).app_timer_mobile_period_all = settings
 				.getInt("timer_mobile_all", 0);
+		((MyApp) getApplicationContext()).app_update_all_pair_depth_trades = settings
+				.getBoolean("update_all_depth_trades", false);
 	}
 
 	void savePreference() {
@@ -417,6 +412,9 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 				((MyApp) getApplicationContext()).app_timer_wifi_period_all);
 		editor.putInt("timer_mobile_all",
 				((MyApp) getApplicationContext()).app_timer_mobile_period_all);
+		editor.putBoolean(
+				"update_all_depth_trades",
+				((MyApp) getApplicationContext()).app_update_all_pair_depth_trades);
 
 		editor.commit();
 	}
@@ -616,7 +614,7 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 		// m_btn_getinfo.setOnClickListener(temp_handler);
 		m_info_list = (ListView) findViewById(R.id.user_info_list);
 
-		//m_trades_list = (ListView) findViewById(R.id.user_trades_list);
+		// m_trades_list = (ListView) findViewById(R.id.user_trades_list);
 		m_inflater = LayoutInflater.from(this);
 
 		str_volume = this.getResources().getString(R.string.volume);
@@ -670,8 +668,8 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 					}
 				});
 
-		//mGestureDetector = new GestureDetector(this);
-		//mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
+		// mGestureDetector = new GestureDetector(this);
+		// mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
 		/* Get the Input Method Manager for controlling the soft keyboard */
 		im_ctrl = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
@@ -680,7 +678,7 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				// TODO Auto-generated method stub
-				//mGestureDetector.onTouchEvent(event);
+				// mGestureDetector.onTouchEvent(event);
 				return false;
 			}
 		});
@@ -691,11 +689,11 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 				Intent intent = new Intent();
 				if (position == ALL_PAIR_PRICE) {
 					intent.setClass(IntroActivity.this, PairFoundActivity.class);
-					intent.putExtra(str_value,m_last_price);
+					intent.putExtra(str_value, m_last_price);
 					startActivityForResult(intent, position);
 				} else if (position == ALL_PAIR_FUNDS) {
 					intent.setClass(IntroActivity.this, PairFoundActivity.class);
-					intent.putExtra(str_value,m_pair_funds);
+					intent.putExtra(str_value, m_pair_funds);
 					intent.putExtra(str_last_price, m_last_price);
 					startActivityForResult(intent, position);
 				} else if (position == ALL_PAIR_TRANS) {
@@ -711,14 +709,14 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 			}
 		});
 
-//		m_trades_list.setOnTouchListener(new OnTouchListener() {
-//			@Override
-//			public boolean onTouch(View v, MotionEvent event) {
-//				// TODO Auto-generated method stub
-//				mGestureDetector.onTouchEvent(event);
-//				return false;
-//			}
-//		});
+		// m_trades_list.setOnTouchListener(new OnTouchListener() {
+		// @Override
+		// public boolean onTouch(View v, MotionEvent event) {
+		// // TODO Auto-generated method stub
+		// mGestureDetector.onTouchEvent(event);
+		// return false;
+		// }
+		// });
 
 		initialData();
 		loadPreference();
@@ -796,52 +794,53 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 	public boolean onDown(MotionEvent e) {
 		return false;
 	}
-//
-//	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-//			float velocityY) {
-//
-//		if (e1.getX() > e2.getX() + 100
-//				&& Math.abs(e1.getY() - e2.getY()) < Math.abs(e1.getX()
-//						- e2.getX()) / 2) {
-//			mViewFlipper.setInAnimation(getApplicationContext(),
-//					R.anim.push_left_in);
-//			mViewFlipper.setOutAnimation(getApplicationContext(),
-//					R.anim.push_left_out);
-//			mViewFlipper.showNext();
-//		} else if (e1.getX() < e2.getX() - 100
-//				&& Math.abs(e1.getY() - e2.getY()) < Math.abs(e1.getX()
-//						- e2.getX()) / 2) {
-//			mViewFlipper.setInAnimation(getApplicationContext(),
-//					R.anim.push_right_in);
-//			mViewFlipper.setOutAnimation(getApplicationContext(),
-//					R.anim.push_right_out);
-//			mViewFlipper.showPrevious();
-//		} else {
-//			return false;
-//		}
-//		return true;
-//
-//	}
-//
-//	public void onLongPress(MotionEvent e) {
-//	}
-//
-//	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-//			float distanceY) {
-//		return false;
-//	}
-//
-//	public void onShowPress(MotionEvent e) {
-//	}
-//
-//	public boolean onSingleTapUp(MotionEvent e) {
-//		return false;
-//	}
-//
-//	public boolean onTouchEvent(MotionEvent event) {
-//		mGestureDetector.onTouchEvent(event);
-//		return true;
-//	}
+
+	//
+	// public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+	// float velocityY) {
+	//
+	// if (e1.getX() > e2.getX() + 100
+	// && Math.abs(e1.getY() - e2.getY()) < Math.abs(e1.getX()
+	// - e2.getX()) / 2) {
+	// mViewFlipper.setInAnimation(getApplicationContext(),
+	// R.anim.push_left_in);
+	// mViewFlipper.setOutAnimation(getApplicationContext(),
+	// R.anim.push_left_out);
+	// mViewFlipper.showNext();
+	// } else if (e1.getX() < e2.getX() - 100
+	// && Math.abs(e1.getY() - e2.getY()) < Math.abs(e1.getX()
+	// - e2.getX()) / 2) {
+	// mViewFlipper.setInAnimation(getApplicationContext(),
+	// R.anim.push_right_in);
+	// mViewFlipper.setOutAnimation(getApplicationContext(),
+	// R.anim.push_right_out);
+	// mViewFlipper.showPrevious();
+	// } else {
+	// return false;
+	// }
+	// return true;
+	//
+	// }
+	//
+	// public void onLongPress(MotionEvent e) {
+	// }
+	//
+	// public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+	// float distanceY) {
+	// return false;
+	// }
+	//
+	// public void onShowPress(MotionEvent e) {
+	// }
+	//
+	// public boolean onSingleTapUp(MotionEvent e) {
+	// return false;
+	// }
+	//
+	// public boolean onTouchEvent(MotionEvent event) {
+	// mGestureDetector.onTouchEvent(event);
+	// return true;
+	// }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -880,10 +879,12 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 			return true;
 		case DEPTH_VIEW:
 			intent.setClass(IntroActivity.this, DepthActivity.class);
+			intent.putExtra("depth", depth_str);
 			startActivityForResult(intent, DEPTH_VIEW);
 			return true;
 		case TRADES_VIEW:
 			intent.setClass(IntroActivity.this, TradesActivity.class);
+			intent.putExtra("trades", trades_str);
 			startActivityForResult(intent, TRADES_VIEW);
 			return true;
 		case PRICE_ID:
@@ -1067,12 +1068,28 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 				m_params.method = BTCEHelper.btce_methods.TICKER;
 				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
 						.execute());
-//				m_params.method = BTCEHelper.btce_methods.TRADES;
-//				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
-//						.execute());
 				m_params.method = BTCEHelper.btce_methods.GET_INFO;
 				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
 						.execute());
+				if (((MyApp) getApplicationContext()).app_update_all_pair_depth_trades) {
+					for (String pair : new BTCEPairs().keySet()) {
+						m_params.method = BTCEHelper.btce_methods.TRADES;
+						btce_tasks.add((BTCETask) new BTCETask(m_params
+								.getparams().setpair(pair)).execute());
+						m_params.method = BTCEHelper.btce_methods.DEPTH;
+						btce_tasks.add((BTCETask) new BTCETask(m_params
+								.getparams().setpair(pair)).execute());
+					}
+				} else {
+					m_params.method = BTCEHelper.btce_methods.TRADES;
+					btce_tasks
+							.add((BTCETask) new BTCETask(m_params.getparams())
+									.execute());
+					m_params.method = BTCEHelper.btce_methods.DEPTH;
+					btce_tasks
+							.add((BTCETask) new BTCETask(m_params.getparams())
+									.execute());
+				}
 				show_status_info();
 			}
 		}
@@ -1154,56 +1171,87 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 		}
 		return error;
 	}
-//
-//	public int feedJosn_trades(String string) {
-//		m_trade_items.clear();
-//		JSONArray obj = null;
-//		try {
-//			obj = new JSONArray(string);
-//		} catch (JSONException e) {
-//			try {
-//				JSONObject error = new JSONObject(string);
-//				// if (1 != error.getInt("success")) {
-//				update_statusStr(System.currentTimeMillis() / 1000, this
-//						.getResources().getString(R.string.trades_error)
-//						+ error.getString("error"));
-//				return 0;
-//				// }
-//			} catch (JSONException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//				update_statusStr(System.currentTimeMillis() / 1000,
-//						this.getResources().getString(R.string.trades_error)
-//								+ e1.getMessage());
-//				return 0;
-//			}
-//		}
-//		try {
-//			for (int i = 0; i < obj.length(); ++i) {
-//				trades_item item = new trades_item();
-//				JSONObject e = obj.getJSONObject(i);
-//				item.amount = e.getDouble("amount");
-//				item.date = e.getLong("date");
-//				item.price = e.getDouble("price");
-//				item.tid = e.getLong("tid");
-//				item.trade_type = e.getString("trade_type").equals("ask") ? 0
-//						: 1;
-//				m_trade_items.add(item);
-//			}
-//			m_trades_list.setAdapter(new trades_list_Adapter(
-//					getApplicationContext()));
-//			update_statusStr(System.currentTimeMillis() / 1000, this
-//					.getResources().getString(R.string.trades_ok));
-//		} catch (JSONException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			update_statusStr(
-//					System.currentTimeMillis() / 1000,
-//					this.getResources().getString(R.string.trades_error)
-//							+ e.getMessage());
-//		}
-//		return m_trade_items.size();
-//	}
+
+	public int feedJosn_depth(String json_str, String pair, long timestamp) {
+		JSONObject obj = null;
+		try {
+			obj = new JSONObject(json_str);
+		} catch (JSONException e) {
+			try {
+				JSONObject error = new JSONObject(json_str);
+				// if (1 != error.getInt("success")) {
+				update_statusStr(System.currentTimeMillis() / 1000, pair + ":"
+						+ this.getResources().getString(R.string.depth_error)
+						+ error.getString("error"));
+				return 0;
+				// }
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				update_statusStr(System.currentTimeMillis() / 1000, pair + ":"
+						+ this.getResources().getString(R.string.depth_error)
+						+ e1.getMessage());
+				return 0;
+			}
+		}
+		update_statusStr(System.currentTimeMillis() / 1000, pair + ":"
+				+ this.getResources().getString(R.string.depth_ok));
+		m_dbmgr.update_depth(json_str, pair, timestamp);
+		return 0;
+	}
+
+	public int feedJosn_trades(String json_str, String pair) {
+		m_trades_items.clear();
+		JSONArray obj = null;
+		try {
+			obj = new JSONArray(json_str);
+		} catch (JSONException e) {
+			try {
+				JSONObject error = new JSONObject(json_str);
+				// if (1 != error.getInt("success")) {
+				update_statusStr(System.currentTimeMillis() / 1000, pair + ":"
+						+ this.getResources().getString(R.string.trades_error)
+						+ error.getString("error"));
+				return 0;
+				// }
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				update_statusStr(System.currentTimeMillis() / 1000, pair + ":"
+						+ this.getResources().getString(R.string.trades_error)
+						+ e1.getMessage());
+				return 0;
+			}
+		}
+		try {
+			for (int i = 0; i < obj.length(); ++i) {
+				trades_item item = new trades_item();
+				JSONObject e = obj.getJSONObject(i);
+				item.amount = e.getDouble("amount");
+				item.date = e.getLong("date");
+				item.price = e.getDouble("price");
+				item.tid = e.getLong("tid");
+				item.trade_type = e.getString("trade_type").equals("ask") ? 0
+						: 1;
+				m_trades_items.add(item);
+			}
+			// m_trades_list.setAdapter(new trades_list_Adapter(
+			// getApplicationContext()));
+			update_statusStr(System.currentTimeMillis() / 1000, pair + ":"
+					+ this.getResources().getString(R.string.trades_ok));
+			m_dbmgr.update_trades(m_trades_items, pair);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			update_statusStr(
+					System.currentTimeMillis() / 1000,
+					pair
+							+ ":"
+							+ this.getResources().getString(
+									R.string.trades_error) + e.getMessage());
+		}
+		return m_trades_items.size();
+	}
 
 	public int feedJosn_trade(JSONObject obj) {
 		try {
@@ -1288,7 +1336,10 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 			if (1 != obj.getInt("success")) {
 				update_statusStr(
 						System.currentTimeMillis() / 1000,
-						getResources().getString(R.string.chart_error)
+						pair
+								+ ":"
+								+ getResources()
+										.getString(R.string.chart_error)
 								+ obj.getString("error"));
 				return -1;
 			}
@@ -1308,13 +1359,19 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 						last_price.getDouble(new BTCEPairs().get(pair_key)));
 			}
 
-			update_statusStr(System.currentTimeMillis() / 1000, String.format(
-					getResources().getString(R.string.chart_ok), pair));
+			update_statusStr(
+					System.currentTimeMillis() / 1000,
+					String.format(
+							pair
+									+ ":"
+									+ getResources().getString(
+											R.string.chart_ok), pair));
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			update_statusStr(System.currentTimeMillis() / 1000, getResources()
-					.getString(R.string.chart_error) + e.getMessage());
+			update_statusStr(System.currentTimeMillis() / 1000,
+					pair + ":" + getResources().getString(R.string.chart_error)
+							+ e.getMessage());
 		}
 		return 0;
 	}
@@ -1322,6 +1379,7 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 	/* Params (Integer), Progress (Integer), Result (String) */
 	private class BTCETask extends AsyncTask<Integer, Integer, String> {
 		btce_params param;
+		long create_time = 0;
 
 		public BTCETask(btce_params p) {
 			super();
@@ -1374,13 +1432,21 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 								R.string.fee_ing)
 								+ param.pair);
 				break;
-//			case TRADES:
-//				update_statusStr(
-//						System.currentTimeMillis() / 1000,
-//						IntroActivity.this.getResources().getString(
-//								R.string.trades_ing)
-//								+ param.pair);
-//				break;
+			case TRADES:
+				update_statusStr(
+						System.currentTimeMillis() / 1000,
+						IntroActivity.this.getResources().getString(
+								R.string.trades_ing)
+								+ param.pair);
+				break;
+			case DEPTH:
+				create_time = System.currentTimeMillis();
+				update_statusStr(
+						System.currentTimeMillis() / 1000,
+						IntroActivity.this.getResources().getString(
+								R.string.depth_ing)
+								+ param.pair);
+				break;
 			default:
 				update_statusStr(
 						System.currentTimeMillis() / 1000,
@@ -1423,9 +1489,16 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 					fetch_result = new JSONObject(result);
 					feedJosn_fee(fetch_result);
 					break;
-				//case TRADES:
-				//	feedJosn_trades(result);
-				//	break;
+				case TRADES:
+					feedJosn_trades(result, param.pair);
+					if (m_params.pair.equals(param.pair))
+						trades_str = result;
+					break;
+				case DEPTH:
+					feedJosn_depth(result, param.pair, create_time);
+					if (m_params.pair.equals(param.pair))
+						depth_str = result;
+					break;
 				}
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -1477,46 +1550,46 @@ public class IntroActivity extends Activity /*implements OnGestureListener,
 			return tv;
 		}
 	}
-//
-//	private class trades_list_Adapter extends BaseAdapter {
-//		public trades_list_Adapter(Context c) {
-//		}
-//
-//		@Override
-//		public int getCount() {
-//			return m_trade_items.size();
-//		}
-//
-//		@Override
-//		public Object getItem(int arg0) {
-//			return null;
-//		}
-//
-//		@Override
-//		public long getItemId(int pos) {
-//			return pos;
-//		}
-//
-//		@Override
-//		public View getView(int pos, View convertView, ViewGroup parent) {
-//			View tv = null;
-//			TextView t;
-//
-//			if (convertView == null)
-//				tv = m_inflater.inflate(R.layout.trades_item, parent, false);
-//			else
-//				tv = convertView;
-//
-//			t = (TextView) tv.findViewById(R.id.trades_amount);
-//			t.setText(formatter6.format(m_trade_items.get(pos).amount));
-//			t = (TextView) tv.findViewById(R.id.trades_rate);
-//			t.setText(formatter6.format(m_trade_items.get(pos).price));
-//			t = (TextView) tv.findViewById(R.id.trades_time);
-//			t.setText(error_time_format.format(m_trade_items.get(pos).date * 1000));
-//			t = (TextView) tv.findViewById(R.id.trades_type);
-//			t.setText(0 == m_trade_items.get(pos).trade_type ? "Ask" : "Bid");
-//
-//			return tv;
-//		}
-//	}
+	//
+	// private class trades_list_Adapter extends BaseAdapter {
+	// public trades_list_Adapter(Context c) {
+	// }
+	//
+	// @Override
+	// public int getCount() {
+	// return m_trade_items.size();
+	// }
+	//
+	// @Override
+	// public Object getItem(int arg0) {
+	// return null;
+	// }
+	//
+	// @Override
+	// public long getItemId(int pos) {
+	// return pos;
+	// }
+	//
+	// @Override
+	// public View getView(int pos, View convertView, ViewGroup parent) {
+	// View tv = null;
+	// TextView t;
+	//
+	// if (convertView == null)
+	// tv = m_inflater.inflate(R.layout.trades_item, parent, false);
+	// else
+	// tv = convertView;
+	//
+	// t = (TextView) tv.findViewById(R.id.trades_amount);
+	// t.setText(formatter6.format(m_trade_items.get(pos).amount));
+	// t = (TextView) tv.findViewById(R.id.trades_rate);
+	// t.setText(formatter6.format(m_trade_items.get(pos).price));
+	// t = (TextView) tv.findViewById(R.id.trades_time);
+	// t.setText(error_time_format.format(m_trade_items.get(pos).date * 1000));
+	// t = (TextView) tv.findViewById(R.id.trades_type);
+	// t.setText(0 == m_trade_items.get(pos).trade_type ? "Ask" : "Bid");
+	//
+	// return tv;
+	// }
+	// }
 }

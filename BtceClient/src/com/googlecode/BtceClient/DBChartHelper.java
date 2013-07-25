@@ -1,10 +1,5 @@
 package com.googlecode.BtceClient;
 
-import java.util.Vector;
-
-import com.googlecode.BtceClient.CandleStickView.ChartItem;
-
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -27,7 +22,7 @@ public class DBChartHelper extends SQLiteOpenHelper {
 			String sql_string = "CREATE TABLE IF NOT EXISTS "
 					+ pair
 					+ "(_id INTEGER PRIMARY KEY, open REAL, close REAL, high REAL, low REAL)";
-			Log.e("SQL", sql_string);
+			// Log.e("SQL", sql_string);
 			db.execSQL(sql_string);
 		}
 	}

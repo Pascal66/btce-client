@@ -104,7 +104,23 @@ public class DepthActivity extends Activity {
 			}
 
 		});
-		update_depth();
+		// update_depth();
+		try {
+			JSONObject fetch_result = null;
+			fetch_result = new JSONObject(this.getIntent().getStringExtra(
+					"depth"));
+			// feedJosn_depth(fetch_result);
+			dp_chart.feedJosn_depth(fetch_result);
+
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			update_statusStr(
+					System.currentTimeMillis() / 1000,
+					DepthActivity.this.getResources().getString(
+							R.string.depth_error)
+							+ e.getMessage());
+		}
 	}
 
 	@Override

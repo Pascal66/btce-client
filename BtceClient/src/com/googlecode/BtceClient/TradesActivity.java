@@ -102,7 +102,18 @@ public class TradesActivity extends Activity {
 			}
 
 		});
-		update_trades();
+		// update_trades();
+		try {
+			td_chart.feedJosn_trades(this.getIntent().getStringExtra("trades"));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			update_statusStr(
+					System.currentTimeMillis() / 1000,
+					TradesActivity.this.getResources().getString(
+							R.string.trades_error)
+							+ e.getMessage());
+		}
 	}
 
 	@Override
