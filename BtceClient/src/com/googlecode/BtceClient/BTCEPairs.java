@@ -3,6 +3,7 @@ package com.googlecode.BtceClient;
 import java.util.HashMap;
 
 public class BTCEPairs extends HashMap<String, String> {
+	public HashMap<String, String> trade_depth_pairs;
 	BTCEPairs() {
 		//this.put("all pairs", "0");
 		this.put("btc_usd", "1");
@@ -19,5 +20,11 @@ public class BTCEPairs extends HashMap<String, String> {
 		this.put("ppc_btc", "24");
 		this.put("ftc_btc", "25");
 		//this.put("cnc_btc", "26");
+		
+		trade_depth_pairs = new HashMap<String, String>();
+		trade_depth_pairs.put("btc_usd", "1");
+		trade_depth_pairs.put("ltc_btc", "10");
+		trade_depth_pairs.put("ltc_usd", "14");
 	}
+	
 }

@@ -1,6 +1,7 @@
 package com.googlecode.BtceClient;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import android.view.View;
 public class DepthView extends View {
 
 	Paint mPaint;
+	long update_time = 0;
 	List<depth_item> m_ask_items = new ArrayList<depth_item>();
 	List<depth_item> m_bid_items = new ArrayList<depth_item>();
 	String data = "{\"asks\":[[119.7,0.53992261],[119.96,1],[119.99,2.1305],[120,25.87303516],[120.049,0.1103],[120.05,0.06],[120.07,0.01],[120.08,0.252],[120.083,0.2206],[120.09,4.93836468],[120.091,0.014],[120.092,1.0998],[120.1,11.29695957],[120.101,0.01688904],[120.112,0.01688904],[120.113,0.122084],[120.122,0.01688476],[120.132,0.01688191],[120.133,0.1103],[120.142,0.01688049],[120.148,0.3309],[120.152,0.01687906],[120.162,0.01687764],[120.172,0.01687764],[120.183,0.12717479],[120.19,0.998],[120.193,0.01687337],[120.198,0.010978],[120.2,0.4207976],[120.203,0.01687194],[120.213,0.01687052],[120.22,0.01],[120.223,0.3477691],[120.224,0.1103],[120.23,0.01575495],[120.233,0.01686767],[120.243,0.01686625],[120.249,0.01],[120.25,0.52706774],[120.254,0.01686639],[120.264,0.01686639],[120.274,0.01686639],[120.284,0.01686639],[120.294,0.01686639],[120.298,0.257658],[120.3,0.01],[120.304,0.01686056],[120.314,0.01686056],[120.325,0.01686056],[120.33,0.20878201],[120.335,0.01686056],[120.345,0.01685204],[120.355,0.01685062],[120.36,0.1],[120.365,0.0168492],[120.366,0.05],[120.37,2.994],[120.375,0.01684778],[120.38,0.02],[120.381,0.08],[120.385,0.01684636],[120.393,0.01575442],[120.396,0.01684494],[120.4,0.342035],[120.402,0.01],[120.406,0.01684352],[120.41,0.08791632],[120.416,0.04684211],[120.42,0.05],[120.426,0.01684069],[120.43,0.05],[120.433,0.1],[120.435,0.06],[120.436,0.01683927],[120.44,0.1],[120.446,0.01684494],[120.45,0.1048588],[120.456,0.03683814],[120.46,0.04],[120.467,0.01683814],[120.468,0.01],[120.477,0.01683814],[120.487,0.01683814],[120.494,6.21912019],[120.497,0.01683814],[120.5,27.71185817],[120.507,0.01682935],[120.511,0.02],[120.515,0.03],[120.517,0.01682793],[120.52,0.01],[120.522,0.01],[120.527,0.01682652],[120.538,0.0168251],[120.54,0.010976],[120.546,0.01],[120.547,0.1],[120.548,0.01682369],[120.555,0.01572354],[120.557,0.079],[120.558,0.01682227],[120.562,0.05],[120.568,0.01682227],[120.57,0.01],[120.578,0.01682086],[120.58,0.02],[120.588,0.01682086],[120.59,0.01],[120.591,0.11],[120.598,0.01682086],[120.6,0.12],[120.604,0.05],[120.608,0.01682086],[120.619,0.01682086],[120.629,0.01681237],[120.639,0.01681096],[120.647,0.2],[120.649,0.01680955],[120.65,0.01],[120.659,0.01680814],[120.669,0.02680672],[120.67,0.02],[120.679,0.01680531],[120.69,0.0168039],[120.695,0.08],[120.696,0.10321042],[120.698,0.010978],[120.7,0.02680249],[120.702,0.01],[120.709,0.1],[120.71,0.03680108],[120.718,0.01572306],[120.72,0.03679966],[120.73,0.02680531],[120.74,0.08076646],[120.747,0.22],[120.75,5.17679868],[120.76,0.02],[120.761,0.01679402],[120.77,0.02994],[120.771,0.01679261],[120.781,0.0167912],[120.791,0.06678979],[120.798,0.06],[120.801,0.01679402],[120.806,0.01],[120.81,2.29334445],[120.811,0.01678697],[120.821,0.01678556],[120.83,0.08]]"
@@ -60,6 +62,7 @@ public class DepthView extends View {
 	Rect r_chart = new Rect();
 	int num_rows = 4;// grid of this view
 
+	SimpleDateFormat error_time_format = new SimpleDateFormat("HH:mm:ss");
 	// use for the touch event
 	float bx = -1;
 	float by = -1;
@@ -88,6 +91,7 @@ public class DepthView extends View {
 	}
 
 	public int feedJosn_depth(JSONObject obj) {
+		update_time = System.currentTimeMillis();
 		m_ask_items.clear();
 		m_bid_items.clear();
 		double all_ask_amount = 0;
@@ -274,9 +278,17 @@ public class DepthView extends View {
 					/ num_rows, r_chart.right,
 					r_chart.top + i * r_chart.height() / num_rows, mPaint);
 		}
+		int info_text_y = (int) (margin_top + text_infoSize);
+		if(0 < update_time){
+			mPaint.setStyle(Style.FILL);
+			mPaint.setColor(text_infoColor);
+			mPaint.setStrokeWidth(1);
+			canvas.drawText(error_time_format.format(update_time), margin_left,info_text_y, mPaint);
+		}
 		if (m_ask_items.isEmpty() || m_bid_items.isEmpty())
 			return;
 
+		mPaint.setStyle(Style.STROKE);
 		mPaint.setStrokeCap(Paint.Cap.ROUND);
 		mPaint.setColor(ask_line_color);
 		mPaint.setStrokeWidth(ask_line_size);
@@ -292,34 +304,26 @@ public class DepthView extends View {
 		mPaint.setColor(bid_fill_color);
 		canvas.drawPath(bid_path, mPaint);
 
+		int index = 1;
+		String info = "Ask: ";
+		List<depth_item> temp_reference = m_ask_items;
+		if (m_bid_items.get(index).amount < m_ask_items.get(index).amount) {
+			temp_reference = m_bid_items;
+			info = "Bid: ";
+		}
+		// else {
+		// temp_reference = m_ask_items;
+		// info = "Ask: ";
+		// }
 		if (mousedown) {
 			if (ex < m_bid_items.get(0).x_price) {
 				for (int i = 1; i < m_bid_items.size(); ++i) {
 					if (ex >= m_bid_items.get(i).x_price
 							&& ex < m_bid_items.get(i - 1).x_price) {
-						mPaint.setColor(focus_line_color);
-						canvas.drawLine(m_bid_items.get(i).x_price,
-								r_chart.top, m_bid_items.get(i).x_price,
-								r_chart.bottom, mPaint);
-						mPaint.setStrokeWidth(point_size);
-						mPaint.setColor(point_color);
-						canvas.drawPoint(m_bid_items.get(i).x_price,
-								(float) (m_bid_items.get(i).amount_sum
-										* amount_k + amount_b), mPaint);
-						int info_text_y = (int) (margin_top + text_infoSize);
 						// draw the info text
-						String info = "Bid: "
-								+ CandleStickView.my_formatter(
-										m_bid_items.get(i).price, 6)
-								+ " / "
-								+ CandleStickView.my_formatter(
-										m_bid_items.get(i).amount, 8)
-								+ " / "
-								+ CandleStickView.my_formatter(
-										m_bid_items.get(i).amount_sum, 8);
-						mPaint.setColor(text_infoColor);
-						canvas.drawText(info, width - mPaint.measureText(info),
-								info_text_y, mPaint);
+						temp_reference = m_bid_items;
+						info = "Bid: ";
+						index = i;
 						break;
 					}
 				}
@@ -327,35 +331,37 @@ public class DepthView extends View {
 				for (int i = 1; i < m_ask_items.size(); ++i) {
 					if (ex <= m_ask_items.get(i).x_price
 							&& ex > m_ask_items.get(i - 1).x_price) {
-						mPaint.setColor(focus_line_color);
-						canvas.drawLine(m_ask_items.get(i).x_price,
-								r_chart.top, m_ask_items.get(i).x_price,
-								r_chart.bottom, mPaint);
-						int info_text_y = (int) (margin_top + text_infoSize);
-						mPaint.setStrokeWidth(point_size);
-						mPaint.setColor(point_color);
-						canvas.drawPoint(m_ask_items.get(i).x_price,
-								(float) (m_ask_items.get(i).amount_sum
-										* amount_k + amount_b), mPaint);
 						// draw the info text
-						String info = "Ask: "
-								+ CandleStickView.my_formatter(
-										m_ask_items.get(i).price, 6)
-								+ " / "
-								+ CandleStickView.my_formatter(
-										m_ask_items.get(i).amount, 8)
-								+ " / "
-								+ CandleStickView.my_formatter(
-										m_ask_items.get(i).amount_sum, 8);
-						mPaint.setColor(text_infoColor);
-						canvas.drawText(info, width - mPaint.measureText(info),
-								info_text_y, mPaint);
+						temp_reference = m_ask_items;
+						info = "Ask: ";
+						index = i;
 						break;
 					}
 				}
 			}
-			mPaint.setStrokeWidth(1);
+			mPaint.setColor(focus_line_color);
+			canvas.drawLine(temp_reference.get(index).x_price, r_chart.top,
+					temp_reference.get(index).x_price, r_chart.bottom, mPaint);
 		}
+
+		mPaint.setStrokeWidth(point_size);
+		mPaint.setColor(point_color);
+		canvas.drawPoint(
+				temp_reference.get(index).x_price,
+				(float) (temp_reference.get(index).amount_sum * amount_k + amount_b),
+				mPaint);
+		info += CandleStickView
+				.my_formatter(temp_reference.get(index).price, 6)
+				+ " / "
+				+ CandleStickView.my_formatter(
+						temp_reference.get(index).amount, 8)
+				+ " / "
+				+ CandleStickView.my_formatter(
+						temp_reference.get(index).amount_sum, 8);
+		mPaint.setColor(text_infoColor);
+		canvas.drawText(info, width - mPaint.measureText(info), info_text_y,
+				mPaint);
+		mPaint.setStrokeWidth(1);
 	}
 
 	@Override

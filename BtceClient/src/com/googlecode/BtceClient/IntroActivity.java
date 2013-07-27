@@ -34,6 +34,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.GestureDetector.OnGestureListener;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,6 +45,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -59,16 +61,15 @@ import android.widget.ViewFlipper;
 
 import com.googlecode.BtceClient.R;
 import com.googlecode.BtceClient.BTCEHelper.btce_params;
+import com.googlecode.BtceClient.ResizeLayout.OnResizeListener;
 import com.googlecode.BtceClient.TradesView.trades_item;
 
 /**
  * @author spdffxyp <spdffxyp@gmail.com>
  * @version May 2013
  */
-public class IntroActivity extends Activity /*
-											 * implements OnGestureListener,
-											 * OnDoubleTapListener
-											 */{
+public class IntroActivity extends Activity implements OnGestureListener,
+		OnDoubleTapListener {
 	@Override
 	public void finish() {
 		// TODO Auto-generated method stub
@@ -107,6 +108,8 @@ public class IntroActivity extends Activity /*
 	private LayoutInflater m_inflater;
 
 	private CandleStickView kchart_view;
+	private DepthView dp_chart;
+	private TradesView td_chart;
 	// private ImageButton m_btn_ok;
 	private Button m_btn_go;
 	// private Button m_btn_getinfo;
@@ -118,8 +121,10 @@ public class IntroActivity extends Activity /*
 	// private ListView m_trades_list;
 	// private ListView m_depth_list;
 
-	// private ViewFlipper mViewFlipper;
-	// private GestureDetector mGestureDetector;
+	private ViewFlipper mViewFlipper;
+	private GestureDetector mGestureDetector;
+
+	ResizeLayout chart_layout, resize_layout;
 
 	private int chart_height = 0;
 	private int input_area_height = 0;
@@ -143,7 +148,7 @@ public class IntroActivity extends Activity /*
 	boolean keyboard_is_shown = false;
 	String str_volume, str_funds, str_trans, str_actorder, str_fee;
 
-	String depth_str, trades_str;
+	String depth_str = "", trades_str = "";
 	ArrayList<trades_item> m_trades_items = new ArrayList<trades_item>();
 
 	btce_params m_params;
@@ -187,18 +192,25 @@ public class IntroActivity extends Activity /*
 						.getBottom();
 				// run first time, initialize the params
 				if (0 == input_area_height) {
-					chart_height = findViewById(R.id.candlestick_view)
-							.getBottom();
 					input_area_height = findViewById(R.id.text_area)
-							.getBottom() - chart_height;
+							.getBottom()
+							- findViewById(R.id.candlestick_view).getBottom();
+
+					LayoutParams param = kchart_view.getLayoutParams();
+					param.height += findViewById(R.id.root_layout).getBottom()
+							- findViewById(R.id.user_info_list).getBottom();
+					// kchart_view.setLayoutParams(param);
+					chart_height = param.height;
 				} else {
 					int oldh = msg.arg1, h = msg.arg2;
 					if (oldh > h) {
 						keyboard_is_shown = true;
 						price_or_amount_changed_handler.afterTextChanged(null);
+						// chart_layout.setOrientation(LinearLayout.HORIZONTAL);
 					} else {
 						keyboard_is_shown = false;
 						m_status_view.setText(statusStr);
+						// chart_layout.setOrientation(LinearLayout.VERTICAL);
 					}
 					if (h < chart_height + input_area_height) {
 						LayoutParams param = kchart_view.getLayoutParams();
@@ -284,13 +296,6 @@ public class IntroActivity extends Activity /*
 						.getActiveNetworkInfo();
 				if (activeNetInfo != null
 						&& activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-					// Log.e("wifi_timer", "update");
-					// m_params.reset();
-					// for (String pair : new BTCEPairs().keySet()) {
-					// m_params.method = BTCEHelper.btce_methods.ORDERS_UPDATE;
-					// new BTCETask(m_params.getparams().setpair(pair))
-					// .execute();
-					// }
 					update_all_pair_chart();
 				}
 			}
@@ -302,13 +307,6 @@ public class IntroActivity extends Activity /*
 						.getActiveNetworkInfo();
 				if (activeNetInfo != null
 						&& activeNetInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
-					// Log.e("mobile_timer", "update");
-					// m_params.reset();
-					// for (String pair : new BTCEPairs().keySet()) {
-					// m_params.method = BTCEHelper.btce_methods.ORDERS_UPDATE;
-					// new BTCETask(m_params.getparams().setpair(pair))
-					// .execute();
-					// }
 					update_all_pair_chart();
 				}
 			}
@@ -597,6 +595,8 @@ public class IntroActivity extends Activity /*
 
 		setContentView(R.layout.main);
 		kchart_view = (CandleStickView) findViewById(R.id.candlestick_view);
+		dp_chart = (DepthView) findViewById(R.id.depthchart_view);
+		td_chart = (TradesView) findViewById(R.id.tradeschart_view);
 		m_status_view = (TextView) findViewById(R.id.status_view);
 		m_price = (EditText) findViewById(R.id.trade_price);
 		m_amount = (EditText) findViewById(R.id.trade_amount);
@@ -636,8 +636,7 @@ public class IntroActivity extends Activity /*
 			}
 
 		});
-		ResizeLayout layout = (ResizeLayout) findViewById(R.id.root_layout);
-		layout.setOnResizeListener(new ResizeLayout.OnResizeListener() {
+		OnResizeListener chart_resize_listener = new ResizeLayout.OnResizeListener() {
 			public void OnResize(int w, int h, int oldw, int oldh) {
 				Message msg = new Message();
 				msg.what = MSG_RESIZE;
@@ -645,7 +644,11 @@ public class IntroActivity extends Activity /*
 				msg.arg2 = h;
 				mHandler.sendMessage(msg);
 			}
-		});
+		};
+		resize_layout = (ResizeLayout) findViewById(R.id.root_layout);
+		chart_layout = (ResizeLayout) findViewById(R.id.chart_layout);
+		resize_layout.setOnResizeListener(chart_resize_listener);
+		chart_layout.setOnResizeListener(chart_resize_listener);
 		kchart_view
 				.setOnDoubleClickListener(new CandleStickView.OnDoubleClickListener() {
 
@@ -668,8 +671,8 @@ public class IntroActivity extends Activity /*
 					}
 				});
 
-		// mGestureDetector = new GestureDetector(this);
-		// mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
+		mGestureDetector = new GestureDetector(this);
+		mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
 		/* Get the Input Method Manager for controlling the soft keyboard */
 		im_ctrl = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
@@ -678,7 +681,7 @@ public class IntroActivity extends Activity /*
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				// TODO Auto-generated method stub
-				// mGestureDetector.onTouchEvent(event);
+				mGestureDetector.onTouchEvent(event);
 				return false;
 			}
 		});
@@ -795,52 +798,51 @@ public class IntroActivity extends Activity /*
 		return false;
 	}
 
-	//
-	// public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-	// float velocityY) {
-	//
-	// if (e1.getX() > e2.getX() + 100
-	// && Math.abs(e1.getY() - e2.getY()) < Math.abs(e1.getX()
-	// - e2.getX()) / 2) {
-	// mViewFlipper.setInAnimation(getApplicationContext(),
-	// R.anim.push_left_in);
-	// mViewFlipper.setOutAnimation(getApplicationContext(),
-	// R.anim.push_left_out);
-	// mViewFlipper.showNext();
-	// } else if (e1.getX() < e2.getX() - 100
-	// && Math.abs(e1.getY() - e2.getY()) < Math.abs(e1.getX()
-	// - e2.getX()) / 2) {
-	// mViewFlipper.setInAnimation(getApplicationContext(),
-	// R.anim.push_right_in);
-	// mViewFlipper.setOutAnimation(getApplicationContext(),
-	// R.anim.push_right_out);
-	// mViewFlipper.showPrevious();
-	// } else {
-	// return false;
-	// }
-	// return true;
-	//
-	// }
-	//
-	// public void onLongPress(MotionEvent e) {
-	// }
-	//
-	// public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-	// float distanceY) {
-	// return false;
-	// }
-	//
-	// public void onShowPress(MotionEvent e) {
-	// }
-	//
-	// public boolean onSingleTapUp(MotionEvent e) {
-	// return false;
-	// }
-	//
-	// public boolean onTouchEvent(MotionEvent event) {
-	// mGestureDetector.onTouchEvent(event);
-	// return true;
-	// }
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+			float velocityY) {
+
+		if (e1.getX() > e2.getX() + 100
+				&& Math.abs(e1.getY() - e2.getY()) < Math.abs(e1.getX()
+						- e2.getX()) / 2) {
+			mViewFlipper.setInAnimation(getApplicationContext(),
+					R.anim.push_left_in);
+			mViewFlipper.setOutAnimation(getApplicationContext(),
+					R.anim.push_left_out);
+			mViewFlipper.showNext();
+		} else if (e1.getX() < e2.getX() - 100
+				&& Math.abs(e1.getY() - e2.getY()) < Math.abs(e1.getX()
+						- e2.getX()) / 2) {
+			mViewFlipper.setInAnimation(getApplicationContext(),
+					R.anim.push_right_in);
+			mViewFlipper.setOutAnimation(getApplicationContext(),
+					R.anim.push_right_out);
+			mViewFlipper.showPrevious();
+		} else {
+			return false;
+		}
+		return true;
+
+	}
+
+	public void onLongPress(MotionEvent e) {
+	}
+
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
+		return false;
+	}
+
+	public void onShowPress(MotionEvent e) {
+	}
+
+	public boolean onSingleTapUp(MotionEvent e) {
+		return false;
+	}
+
+	public boolean onTouchEvent(MotionEvent event) {
+		mGestureDetector.onTouchEvent(event);
+		return true;
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -1072,7 +1074,8 @@ public class IntroActivity extends Activity /*
 				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
 						.execute());
 				if (((MyApp) getApplicationContext()).app_update_all_pair_depth_trades) {
-					for (String pair : new BTCEPairs().keySet()) {
+					for (String pair : new BTCEPairs().trade_depth_pairs
+							.keySet()) {
 						m_params.method = BTCEHelper.btce_methods.TRADES;
 						btce_tasks.add((BTCETask) new BTCETask(m_params
 								.getparams().setpair(pair)).execute());
@@ -1176,23 +1179,22 @@ public class IntroActivity extends Activity /*
 		JSONObject obj = null;
 		try {
 			obj = new JSONObject(json_str);
-		} catch (JSONException e) {
-			try {
-				JSONObject error = new JSONObject(json_str);
-				// if (1 != error.getInt("success")) {
+			if (1 != obj.getInt("success")) {
 				update_statusStr(System.currentTimeMillis() / 1000, pair + ":"
 						+ this.getResources().getString(R.string.depth_error)
-						+ error.getString("error"));
-				return 0;
-				// }
-			} catch (JSONException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				update_statusStr(System.currentTimeMillis() / 1000, pair + ":"
-						+ this.getResources().getString(R.string.depth_error)
-						+ e1.getMessage());
-				return 0;
+						+ obj.getString("error"));
+				return -1;
 			}
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			update_statusStr(
+					System.currentTimeMillis() / 1000,
+					pair
+							+ ":"
+							+ this.getResources().getString(
+									R.string.depth_error) + e1.getMessage());
+			return -1;
 		}
 		update_statusStr(System.currentTimeMillis() / 1000, pair + ":"
 				+ this.getResources().getString(R.string.depth_ok));
@@ -1376,6 +1378,22 @@ public class IntroActivity extends Activity /*
 		return 0;
 	}
 
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+			if (1 == mViewFlipper.getDisplayedChild()) {
+				mViewFlipper.setInAnimation(getApplicationContext(),
+						R.anim.push_right_in);
+				mViewFlipper.setOutAnimation(getApplicationContext(),
+						R.anim.push_right_out);
+				mViewFlipper.showPrevious();
+				return true;
+			}
+		}
+
+		return super.onKeyDown(keyCode, event);
+	}
+
 	/* Params (Integer), Progress (Integer), Result (String) */
 	private class BTCETask extends AsyncTask<Integer, Integer, String> {
 		btce_params param;
@@ -1491,13 +1509,17 @@ public class IntroActivity extends Activity /*
 					break;
 				case TRADES:
 					feedJosn_trades(result, param.pair);
-					if (m_params.pair.equals(param.pair))
+					if (m_params.pair.equals(param.pair)) {
 						trades_str = result;
+						td_chart.feedJosn_trades(result);
+					}
 					break;
 				case DEPTH:
 					feedJosn_depth(result, param.pair, create_time);
-					if (m_params.pair.equals(param.pair))
+					if (m_params.pair.equals(param.pair)) {
 						depth_str = result;
+						dp_chart.feedJosn_depth(result);
+					}
 					break;
 				}
 			} catch (JSONException e) {

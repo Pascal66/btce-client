@@ -102,7 +102,6 @@ public class DepthActivity extends Activity {
 				startActivity(intent);
 
 			}
-
 		});
 		// update_depth();
 		try {
@@ -121,6 +120,8 @@ public class DepthActivity extends Activity {
 							R.string.depth_error)
 							+ e.getMessage());
 		}
+		m_depth_list
+				.setAdapter(new depth_list_Adapter(getApplicationContext()));
 	}
 
 	@Override

@@ -114,6 +114,8 @@ public class TradesActivity extends Activity {
 							R.string.trades_error)
 							+ e.getMessage());
 		}
+		m_trades_list.setAdapter(new trades_list_Adapter(
+				getApplicationContext()));
 	}
 
 	@Override
