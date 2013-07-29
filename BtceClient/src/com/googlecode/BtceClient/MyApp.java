@@ -24,5 +24,7 @@ public class MyApp extends Application {
 	int app_timer_wifi_period = 0, app_timer_mobile_period = 0;
 	int app_timer_wifi_period_all = 0, app_timer_mobile_period_all = 0;
 	boolean app_update_all_pair_depth_trades = false;
-
+	String app_layout = "main";
+	int app_layout_ids[] = { R.layout.main, R.layout.main_pad,
+			R.layout.main_pad2 };
 }

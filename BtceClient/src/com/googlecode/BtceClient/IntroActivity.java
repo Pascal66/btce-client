@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -126,7 +127,6 @@ public class IntroActivity extends Activity implements OnGestureListener,
 
 	ResizeLayout chart_layout, resize_layout;
 
-	private int chart_height = 0;
 	private int input_area_height = 0;
 
 	DecimalFormat formatter6 = new DecimalFormat();
@@ -182,25 +182,24 @@ public class IntroActivity extends Activity implements OnGestureListener,
 	private static final int TIMER_MOBILE_ALL = 7;
 	private InputHandler mHandler = new InputHandler();
 
+	boolean is_pad = true;
+
 	@SuppressLint("HandlerLeak")
 	class InputHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MSG_RESIZE: {
-				int new_text_area_bootom = findViewById(R.id.text_area)
-						.getBottom();
 				// run first time, initialize the params
 				if (0 == input_area_height) {
 					input_area_height = findViewById(R.id.text_area)
-							.getBottom()
-							- findViewById(R.id.candlestick_view).getBottom();
-
-					LayoutParams param = kchart_view.getLayoutParams();
-					param.height += findViewById(R.id.root_layout).getBottom()
+							.getBottom();
+					int empty_height = findViewById(R.id.info_layout)
+							.getHeight()
 							- findViewById(R.id.user_info_list).getBottom();
-					// kchart_view.setLayoutParams(param);
-					chart_height = param.height;
+					LayoutParams param = kchart_view.getLayoutParams();
+					param.height += empty_height;
+					kchart_view.setLayoutParams(param);
 				} else {
 					int oldh = msg.arg1, h = msg.arg2;
 					if (oldh > h) {
@@ -212,18 +211,21 @@ public class IntroActivity extends Activity implements OnGestureListener,
 						m_status_view.setText(statusStr);
 						// chart_layout.setOrientation(LinearLayout.VERTICAL);
 					}
-					if (h < chart_height + input_area_height) {
+					if (h < kchart_view.getLayoutParams().height
+							+ input_area_height) {
 						LayoutParams param = kchart_view.getLayoutParams();
-						int new_height = h - input_area_height;
-						param.height = new_height;
+						param.height = h - input_area_height;
 						kchart_view.setLayoutParams(param);
 					} else {
+						int empty_height = findViewById(R.id.info_layout)
+								.getHeight()
+								- findViewById(R.id.user_info_list).getBottom();
 						LayoutParams param = kchart_view.getLayoutParams();
-						int new_height = chart_height;
-						param.height = new_height;
+						param.height += empty_height;
 						kchart_view.setLayoutParams(param);
 					}
 				}
+				// setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 			}
 				break;
 
@@ -383,6 +385,8 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				.getInt("timer_mobile_all", 0);
 		((MyApp) getApplicationContext()).app_update_all_pair_depth_trades = settings
 				.getBoolean("update_all_depth_trades", false);
+		((MyApp) getApplicationContext()).app_layout = settings.getString(
+				"layout", "main");
 	}
 
 	void savePreference() {
@@ -413,7 +417,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		editor.putBoolean(
 				"update_all_depth_trades",
 				((MyApp) getApplicationContext()).app_update_all_pair_depth_trades);
-
+		editor.putString("layout", ((MyApp) getApplicationContext()).app_layout);
 		editor.commit();
 	}
 
@@ -588,12 +592,32 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		m_info_data.add(ALL_PAIR_FEES, map);
 	}
 
+	public boolean pad_or_not() {
+		return false;
+	}
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.main);
+		// Log.e("ttt",getResources().getResourceEntryName(R.layout.main));
+		// Log.e("ttt",getResources().getResourceEntryName(R.layout.main_pad));
+		// Log.e("ttt",getResources().getResourceEntryName(R.layout.main_pad2));
+		for (int id : ((MyApp) getApplicationContext()).app_layout_ids) {
+			if (getResources().getResourceEntryName(id).equals(
+					((MyApp) getApplicationContext()).app_layout)) {
+				setContentView(id);
+				is_pad = id == R.layout.main ? false : true;
+				break;
+			}
+		}
+		// is_pad = pad_or_not();
+		// if (is_pad) {
+		// setContentView(R.layout.main_pad2);
+		// } else
+		// setContentView(R.layout.main);
+		// setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		kchart_view = (CandleStickView) findViewById(R.id.candlestick_view);
 		dp_chart = (DepthView) findViewById(R.id.depthchart_view);
 		td_chart = (TradesView) findViewById(R.id.tradeschart_view);
@@ -646,9 +670,9 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			}
 		};
 		resize_layout = (ResizeLayout) findViewById(R.id.root_layout);
-		chart_layout = (ResizeLayout) findViewById(R.id.chart_layout);
+		// chart_layout = (ResizeLayout) findViewById(R.id.chart_layout);
 		resize_layout.setOnResizeListener(chart_resize_listener);
-		chart_layout.setOnResizeListener(chart_resize_listener);
+		// chart_layout.setOnResizeListener(chart_resize_listener);
 		kchart_view
 				.setOnDoubleClickListener(new CandleStickView.OnDoubleClickListener() {
 
@@ -677,14 +701,16 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		im_ctrl = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
 		// kchart_view.setOnClickListener(this);
-		m_info_list.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// TODO Auto-generated method stub
-				mGestureDetector.onTouchEvent(event);
-				return false;
-			}
-		});
+		if (!is_pad) {
+			m_info_list.setOnTouchListener(new OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					// TODO Auto-generated method stub
+					mGestureDetector.onTouchEvent(event);
+					return false;
+				}
+			});
+		}
 		m_info_list.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
@@ -1074,8 +1100,12 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
 						.execute());
 				if (((MyApp) getApplicationContext()).app_update_all_pair_depth_trades) {
-					for (String pair : new BTCEPairs().trade_depth_pairs
-							.keySet()) {
+					BTCEPairs temp_pairs = new BTCEPairs();
+					if (!temp_pairs.trade_depth_pairs.keySet().contains(
+							m_params.pair))
+						temp_pairs.trade_depth_pairs.put(m_params.pair,
+								temp_pairs.get(m_params.pair));
+					for (String pair : temp_pairs.trade_depth_pairs.keySet()) {
 						m_params.method = BTCEHelper.btce_methods.TRADES;
 						btce_tasks.add((BTCETask) new BTCETask(m_params
 								.getparams().setpair(pair)).execute());

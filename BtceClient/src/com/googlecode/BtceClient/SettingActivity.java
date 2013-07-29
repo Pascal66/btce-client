@@ -31,6 +31,7 @@ public class SettingActivity extends Activity {
 	private LayoutInflater m_inflater;
 	AlertDialog dlg;
 	btce_params m_params;
+	ArrayList<String> strArray = new ArrayList<String>();
 
 	class setting_item {
 		String key;
@@ -49,6 +50,10 @@ public class SettingActivity extends Activity {
 		m_params = ((MyApp) getApplicationContext()).app_params;
 		enable_proxy = m_params.save_port == m_params.proxy_port;
 
+		for (int i = 0; i < ((MyApp) getApplicationContext()).app_layout_ids.length; ++i) {
+			strArray.add(getResources().getResourceEntryName(
+					((MyApp) getApplicationContext()).app_layout_ids[i]));
+		}
 		update_list_data();
 		m_settingList.setAdapter(new setting_list_Adapter(
 				getApplicationContext()));
@@ -131,6 +136,17 @@ public class SettingActivity extends Activity {
 					update_list_data();
 					m_settingList.setAdapter(new setting_list_Adapter(
 							getApplicationContext()));
+				} else if (position == 6) {
+					int cur_sel = strArray
+							.indexOf(((MyApp) getApplicationContext()).app_layout);
+					cur_sel = -1 == cur_sel ? 0 : cur_sel;
+					dlg = new AlertDialog.Builder(SettingActivity.this)
+							.setTitle("Layouts")
+							.setSingleChoiceItems(
+									(String[]) strArray.toArray(new String[0]),
+									cur_sel, ocl_layout)
+							.setPositiveButton("OK", ocl_layout)
+							.setNegativeButton("Cancel", null).show();
 				}
 				// else if (position == 4) {
 				// final View candle_view = m_inflater.inflate(
@@ -205,6 +221,21 @@ public class SettingActivity extends Activity {
 		}
 	};
 
+	OnClickListener ocl_layout = new OnClickListener() {
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			if (0 <= which) {
+				((MyApp) getApplicationContext()).app_layout = strArray
+						.get(which);
+			}
+			else {
+				AlertDialog dlg = (AlertDialog) dialog;
+				update_list_data();
+				m_settingList.setAdapter(new setting_list_Adapter(
+						getApplicationContext()));
+			}
+		}
+	};
 	OnClickListener ocl_timer = new OnClickListener() {
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
@@ -326,6 +357,11 @@ public class SettingActivity extends Activity {
 			item.img_id = android.R.drawable.checkbox_off_background;
 		m_setting_data.add(item);
 
+		item = new setting_item();
+		item.key = "Layout";
+		item.value = ((MyApp) getApplicationContext()).app_layout;
+		item.img_id = android.R.drawable.ic_menu_more;
+		m_setting_data.add(item);
 		// item = new setting_item();
 		// item.key = "Candlestick";
 		// item.value = ((MyApp) getApplicationContext()).app_candlestick_number
