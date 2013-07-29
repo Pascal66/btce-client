@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -46,7 +45,6 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -386,7 +384,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		((MyApp) getApplicationContext()).app_update_all_pair_depth_trades = settings
 				.getBoolean("update_all_depth_trades", false);
 		((MyApp) getApplicationContext()).app_layout = settings.getString(
-				"layout", "main");
+				"layout", getResources().getResourceEntryName(R.layout.main));
 	}
 
 	void savePreference() {

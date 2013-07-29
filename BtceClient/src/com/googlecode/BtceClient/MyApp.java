@@ -1,7 +1,6 @@
 package com.googlecode.BtceClient;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 import com.googlecode.BtceClient.BTCEHelper.btce_params;
 import com.googlecode.BtceClient.OrdersViewActivity.order_info;

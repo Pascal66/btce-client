@@ -203,7 +203,7 @@ public class TradesView extends View {
 
 	public void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		
+
 		int width = this.getMeasuredWidth();
 		int height = this.getMeasuredHeight();
 		// Log.e("onDraw",Integer.toString(width)+"x"+Integer.toString(height));
@@ -226,11 +226,12 @@ public class TradesView extends View {
 					r_chart.top + i * r_chart.height() / num_rows, mPaint);
 		}
 		int info_text_y = (int) (margin_top + text_infoSize);
-		if(0 < update_time){
+		if (0 < update_time) {
 			mPaint.setStyle(Style.FILL);
 			mPaint.setColor(text_infoColor);
 			mPaint.setStrokeWidth(1);
-			canvas.drawText(error_time_format.format(update_time), margin_left,info_text_y, mPaint);
+			canvas.drawText(error_time_format.format(update_time), margin_left,
+					info_text_y, mPaint);
 		}
 		if (m_trades_items.isEmpty())
 			return;

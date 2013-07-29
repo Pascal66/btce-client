@@ -32,6 +32,7 @@ public class SettingActivity extends Activity {
 	AlertDialog dlg;
 	btce_params m_params;
 	ArrayList<String> strArray = new ArrayList<String>();
+	int cur_layout = 0;
 
 	class setting_item {
 		String key;
@@ -137,14 +138,14 @@ public class SettingActivity extends Activity {
 					m_settingList.setAdapter(new setting_list_Adapter(
 							getApplicationContext()));
 				} else if (position == 6) {
-					int cur_sel = strArray
+					cur_layout = strArray
 							.indexOf(((MyApp) getApplicationContext()).app_layout);
-					cur_sel = -1 == cur_sel ? 0 : cur_sel;
+					cur_layout = -1 == cur_layout ? 0 : cur_layout;
 					dlg = new AlertDialog.Builder(SettingActivity.this)
 							.setTitle("Layouts")
 							.setSingleChoiceItems(
 									(String[]) strArray.toArray(new String[0]),
-									cur_sel, ocl_layout)
+									cur_layout, ocl_layout)
 							.setPositiveButton("OK", ocl_layout)
 							.setNegativeButton("Cancel", null).show();
 				}
@@ -225,10 +226,10 @@ public class SettingActivity extends Activity {
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
 			if (0 <= which) {
+				cur_layout = which;
+			} else {
 				((MyApp) getApplicationContext()).app_layout = strArray
-						.get(which);
-			}
-			else {
+						.get(cur_layout);
 				AlertDialog dlg = (AlertDialog) dialog;
 				update_list_data();
 				m_settingList.setAdapter(new setting_list_Adapter(
