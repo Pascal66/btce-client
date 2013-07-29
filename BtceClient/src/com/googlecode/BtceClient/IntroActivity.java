@@ -599,9 +599,9 @@ public class IntroActivity extends Activity implements OnGestureListener,
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		// Log.e("ttt",getResources().getResourceEntryName(R.layout.main));
-		// Log.e("ttt",getResources().getResourceEntryName(R.layout.main_pad));
-		// Log.e("ttt",getResources().getResourceEntryName(R.layout.main_pad2));
+		SharedPreferences settings = getSharedPreferences(MyApp.PREFS_NAME, 0);
+		((MyApp) getApplicationContext()).app_layout = settings.getString(
+				"layout", getResources().getResourceEntryName(R.layout.main));
 		for (int id : ((MyApp) getApplicationContext()).app_layout_ids) {
 			if (getResources().getResourceEntryName(id).equals(
 					((MyApp) getApplicationContext()).app_layout)) {
@@ -610,11 +610,6 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				break;
 			}
 		}
-		// is_pad = pad_or_not();
-		// if (is_pad) {
-		// setContentView(R.layout.main_pad2);
-		// } else
-		// setContentView(R.layout.main);
 		// setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		kchart_view = (CandleStickView) findViewById(R.id.candlestick_view);
 		dp_chart = (DepthView) findViewById(R.id.depthchart_view);
