@@ -62,8 +62,7 @@ public class PairFoundActivity extends Activity {
 							* last_price.getDouble(key + "_" + btc);
 					if ((0 == Double.compare(key_usd, 0.0))
 							&& (0 < Double.compare(key_btc, 0.0))) {
-						key_usd = extra_values.getDouble(key)
-								* last_price.getDouble("btc_usd");
+						key_usd = key_btc * last_price.getDouble("btc_usd");
 					}
 					all_usd += key_usd;
 					all_btc += key_btc;
