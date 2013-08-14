@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.googlecode.BtceClient.R;
+import com.googlecode.BtceClient.DepthView.OnDoubleClickListener;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -24,6 +25,16 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class TradesView extends View {
+	private OnDoubleClickListener mListener;
+	private long lastTouchTime = -1;
+
+	public interface OnDoubleClickListener {
+		void OnDoubleClick();
+	}
+
+	public void setOnDoubleClickListener(OnDoubleClickListener l) {
+		mListener = l;
+	}
 
 	Paint mPaint;
 	// String data =
@@ -363,6 +374,20 @@ public class TradesView extends View {
 		switch (action) {
 
 		case MotionEvent.ACTION_DOWN:
+
+			// Log.d(TAG, "onTouchEvent2 action:ACTION_DOWN");
+			long thisTime = System.currentTimeMillis();
+			if (thisTime - lastTouchTime < 250 && Math.abs(ev.getX() - bx) < 50
+					&& Math.abs(ev.getY() - by) < 50) {
+				// Double click
+				if (mListener != null) {
+					mListener.OnDoubleClick();
+				}
+				lastTouchTime = -1;
+			} else {
+				// too slow
+				lastTouchTime = thisTime;
+			}
 
 			mousedown = true;
 			ex = bx = ev.getX();

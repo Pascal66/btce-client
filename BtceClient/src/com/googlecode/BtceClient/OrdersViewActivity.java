@@ -164,7 +164,7 @@ public class OrdersViewActivity extends Activity {
 		temp_adapter
 				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		s_status.setAdapter(temp_adapter);
-		s_status.setSelection(1);
+		// s_status.setSelection(1);
 		s_status.setOnItemSelectedListener(new SpinnerSelectedListener());
 
 		m_statusView.setOnClickListener(new OnClickListener() {
@@ -229,6 +229,8 @@ public class OrdersViewActivity extends Activity {
 		active_orders_num = m_dbmgr.get_order_active();
 		if (0 == active_orders_num)
 			s_status.setSelection(0);
+		else
+			s_status.setSelection(1);
 		if (active_orders_num != this.getIntent().getIntExtra("number", -1))
 			update_orders();
 	}
@@ -378,10 +380,13 @@ public class OrdersViewActivity extends Activity {
 				order_item.time = order_json.getLong("timestamp_created");
 				order_item.status = order_json.getInt("status");
 				result_orders.add(order_item);
-
 			}
+
 			m_dbmgr.update_order(result_orders);
 			active_orders_num = m_dbmgr.get_order_active();
+			if (0 != active_orders_num)
+				s_status.setSelection(1);
+			// update the list
 			new SpinnerSelectedListener().onItemSelected(null, null, 0, 0);
 
 			update_statusStr(System.currentTimeMillis() / 1000, this

@@ -174,10 +174,12 @@ public class IntroActivity extends Activity implements OnGestureListener,
 	private static final int MSG_RESIZE = 1;
 	private static final int MSG_KCHART_DBCLK = 2;
 	private static final int MSG_KCHART_DBCLK_PERIOD = 3;
-	private static final int TIMER_WIFI = 4;
-	private static final int TIMER_MOBILE = 5;
-	private static final int TIMER_WIFI_ALL = 6;
-	private static final int TIMER_MOBILE_ALL = 7;
+	private static final int MSG_DEPTHVIEW_DBCLK = 4;
+	private static final int MSG_TRADESVIEW_DBCLK = 5;
+	private static final int TIMER_WIFI = 6;
+	private static final int TIMER_MOBILE = 7;
+	private static final int TIMER_WIFI_ALL = 8;
+	private static final int TIMER_MOBILE_ALL = 9;
 	private InputHandler mHandler = new InputHandler();
 
 	boolean is_pad = true;
@@ -263,6 +265,14 @@ public class IntroActivity extends Activity implements OnGestureListener,
 												.getWindowToken(), 0);
 									}
 								}).show();
+			}
+				break;
+			case MSG_DEPTHVIEW_DBCLK: {
+				onDepthItemSelected();
+			}
+				break;
+			case MSG_TRADESVIEW_DBCLK: {
+				onTradesItemSelected();
 			}
 				break;
 			case TIMER_WIFI: {
@@ -687,6 +697,26 @@ public class IntroActivity extends Activity implements OnGestureListener,
 
 					}
 				});
+		dp_chart.setOnDoubleClickListener(new DepthView.OnDoubleClickListener() {
+
+			@Override
+			public void OnDoubleClick() {
+				// TODO Auto-generated method stub
+				Message msg = new Message();
+				msg.what = MSG_DEPTHVIEW_DBCLK;
+				mHandler.sendMessage(msg);
+			}
+		});
+		td_chart.setOnDoubleClickListener(new TradesView.OnDoubleClickListener() {
+
+			@Override
+			public void OnDoubleClick() {
+				// TODO Auto-generated method stub
+				Message msg = new Message();
+				msg.what = MSG_TRADESVIEW_DBCLK;
+				mHandler.sendMessage(msg);
+			}
+		});
 
 		mGestureDetector = new GestureDetector(this);
 		mViewFlipper = (ViewFlipper) findViewById(R.id.flipper);
@@ -871,9 +901,25 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		menu.add(0, EXIT_ID, 0, R.string.exit);
 		menu.add(0, UPDATE_ALL_CHART, 0, R.string.update);
 		menu.add(0, PRICE_ID, 0, R.string.price);
-		menu.add(0, DEPTH_VIEW, 0, R.string.depth);
-		menu.add(0, TRADES_VIEW, 0, R.string.trades);
+		// menu.add(0, DEPTH_VIEW, 0, R.string.depth);
+		// menu.add(0, TRADES_VIEW, 0, R.string.trades);
 		menu.add(0, SETTING_ID, 0, R.string.setting);
+		return true;
+	}
+
+	private boolean onDepthItemSelected() {
+		Intent intent = new Intent();
+		intent.setClass(IntroActivity.this, DepthActivity.class);
+		intent.putExtra("depth", depth_str);
+		startActivityForResult(intent, DEPTH_VIEW);
+		return true;
+	}
+
+	private boolean onTradesItemSelected() {
+		Intent intent = new Intent();
+		intent.setClass(IntroActivity.this, TradesActivity.class);
+		intent.putExtra("trades", trades_str);
+		startActivityForResult(intent, TRADES_VIEW);
 		return true;
 	}
 
@@ -899,15 +945,9 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			startActivityForResult(intent, SETTING_ID);
 			return true;
 		case DEPTH_VIEW:
-			intent.setClass(IntroActivity.this, DepthActivity.class);
-			intent.putExtra("depth", depth_str);
-			startActivityForResult(intent, DEPTH_VIEW);
-			return true;
+			return onDepthItemSelected();
 		case TRADES_VIEW:
-			intent.setClass(IntroActivity.this, TradesActivity.class);
-			intent.putExtra("trades", trades_str);
-			startActivityForResult(intent, TRADES_VIEW);
-			return true;
+			return onTradesItemSelected();
 		case PRICE_ID:
 			intent.setClass(IntroActivity.this, PriceActivity.class);
 			intent.putExtra("fee", fee_level);

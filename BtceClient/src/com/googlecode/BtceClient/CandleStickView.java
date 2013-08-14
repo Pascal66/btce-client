@@ -490,7 +490,6 @@ public class CandleStickView extends View {
 		mPaint.setColor(text_infoColor);
 		canvas.drawText(info, width - mPaint.measureText(info), info_text_y,
 				mPaint);
-
 	}
 
 	@Override
