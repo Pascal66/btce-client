@@ -17,6 +17,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Paint.Style;
 import android.graphics.PathEffect;
 import android.graphics.Rect;
@@ -24,6 +25,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.util.Log;
+
 import com.googlecode.BtceClient.R;
 
 public class CandleStickView extends View {
@@ -94,6 +96,7 @@ public class CandleStickView extends View {
 	SimpleDateFormat print_date_format = new SimpleDateFormat("dd.MM.yy HH:mm",
 			Locale.UK);
 	Date temp_date = new Date();
+	Path price_path = new Path();
 
 	public static class ChartItem {
 		long time = 0;
@@ -101,6 +104,9 @@ public class CandleStickView extends View {
 		double close = 0;
 		double high = 0;
 		double low = 0;
+		double volume = 0;
+		double volume_currency = 0;
+		double w_price = 0;
 	}
 
 	// private class pairs {
@@ -239,6 +245,7 @@ public class CandleStickView extends View {
 				item.close = jitem.getDouble(2);
 				item.open = jitem.getDouble(3);
 				item.high = jitem.getDouble(4);
+				item.w_price = item.close;
 				items.add(item);
 			}
 		} catch (JSONException e) {
@@ -261,35 +268,42 @@ public class CandleStickView extends View {
 				new_item.high = original.get(i).high;
 				new_item.low = original.get(i).low;
 				new_item.close = original.get(i).close;
+				new_item.volume = original.get(i).volume;
+				new_item.volume_currency = original.get(i).volume_currency;
 			} else {
 				new_item.high = Math.max(original.get(i).high, new_item.high);
 				new_item.low = Math.min(original.get(i).low, new_item.low);
+				new_item.volume += original.get(i).volume;
+				new_item.volume_currency += original.get(i).volume_currency;
 			}
 			// plus 1800(30 minutes)
 			if ((original.get(i + 1).time - new_item.time) >= k_times * 1800) {
 				// if (0 == (original.get(i).time + 1800) % (k_times * 1800)) {
 				new_item.close = original.get(i).close;
+				new_item.w_price = 0 == Double.compare(new_item.volume, 0.0) ? new_item.close
+						: new_item.volume_currency / new_item.volume;
 				rtvalue.add(new_item);
 				new_item = new ChartItem();
 				continue;
 			}
 		}
+		int j = original.size() - 1;
 		if (0 != new_item.time) {
-			new_item.high = Math.max(original.get(original.size() - 1).high,
-					new_item.high);
-			new_item.low = Math.min(original.get(original.size() - 1).low,
-					new_item.low);
-			new_item.close = original.get(original.size() - 1).close;
-			rtvalue.add(new_item);
+			new_item.high = Math.max(original.get(j).high, new_item.high);
+			new_item.low = Math.min(original.get(j).low, new_item.low);
 		} else {
-			new_item.time = original.get(original.size() - 1).time
-					/ (k_times * 1800) * (k_times * 1800);
-			new_item.open = original.get(original.size() - 1).open;
-			new_item.high = original.get(original.size() - 1).high;
-			new_item.low = original.get(original.size() - 1).low;
-			new_item.close = original.get(original.size() - 1).close;
-			rtvalue.add(new_item);
+			new_item.time = original.get(j).time / (k_times * 1800)
+					* (k_times * 1800);
+			new_item.open = original.get(j).open;
+			new_item.high = original.get(j).high;
+			new_item.low = original.get(j).low;
 		}
+		new_item.close = original.get(j).close;
+		new_item.volume += original.get(j).volume;
+		new_item.volume_currency += original.get(j).volume_currency;
+		new_item.w_price = 0 == Double.compare(new_item.volume, 0.0) ? new_item.close
+				: new_item.volume_currency / new_item.volume;
+		rtvalue.add(new_item);
 		return rtvalue;
 	}
 
@@ -373,11 +387,13 @@ public class CandleStickView extends View {
 		last_k_index = last_k_index < number_k ? number_k : last_k_index;
 		int start_k_index = 0 > last_k_index - number_k ? 0 : last_k_index
 				- number_k;
-		double V_min = m_items.get(start_k_index).low, V_max = m_items
-				.get(start_k_index).high;
+		double V_min = m_items.get(start_k_index).low;
+		double V_max = m_items.get(start_k_index).high;
+		double V_volume_max = m_items.get(start_k_index).volume;
 		for (int i = start_k_index + 1; i < last_k_index; ++i) {
 			V_min = Math.min(V_min, m_items.get(i).low);
 			V_max = Math.max(V_max, m_items.get(i).high);
+			V_volume_max = Math.max(V_volume_max, m_items.get(i).volume);
 		}
 		double V_y_space = (V_max - V_min) / num_rows;
 		V_min -= V_y_space / 50;
@@ -402,18 +418,25 @@ public class CandleStickView extends View {
 			K_y_space = Math.ceil(2 * Math.pow(10, num_zero) * V_y_space)
 					/ (2 * Math.pow(10, num_zero));
 		double K_max = K_min + num_rows * K_y_space;
+		double K_volume_max = Math.ceil(V_volume_max);
+		K_volume_max = 0 == Double.compare(K_volume_max, 0.0) ? 1
+				: K_volume_max;
 		// Log.e("draw","V_min"+V_min+"V_max"+V_max+"V_y_space"+V_y_space+"K_min"+K_min+"K_max"+K_max+"K_y_space"+K_y_space);
 
 		// draw candlestick blocks
 		int focus_k_index = -1;
 		double k = (r_chart.top - r_chart.bottom) / (K_max - K_min);
 		double b = r_chart.top - k * K_max;
+		double k_volume = (r_chart.top - r_chart.bottom) / (K_volume_max - 0);
+		double b_volume = r_chart.top - k_volume * K_volume_max;
 		// Log.d("t",
 		// "V_max"+Double.toString(V_max)+",V_min:"+Double.toString(V_min)+",V_y_space:"+Double.toString(V_y_space));
 		// Log.d("t",
-		// "K_max"+Double.toString(K_max)+",K_min:"+Double.toString(K_min)+",K_y_space:"+Double.toString(K_y_space));
+		// "K_max"+Double.toString(K_max)+",K_min:"+Doublreturn_list.add(0,
+		// item);e.toString(K_min)+",K_y_space:"+Double.toString(K_y_space));
 		// Log.d("t", "k"+Double.toString(k)+",b:"+Double.toString(b));
 		// from left to right
+		price_path.reset();
 		for (int i = start_k_index, px = r_chart.left + margin_K; i < last_k_index; ++i, px += width_K
 				+ margin_K) {
 			// from right to left
@@ -436,18 +459,30 @@ public class CandleStickView extends View {
 					(int) (k * m_items.get(i).high + b), r_block.centerX(),
 					(int) (k * m_items.get(i).low + b), mPaint);
 
+			mPaint.setStyle(Style.FILL_AND_STROKE);
 			if (r_block.top < r_block.bottom) {
 				mPaint.setColor(block_downColor);
-				mPaint.setStyle(Style.FILL_AND_STROKE);
 			} else {// swap left top and bottom
 				int a = r_block.top;
 				r_block.top = r_block.bottom;
 				r_block.bottom = a;
 				mPaint.setColor(block_upColor);
-				mPaint.setStyle(Style.FILL_AND_STROKE);
 			}
 			canvas.drawRect(r_block, mPaint);
 
+			// draw volume block
+			mPaint.setColor(mPaint.getColor() & 0X7FFFFFFF);
+			r_block.set(px + 1,
+					(int) (k_volume * m_items.get(i).volume + b_volume), px
+							+ width_K - 1, (int) (k_volume * 0 + b_volume));
+			canvas.drawRect(r_block, mPaint);
+			if (i == start_k_index) {
+				price_path.moveTo(r_block.centerX(), (int) (k
+						* m_items.get(i).w_price + b));
+			} else {
+				price_path.lineTo(r_block.centerX(), (int) (k
+						* m_items.get(i).w_price + b));
+			}
 			// draw line when mouse down
 			if (mousedown
 					&& -1 == focus_k_index
@@ -457,14 +492,19 @@ public class CandleStickView extends View {
 				canvas.drawLine(r_block.centerX(), r_chart.top,
 						r_block.centerX(), r_chart.bottom, mPaint);
 			}
-
 		}
+		mPaint.setStyle(Style.STROKE);
+		mPaint.setStrokeWidth(1);
+		mPaint.setColor(0XFF00FF00);
+		canvas.drawPath(price_path, mPaint);
 
 		// draw text of the Y axis
+		mPaint.setStyle(Style.FILL_AND_STROKE);
 		mPaint.setColor(text_yColor);
+		mPaint.setStrokeWidth(1);
 		canvas.drawText(formatter5.format(K_min + 0 * K_y_space), margin_left,
-				r_chart.top + (num_rows - 0) * r_chart.height() / num_rows,
-				mPaint);
+				r_chart.top + (num_rows - 0) * r_chart.height() / num_rows
+						- textSize, mPaint);
 		canvas.drawText(formatter5.format(K_min + num_rows * K_y_space),
 				margin_left,
 				r_chart.top + (num_rows - num_rows) * r_chart.height()
@@ -475,9 +515,24 @@ public class CandleStickView extends View {
 					r_chart.top + (num_rows - i) * r_chart.height() / num_rows,
 					mPaint);
 		}
-		int info_text_y = (int) (margin_top + text_infoSize);
+
+		mPaint.setColor(0XFF008000);
+		canvas.drawText(formatter5.format(0 * K_volume_max / num_rows),
+				margin_left, r_chart.top + (num_rows - 0) * r_chart.height()
+						/ num_rows, mPaint);
+		canvas.drawText(formatter5.format(num_rows * K_volume_max / num_rows),
+				margin_left,
+				r_chart.top + (num_rows - num_rows) * r_chart.height()
+						/ num_rows + 2 * textSize - 5, mPaint);
+		for (int i = 1; i < num_rows; ++i) {
+			canvas.drawText(formatter5.format(i * K_volume_max / num_rows),
+					margin_left,
+					r_chart.top + (num_rows - i) * r_chart.height() / num_rows
+							+ textSize, mPaint);
+		}
 
 		// draw the info text
+		int info_text_y = (int) (margin_top + text_infoSize);
 		if (-1 == focus_k_index)
 			focus_k_index = m_items.size() - 1;
 		ChartItem item = m_items.get(focus_k_index);

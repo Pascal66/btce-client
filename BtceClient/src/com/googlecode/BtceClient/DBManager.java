@@ -119,8 +119,9 @@ public class DBManager {
 				if (last_time > item.time)
 					continue;
 				chart_db.execSQL("INSERT OR REPLACE INTO " + pair
-						+ " VALUES(?, ?, ?, ?, ?)", new Object[] { item.time,
-						item.open, item.close, item.high, item.low });
+						+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?)", new Object[] {
+						item.time, item.open, item.close, item.high, item.low,
+						item.volume, item.volume_currency, item.w_price });
 			}
 			chart_db.setTransactionSuccessful();
 		} catch (SQLException e) {
@@ -469,6 +470,12 @@ public class DBManager {
 			item.close = c.getDouble(c.getColumnIndex("close"));
 			item.high = c.getDouble(c.getColumnIndex("high"));
 			item.low = c.getDouble(c.getColumnIndex("low"));
+			item.volume = c.getDouble(c.getColumnIndex("volume"));
+			item.volume_currency = c.getDouble(c
+					.getColumnIndex("volume_currency"));
+			item.w_price = c.getDouble(c.getColumnIndex("w_price"));
+			item.w_price = 0 == Double.compare(item.w_price, 0.0) ? item.close
+					: item.w_price;
 			return_list.add(0, item);
 		}
 		return return_list;

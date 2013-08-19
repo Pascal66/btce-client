@@ -1,7 +1,12 @@
 package com.googlecode.BtceClient;
 
+import java.util.Vector;
+
+import com.googlecode.BtceClient.HistroyActivity.trans_his_item;
+
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -9,7 +14,7 @@ import android.util.Log;
 public class DBChartHelper extends SQLiteOpenHelper {
 
 	private static String DATABASE_NAME = "chart_info.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 
 	public DBChartHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -30,30 +35,39 @@ public class DBChartHelper extends SQLiteOpenHelper {
 	// called if the version is changed
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// if(1==oldVersion && 2==newVersion) {
-		// BTCEPairs p = new BTCEPairs();
-		// for (String pair : p.keySet()) {
-		// String query_str = "SELECT * FROM " + pair+ " ORDER BY _id ASC";
-		// Cursor c = db.rawQuery(query_str, null);
-		// Vector<ChartItem> return_list = new Vector<ChartItem>();
-		// while (c.moveToNext()) {
-		// ChartItem item = new ChartItem();
-		// item.time = c.getLong(c.getColumnIndex("_id"));
-		// item.open = c.getDouble(c.getColumnIndex("open"));
-		// item.close = c.getDouble(c.getColumnIndex("close"));
-		// item.high = c.getDouble(c.getColumnIndex("high"));
-		// item.low = c.getDouble(c.getColumnIndex("low"));
-		// return_list.add(item);
-		// }
-		//
-		// for(ChartItem item : return_list) {
-		// String strFilter = "_id=" + item.time;
-		// ContentValues args = new ContentValues();
-		// args.put("_id", item.time - 8*60*60);
-		// db.update(pair, args, strFilter, null);
-		// }
-		// }
-		//
-		// }
+
+		String query_str = "SELECT name FROM sqlite_master WHERE type='table' and name != 'android_metadata'";
+		Cursor c = db.rawQuery(query_str, null);
+		Vector<String> tables = new Vector<String>();
+		while (c.moveToNext()) {
+			tables.add(c.getString(0));
+			Log.e("table: ", c.getString(0));
+		}
+
+		switch (oldVersion) {
+		case 1: {
+			db.beginTransaction();
+			try {
+				for (String tb : tables) {
+					query_str = "alter table " + tb + " add \"volume\" REAL";
+					db.execSQL(query_str);
+					query_str = "alter table " + tb
+							+ " add \"volume_currency\" REAL";
+					db.execSQL(query_str);
+					query_str = "alter table " + tb + " add \"w_price\" REAL";
+					db.execSQL(query_str);
+				}
+				db.setTransactionSuccessful();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				db.endTransaction();
+			}
+		}
+
+			break;
+		default:
+			break;
+		}
 	}
 }
