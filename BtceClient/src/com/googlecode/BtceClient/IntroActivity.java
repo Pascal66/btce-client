@@ -50,6 +50,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -245,6 +246,10 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				((TextView) candle_view.findViewById(R.id.period))
 						.setText(""
 								+ ((MyApp) getApplicationContext()).app_candlestick_period);
+				((CheckBox) candle_view.findViewById(R.id.vol_bar))
+						.setChecked(((MyApp) getApplicationContext()).show_volume_bar);
+				((CheckBox) candle_view.findViewById(R.id.price_line))
+						.setChecked(((MyApp) getApplicationContext()).show_price_line);
 				AlertDialog dlg = new AlertDialog.Builder(IntroActivity.this)
 						.setTitle("Candlestick:")
 						.setIcon(android.R.drawable.ic_dialog_info)
@@ -346,6 +351,10 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			} catch (NumberFormatException e) {
 				((MyApp) getApplicationContext()).app_candlestick_period = 1;
 			}
+			((MyApp) getApplicationContext()).show_volume_bar = ((CheckBox) dlg
+					.findViewById(R.id.vol_bar)).isChecked();
+			((MyApp) getApplicationContext()).show_price_line = ((CheckBox) dlg
+					.findViewById(R.id.price_line)).isChecked();
 			// update_list_data();
 			// m_settingList.setAdapter(new setting_list_Adapter(
 			// getApplicationContext()));
@@ -395,6 +404,10 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				.getBoolean("update_all_depth_trades", false);
 		((MyApp) getApplicationContext()).app_layout = settings.getString(
 				"layout", getResources().getResourceEntryName(R.layout.main));
+		((MyApp) getApplicationContext()).show_price_line = settings
+				.getBoolean("show_price_line", false);
+		((MyApp) getApplicationContext()).show_volume_bar = settings
+				.getBoolean("show_volume_bar", false);
 	}
 
 	void savePreference() {
@@ -426,6 +439,10 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				"update_all_depth_trades",
 				((MyApp) getApplicationContext()).app_update_all_pair_depth_trades);
 		editor.putString("layout", ((MyApp) getApplicationContext()).app_layout);
+		editor.putBoolean("show_price_line",
+				((MyApp) getApplicationContext()).show_price_line);
+		editor.putBoolean("show_volume_bar",
+				((MyApp) getApplicationContext()).show_volume_bar);
 		editor.commit();
 	}
 
@@ -532,6 +549,8 @@ public class IntroActivity extends Activity implements OnGestureListener,
 	void initialView() {
 		// m_caculate_view.setText(pair.toUpperCase());
 		// kchart_view.invalidate();
+		kchart_view.show_price_line = ((MyApp) getApplicationContext()).show_price_line;
+		kchart_view.show_volume_bar = ((MyApp) getApplicationContext()).show_volume_bar;
 		kchart_view.k_times = ((MyApp) getApplicationContext()).app_candlestick_period;
 		order_num = m_dbmgr.get_order_active();
 		((MyApp) getApplicationContext()).app_trans_num = m_dbmgr
@@ -544,6 +563,15 @@ public class IntroActivity extends Activity implements OnGestureListener,
 										* ((MyApp) getApplicationContext()).app_candlestick_number,
 								0));
 
+		depth_str = "";
+		trades_str = "";
+		try {
+			dp_chart.feedJosn_depth(depth_str);
+			td_chart.feedJosn_trades(trades_str);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		m_status_view.setText(m_params.pair);
 		update_list_data();
 		m_info_list.setAdapter(new Info_list_Adapter(getApplicationContext()));
@@ -1120,6 +1148,16 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				}
 				btce_tasks.clear();
 				m_params.reset();
+				if (((MyApp) getApplicationContext()).use_bitcoincharts) {
+					m_params.chart_start_time = m_dbmgr
+							.get_last_chart_time(m_params.pair);
+					if (m_params.pair.equals("btc_usd")) {
+						// update all pairs price
+						m_params.method = BTCEHelper.btce_methods.BTCE_UPDATE;
+						btce_tasks.add((BTCETask) new BTCETask(m_params
+								.getparams()).execute());
+					}
+				}
 				m_params.method = BTCEHelper.btce_methods.ORDERS_UPDATE;
 				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
 						.execute());
@@ -1396,6 +1434,62 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		return 0;
 	}
 
+	public int feedJosn_last_price(String pair, JSONObject obj) {
+		JSONObject last_price;
+		try {
+			last_price = obj.getJSONObject("last");
+			for (String pair_key : new BTCEPairs().keySet()) {
+				m_last_price.putDouble(pair_key,
+						last_price.getDouble(new BTCEPairs().get(pair_key)));
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	public int feedJosn_bitcoincharts(String pair, String json_str) {
+		JSONArray obj;
+		try {
+			obj = new JSONArray(json_str);
+			int up_num = m_dbmgr.update_chart(
+					kchart_view.update_items_bitcoincharts(obj), pair);
+			if (pair.equals(m_params.pair))
+				kchart_view
+						.feedJosn_chart(m_dbmgr
+								.get_chart_data(
+										pair,
+										kchart_view.k_times
+												* ((MyApp) getApplicationContext()).app_candlestick_number,
+										0));
+			update_statusStr(
+					System.currentTimeMillis() / 1000,
+					String.format(
+							pair
+									+ ":"
+									+ getResources().getString(
+											R.string.chart_ok), pair));
+			if (49 <= up_num
+					&& ((MyApp) getApplicationContext()).use_bitcoincharts
+					&& m_params.pair.equals("btc_usd")) {
+				m_params.reset();
+				m_params.chart_start_time = m_dbmgr
+						.get_last_chart_time(m_params.pair);
+				m_params.method = BTCEHelper.btce_methods.ORDERS_UPDATE;
+				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
+						.execute());
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			update_statusStr(System.currentTimeMillis() / 1000,
+					pair + ":" + getResources().getString(R.string.chart_error)
+							+ e.getMessage());
+		}
+		return 0;
+	}
+
 	public int feedJosn_orders_update(String pair, JSONObject obj) {
 		try {
 			if (1 != obj.getInt("success")) {
@@ -1417,13 +1511,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 										kchart_view.k_times
 												* ((MyApp) getApplicationContext()).app_candlestick_number,
 										0));
-
-			JSONObject last_price = obj.getJSONObject("last");
-			for (String pair_key : new BTCEPairs().keySet()) {
-				m_last_price.putDouble(pair_key,
-						last_price.getDouble(new BTCEPairs().get(pair_key)));
-			}
-
+			feedJosn_last_price(pair, obj);
 			update_statusStr(
 					System.currentTimeMillis() / 1000,
 					String.format(
@@ -1485,6 +1573,8 @@ public class IntroActivity extends Activity implements OnGestureListener,
 						IntroActivity.this.getResources().getString(
 								R.string.chart_ing)
 								+ param.pair);
+				break;
+			case BTCE_UPDATE:
 				break;
 			case TRADE:
 				String info;
@@ -1555,8 +1645,17 @@ public class IntroActivity extends Activity implements OnGestureListener,
 					feedJosn_ticker(fetch_result);
 					break;
 				case ORDERS_UPDATE:
+					if (0 != param.chart_start_time
+							&& param.pair.equals("btc_usd")) {
+						feedJosn_bitcoincharts(param.pair, result);
+					} else {
+						fetch_result = new JSONObject(result);
+						feedJosn_orders_update(param.pair, fetch_result);
+					}
+					break;
+				case BTCE_UPDATE:
 					fetch_result = new JSONObject(result);
-					feedJosn_orders_update(param.pair, fetch_result);
+					feedJosn_last_price(param.pair, fetch_result);
 					break;
 				case TRADE:
 					fetch_result = new JSONObject(result);

@@ -65,7 +65,7 @@
                 android:id="@+id/tradeschart_view"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="0.935"
                 class="com.googlecode.BtceClient.TradesView"
                 TChart:td_askfillColor="#7F4E8CD9"
                 TChart:td_asklineColor="#FF4E8CD9"

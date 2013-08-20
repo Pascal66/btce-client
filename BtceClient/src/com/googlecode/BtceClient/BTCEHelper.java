@@ -9,9 +9,13 @@ import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.zip.GZIPInputStream;
 
 import javax.crypto.Mac;
@@ -60,7 +64,7 @@ public class BTCEHelper {
 	private static final BTCEPairs all_pairs = new BTCEPairs();
 
 	enum btce_methods {
-		FEE, TICKER, TRADES, DEPTH, ORDERS_UPDATE, GET_INFO, TRANS_HISTORY, TRADE_HISTORY, ORDER_LIST, TRADE, CANCEL_ORDER, UNKNOWN
+		FEE, TICKER, TRADES, DEPTH, ORDERS_UPDATE, BTCE_UPDATE, GET_INFO, TRANS_HISTORY, TRADE_HISTORY, ORDER_LIST, TRADE, CANCEL_ORDER, UNKNOWN
 	}
 
 	private btce_params params = new btce_params();
@@ -94,6 +98,7 @@ public class BTCEHelper {
 		long his_since;
 		long his_end;
 		int order_active;
+		long chart_start_time;
 
 		public btce_params() {
 			reset();
@@ -117,6 +122,7 @@ public class BTCEHelper {
 			order_id = his_from = his_count = his_from_id = his_end_id = -1;
 			his_since = his_end = order_active = -1;
 			asc = false;
+			chart_start_time = 0;
 		}
 
 		public btce_params setpair(String pair) {
@@ -147,6 +153,12 @@ public class BTCEHelper {
 				return error_string;
 			return this.getDepth(params.pair);
 		case ORDERS_UPDATE:
+			if (!all_pairs.containsKey(params.pair))
+				return error_string;
+			if (0 != params.chart_start_time && params.pair.equals("btc_usd"))
+				return this.btceUSD_bitcoincharts(params.chart_start_time);
+			return this.orders_update(params.pair);
+		case BTCE_UPDATE:
 			if (!all_pairs.containsKey(params.pair))
 				return error_string;
 			return this.orders_update(params.pair);
@@ -221,6 +233,25 @@ public class BTCEHelper {
 				+ btce_host_name));
 		return downloadFromServer(btce_scheme + "://" + btce_host_name
 				+ "/ajax/order.php", temp_header, parameters);
+	}
+
+	protected String btceUSD_bitcoincharts(long start_time) {
+		SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd",
+				Locale.UK);
+		date_format.setTimeZone(TimeZone.getTimeZone("GMT+0:00"));
+		Date temp_date = new Date();
+		String priod = "30-min";
+		String symbol = "btceUSD";
+		temp_date.setTime(start_time * 1000);
+		String url = "http://bitcoincharts.com/charts/chart.json?m=" + symbol
+				+ "&SubmitButton=Draw&r=60&i=" + priod + "&c=1&s="
+				+ date_format.format(temp_date);
+		temp_date.setTime((start_time + 60 * 24 * 60 * 60) * 1000);
+		url += "&e="
+				+ date_format.format(temp_date)
+				+ "&Prev=&Next=&t=S&b=&a1=&m1=10&a2=&m2=25&x=0&i1=&i2=&i3=&i4=&v=1&cv=0&ps=0&l=0&p=0&";
+		// Log.e("bitcoinchart", url);
+		return downloadFromServer(url);
 	}
 
 	protected String getInfo() {
@@ -467,12 +498,6 @@ public class BTCEHelper {
 		if (null == data) {
 			HttpGet get = new HttpGet(url);
 			// add header
-			if (null != header) {
-				for (int i = 0; i < header.size(); ++i) {
-					get.setHeader(header.get(i).getName(), header.get(i)
-							.getValue());
-				}
-			}
 			request = get;
 		} else {
 			HttpPost post = new HttpPost(url);
@@ -484,17 +509,18 @@ public class BTCEHelper {
 				e.printStackTrace();
 			}
 			post.setEntity(uef);
-			if (null != header) {
-				for (int i = 0; i < header.size(); ++i) {
-					post.setHeader(header.get(i).getName(), header.get(i)
-							.getValue());
-				}
-			}
 			request = post;
+		}
+		if (null != header) {
+			for (int i = 0; i < header.size(); ++i) {
+				request.setHeader(header.get(i).getName(), header.get(i)
+						.getValue());
+			}
 		}
 		request.setHeader("Accept-Encoding", "gzip");
 		try {
-			HttpResponse response = client.execute(target, request);
+			// HttpResponse response = client.execute(target, request);
+			HttpResponse response = client.execute(request);
 			StatusLine status = response.getStatusLine();
 			if (status.getStatusCode() != HTTP_STATUS_OK) {
 				return "{\"success\":0,\"error\":\"" + status.toString()
@@ -515,7 +541,10 @@ public class BTCEHelper {
 			// add success json obj
 			String info = new String(content.toByteArray());
 			int len = info.length();
-			if (btce_methods.TRADES != params.method && 0 != len
+			if (0 != params.chart_start_time && params.pair.equals("btc_usd")
+					&& btce_methods.ORDERS_UPDATE == params.method) {
+
+			} else if (btce_methods.TRADES != params.method && 0 != len
 					&& !info.contains("\"success\"")) {
 				info = info.substring(0, len - 1) + ",\"success\":1"
 						+ info.substring(len - 1);

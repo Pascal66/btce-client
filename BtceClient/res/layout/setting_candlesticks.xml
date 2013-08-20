@@ -21,6 +21,17 @@
         android:hint="period: n*30 minutes"
         android:ems="10"
         android:inputType="number" />
-    
+
+    <CheckBox
+        android:id="@+id/vol_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Show Volume Bar" />
+
+    <CheckBox
+        android:id="@+id/price_line"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Show Price Line" />
 
 </LinearLayout>

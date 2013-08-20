@@ -14,7 +14,7 @@ import android.util.Log;
 public class DBChartHelper extends SQLiteOpenHelper {
 
 	private static String DATABASE_NAME = "chart_info.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 
 	public DBChartHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -26,7 +26,7 @@ public class DBChartHelper extends SQLiteOpenHelper {
 		for (String pair : p.keySet()) {
 			String sql_string = "CREATE TABLE IF NOT EXISTS "
 					+ pair
-					+ "(_id INTEGER PRIMARY KEY, open REAL, close REAL, high REAL, low REAL)";
+					+ "(_id INTEGER PRIMARY KEY, open REAL, close REAL, high REAL, low REAL, volume REAL, volume_currency REAL, w_price REAL)";
 			// Log.e("SQL", sql_string);
 			db.execSQL(sql_string);
 		}
@@ -64,8 +64,18 @@ public class DBChartHelper extends SQLiteOpenHelper {
 				db.endTransaction();
 			}
 		}
-
-			break;
+		case 2: {
+			db.beginTransaction();
+			try {
+				query_str = "DELETE FROM btc_usd";
+				db.execSQL(query_str);
+				db.setTransactionSuccessful();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				db.endTransaction();
+			}
+		}
 		default:
 			break;
 		}

@@ -113,6 +113,7 @@ public class DBManager {
 
 	public int update_chart(Vector<ChartItem> chart_items, String pair) {
 		long last_time = get_last_chart_time(pair);
+		int up_num = 0;
 		chart_db.beginTransaction();
 		try {
 			for (ChartItem item : chart_items) {
@@ -122,6 +123,7 @@ public class DBManager {
 						+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?)", new Object[] {
 						item.time, item.open, item.close, item.high, item.low,
 						item.volume, item.volume_currency, item.w_price });
+				up_num++;
 			}
 			chart_db.setTransactionSuccessful();
 		} catch (SQLException e) {
@@ -129,7 +131,7 @@ public class DBManager {
 		} finally {
 			chart_db.endTransaction();
 		}
-		return chart_items.size();
+		return up_num;
 	}
 
 	public int update_trades(ArrayList<trades_item> trades_items, String pair) {
@@ -219,7 +221,7 @@ public class DBManager {
 		Cursor c = chart_db.rawQuery("SELECT _id FROM " + pair
 				+ " ORDER BY _id DESC LIMIT 1", null);
 		if (0 == c.getCount())
-			return 0;
+			return 1356998400;// 2013-01-01 00:00:00
 		c.moveToNext();
 		return c.getLong(0);
 	}

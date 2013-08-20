@@ -68,6 +68,8 @@ public class CandleStickView extends View {
 	Rect r_chart = new Rect();
 	int num_rows = 4;// grid of this view
 	int k_times = 12;// candlestick period, k_times*30 minutes
+	boolean show_price_line = false;
+	boolean show_volume_bar = false;
 	Rect r_block = new Rect();
 	PathEffect dash_effects = new DashPathEffect(new float[] { 5, 5, 5, 5 }, 1); // dash
 																					// line
@@ -224,6 +226,29 @@ public class CandleStickView extends View {
 
 	}
 
+	public Vector<ChartItem> update_items_bitcoincharts(JSONArray chart_datas) {
+		Vector<ChartItem> items = new Vector<ChartItem>();
+		try {
+			for (int i = 0; i < chart_datas.length(); ++i) {
+				JSONArray jitem = chart_datas.getJSONArray(i);
+				ChartItem item = new ChartItem();
+				item.time = jitem.getLong(0);
+				item.open = jitem.getDouble(1);
+				item.high = jitem.getDouble(2);
+				item.low = jitem.getDouble(3);
+				item.close = jitem.getDouble(4);
+				item.volume = jitem.getDouble(5);
+				item.volume_currency = jitem.getDouble(6);
+				item.w_price = jitem.getDouble(7);
+				items.add(item);
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return items;
+	}
+
 	public Vector<ChartItem> update_items(JSONArray chart_datas) {
 		Vector<ChartItem> items = new Vector<ChartItem>();
 		try {
@@ -363,9 +388,13 @@ public class CandleStickView extends View {
 		mPaint.setColor(bgColor);
 		canvas.drawRect(0, 0, width, height, mPaint);
 
+		int text_lines = 1;
+		if (width < mPaint
+				.measureText("H:0.00000 L:0.00000 O:0.00000 C:0.00000 T:00.00.00 00:00 V:0.00000 C:0.00000 P:0.00000"))
+			text_lines = 2;
 		r_chart.set((int) (margin_left + y_text_width + margin_space),
-				(int) (margin_top + text_infoSize + margin_space), width
-						- margin_right, height - margin_bottom);
+				(int) (margin_top + text_lines * text_infoSize + margin_space),
+				width - margin_right, height - margin_bottom);
 		// draw the axis
 		mPaint.setStyle(Style.STROKE);
 		mPaint.setStrokeWidth(1);
@@ -471,17 +500,22 @@ public class CandleStickView extends View {
 			canvas.drawRect(r_block, mPaint);
 
 			// draw volume block
-			mPaint.setColor(mPaint.getColor() & 0X7FFFFFFF);
-			r_block.set(px + 1,
-					(int) (k_volume * m_items.get(i).volume + b_volume), px
-							+ width_K - 1, (int) (k_volume * 0 + b_volume));
-			canvas.drawRect(r_block, mPaint);
-			if (i == start_k_index) {
-				price_path.moveTo(r_block.centerX(), (int) (k
-						* m_items.get(i).w_price + b));
-			} else {
-				price_path.lineTo(r_block.centerX(), (int) (k
-						* m_items.get(i).w_price + b));
+			if (show_volume_bar) {
+				mPaint.setColor(mPaint.getColor() & 0X7FFFFFFF);
+				r_block.set(px + 1,
+						(int) (k_volume * m_items.get(i).volume + b_volume), px
+								+ width_K - 1, (int) (k_volume * 0 + b_volume));
+				canvas.drawRect(r_block, mPaint);
+			}
+			// update price line
+			if (show_price_line) {
+				if (i == start_k_index) {
+					price_path.moveTo(r_block.centerX(),
+							(int) (k * m_items.get(i).w_price + b));
+				} else {
+					price_path.lineTo(r_block.centerX(),
+							(int) (k * m_items.get(i).w_price + b));
+				}
 			}
 			// draw line when mouse down
 			if (mousedown
@@ -493,10 +527,12 @@ public class CandleStickView extends View {
 						r_block.centerX(), r_chart.bottom, mPaint);
 			}
 		}
-		mPaint.setStyle(Style.STROKE);
-		mPaint.setStrokeWidth(1);
-		mPaint.setColor(0XFF00FF00);
-		canvas.drawPath(price_path, mPaint);
+		if (show_price_line) {
+			mPaint.setStyle(Style.STROKE);
+			mPaint.setStrokeWidth(1);
+			mPaint.setColor(0XFF00FF00);
+			canvas.drawPath(price_path, mPaint);
+		}
 
 		// draw text of the Y axis
 		mPaint.setStyle(Style.FILL_AND_STROKE);
@@ -537,14 +573,32 @@ public class CandleStickView extends View {
 			focus_k_index = m_items.size() - 1;
 		ChartItem item = m_items.get(focus_k_index);
 		temp_date.setTime(item.time * 1000);
-		String info = "T:" + print_date_format.format(temp_date) + " O:"
-				+ my_formatter(item.open, 6) + " H:"
-				+ my_formatter(item.high, 6) + " L:"
-				+ my_formatter(item.low, 6) + " C:"
-				+ my_formatter(item.close, 6);
 		mPaint.setColor(text_infoColor);
-		canvas.drawText(info, width - mPaint.measureText(info), info_text_y,
-				mPaint);
+		if (1 == text_lines) {
+			String info = "T:" + print_date_format.format(temp_date) + " O:"
+					+ my_formatter(item.open, 6) + " H:"
+					+ my_formatter(item.high, 6) + " L:"
+					+ my_formatter(item.low, 6) + " C:"
+					+ my_formatter(item.close, 6) + " V:"
+					+ my_formatter(item.volume, 6) + " C:"
+					+ my_formatter(item.volume_currency, 6) + " P:"
+					+ my_formatter(item.w_price, 6);
+			canvas.drawText(info, width - mPaint.measureText(info),
+					info_text_y - 3, mPaint);
+		} else {
+			String info = " O:" + my_formatter(item.open, 6) + " H:"
+					+ my_formatter(item.high, 6) + " L:"
+					+ my_formatter(item.low, 6) + " C:"
+					+ my_formatter(item.close, 6);
+			canvas.drawText(info, width - mPaint.measureText(info),
+					info_text_y, mPaint);
+			info = "T:" + print_date_format.format(temp_date) + " V:"
+					+ my_formatter(item.volume, 6) + " C:"
+					+ my_formatter(item.volume_currency, 6) + " P:"
+					+ my_formatter(item.w_price, 6);
+			canvas.drawText(info, width - mPaint.measureText(info),
+					2 * info_text_y - 3, mPaint);
+		}
 	}
 
 	@Override
