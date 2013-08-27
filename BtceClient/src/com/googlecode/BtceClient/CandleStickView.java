@@ -178,11 +178,13 @@ public class CandleStickView extends View {
 		int len = s.length();
 		int i = s.indexOf('.');
 		if (-1 == i) {
-			if (len < bits)
+			if (len <= bits)
 				s = s + ".";
 			for (int t = len; t < bits; ++t)
 				s = s + "0";
-		} else if (bits <= i) {
+		} else if (bits == i) {
+			s = s.substring(0, i + 1);
+		} else if (bits < i) {
 			s = s.substring(0, i);
 		} else {
 			s = s.substring(0, s.length() > bits ? bits + 1 : s.length());
@@ -501,10 +503,10 @@ public class CandleStickView extends View {
 
 			// draw volume block
 			if (show_volume_bar) {
-				mPaint.setColor(mPaint.getColor() & 0X7FFFFFFF);
-				r_block.set(px + 1,
+				mPaint.setColor(mPaint.getColor() & 0XDFCFFFCF);
+				r_block.set(px + 2,
 						(int) (k_volume * m_items.get(i).volume + b_volume), px
-								+ width_K - 1, (int) (k_volume * 0 + b_volume));
+								+ width_K - 2, (int) (k_volume * 0 + b_volume));
 				canvas.drawRect(r_block, mPaint);
 			}
 			// update price line
@@ -575,27 +577,27 @@ public class CandleStickView extends View {
 		temp_date.setTime(item.time * 1000);
 		mPaint.setColor(text_infoColor);
 		if (1 == text_lines) {
-			String info = "T:" + print_date_format.format(temp_date) + " O:"
-					+ my_formatter(item.open, 6) + " H:"
-					+ my_formatter(item.high, 6) + " L:"
-					+ my_formatter(item.low, 6) + " C:"
-					+ my_formatter(item.close, 6) + " V:"
+			String info = "T:" + print_date_format.format(temp_date) + " V:"
 					+ my_formatter(item.volume, 6) + " C:"
 					+ my_formatter(item.volume_currency, 6) + " P:"
-					+ my_formatter(item.w_price, 6);
-			canvas.drawText(info, width - mPaint.measureText(info),
-					info_text_y - 3, mPaint);
-		} else {
-			String info = " O:" + my_formatter(item.open, 6) + " H:"
+					+ my_formatter(item.w_price, 6) + " O:"
+					+ my_formatter(item.open, 6) + " H:"
 					+ my_formatter(item.high, 6) + " L:"
 					+ my_formatter(item.low, 6) + " C:"
 					+ my_formatter(item.close, 6);
 			canvas.drawText(info, width - mPaint.measureText(info),
-					info_text_y, mPaint);
-			info = "T:" + print_date_format.format(temp_date) + " V:"
+					info_text_y - 3, mPaint);
+		} else {
+			String info = "T:" + print_date_format.format(temp_date) + " V:"
 					+ my_formatter(item.volume, 6) + " C:"
 					+ my_formatter(item.volume_currency, 6) + " P:"
 					+ my_formatter(item.w_price, 6);
+			canvas.drawText(info, width - mPaint.measureText(info),
+					info_text_y, mPaint);
+			info = " O:" + my_formatter(item.open, 6) + " H:"
+					+ my_formatter(item.high, 6) + " L:"
+					+ my_formatter(item.low, 6) + " C:"
+					+ my_formatter(item.close, 6);
 			canvas.drawText(info, width - mPaint.measureText(info),
 					2 * info_text_y - 3, mPaint);
 		}
