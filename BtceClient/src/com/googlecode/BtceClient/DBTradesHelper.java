@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBTradesHelper extends SQLiteOpenHelper {
 
 	private static String DATABASE_NAME = "trades.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 
 	public DBTradesHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -29,6 +29,10 @@ public class DBTradesHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// TODO Auto-generated method stub
+		if (1==oldVersion) {
+			onCreate(db);
+			oldVersion++;
+		}
 		
 	}
 

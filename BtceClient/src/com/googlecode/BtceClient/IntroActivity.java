@@ -1677,7 +1677,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 					}
 					break;
 				case DEPTH:
-					feedJosn_depth(result, param.pair, create_time);
+					//feedJosn_depth(result, param.pair, create_time);
 					if (m_params.pair.equals(param.pair)) {
 						depth_str = result;
 						dp_chart.feedJosn_depth(result);

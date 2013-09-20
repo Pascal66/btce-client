@@ -93,7 +93,9 @@ public class CandleStickView extends View {
 	float ex = bx;
 	float ey = by;
 	boolean mousedown = false;
-	SimpleDateFormat chart_date_format = new SimpleDateFormat("dd.MM.yy HH:mm",
+	SimpleDateFormat chart_date_format = new SimpleDateFormat("HH:mm",
+			Locale.UK);
+	SimpleDateFormat chart_date_format_test = new SimpleDateFormat("HH:mm",
 			Locale.UK);
 	SimpleDateFormat print_date_format = new SimpleDateFormat("dd.MM.yy HH:mm",
 			Locale.UK);
@@ -167,6 +169,7 @@ public class CandleStickView extends View {
 		formatter2.setMaximumFractionDigits(2);
 		formatter2.setGroupingUsed(false);
 		chart_date_format.setTimeZone(TimeZone.getTimeZone("GMT+4:00"));
+		chart_date_format_test.setTimeZone(TimeZone.getTimeZone("GMT+4:00"));
 		print_date_format.setTimeZone(TimeZone.getDefault());
 	}
 
@@ -252,6 +255,31 @@ public class CandleStickView extends View {
 	}
 
 	public Vector<ChartItem> update_items(JSONArray chart_datas) {
+		// Vector<ChartItem> test_items = new Vector<ChartItem>();
+		// try {
+		// for (int i = 0; i < chart_datas.length(); ++i) {
+		// JSONArray jitem = chart_datas.getJSONArray(i);
+		// ChartItem item = new ChartItem();
+		// String chart_time = jitem.getString(0);
+		// try {
+		// long test_time = chart_date_format_test.parse(chart_time).getTime() /
+		// 1000;
+		// Log.e("test time",""+test_time+" vs "+System.currentTimeMillis()/1000);
+		// item.time = test_time;
+		// // Log.e("time",""+item.time+" vs "+System.currentTimeMillis()
+		// // / 1000);
+		// } catch (ParseException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// test_items.add(item);
+		//
+		// }
+		// } catch (JSONException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+
 		Vector<ChartItem> items = new Vector<ChartItem>();
 		try {
 			for (int i = 0; i < chart_datas.length(); ++i) {
@@ -272,6 +300,7 @@ public class CandleStickView extends View {
 				item.close = jitem.getDouble(2);
 				item.open = jitem.getDouble(3);
 				item.high = jitem.getDouble(4);
+				item.volume = jitem.getDouble(5);
 				item.w_price = item.close;
 				items.add(item);
 			}
@@ -279,6 +308,22 @@ public class CandleStickView extends View {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		ChartItem end_item = new ChartItem();
+		end_item.time = System.currentTimeMillis() / 1000;
+		items.add(end_item);
+		final long one_day = 24 * 60 * 60;
+		for (int i = items.size() - 2; i >= 0; --i) {
+			long test_time = end_item.time / one_day * one_day
+					+ items.get(i).time;
+			while (test_time > items.get(i + 1).time) {
+				test_time -= one_day;
+			}
+			items.get(i).time = test_time;
+			// Log.e("test time",""+test_time+" vs "+System.currentTimeMillis()/1000);
+			// temp_date.setTime(test_time * 1000);
+			// Log.e("test time",print_date_format.format(temp_date));
+		}
+		items.remove(items.size() - 1);
 		return items;
 	}
 
@@ -307,7 +352,8 @@ public class CandleStickView extends View {
 			if ((original.get(i + 1).time - new_item.time) >= k_times * 1800) {
 				// if (0 == (original.get(i).time + 1800) % (k_times * 1800)) {
 				new_item.close = original.get(i).close;
-				new_item.w_price = 0 == Double.compare(new_item.volume, 0.0) ? new_item.close
+				new_item.w_price = (0 == Double.compare(new_item.volume, 0.0) || (0 == Double
+						.compare(new_item.volume_currency, 0.0))) ? new_item.close
 						: new_item.volume_currency / new_item.volume;
 				rtvalue.add(new_item);
 				new_item = new ChartItem();
@@ -328,7 +374,8 @@ public class CandleStickView extends View {
 		new_item.close = original.get(j).close;
 		new_item.volume += original.get(j).volume;
 		new_item.volume_currency += original.get(j).volume_currency;
-		new_item.w_price = 0 == Double.compare(new_item.volume, 0.0) ? new_item.close
+		new_item.w_price = (0 == Double.compare(new_item.volume, 0.0) || (0 == Double
+				.compare(new_item.volume_currency, 0.0))) ? new_item.close
 				: new_item.volume_currency / new_item.volume;
 		rtvalue.add(new_item);
 		return rtvalue;

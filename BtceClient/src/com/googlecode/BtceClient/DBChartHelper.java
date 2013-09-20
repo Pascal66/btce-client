@@ -14,7 +14,7 @@ import android.util.Log;
 public class DBChartHelper extends SQLiteOpenHelper {
 
 	private static String DATABASE_NAME = "chart_info.db";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 
 	public DBChartHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -75,6 +75,10 @@ public class DBChartHelper extends SQLiteOpenHelper {
 			} finally {
 				db.endTransaction();
 			}
+		}
+		case 3: {
+			// add pairs
+			onCreate(db);
 		}
 		default:
 			break;
