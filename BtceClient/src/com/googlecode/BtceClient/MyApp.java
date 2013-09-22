@@ -26,7 +26,7 @@ public class MyApp extends Application {
 	String app_layout = "main";
 	int app_layout_ids[] = { R.layout.main, R.layout.main_pad,
 			R.layout.main_pad2 };
-	boolean use_bitcoincharts = true;
+	boolean use_bitcoincharts = false;
 	boolean show_volume_bar = false;
 	boolean show_price_line = false;
 }

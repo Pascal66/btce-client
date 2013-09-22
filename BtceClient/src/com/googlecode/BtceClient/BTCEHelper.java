@@ -155,8 +155,11 @@ public class BTCEHelper {
 		case ORDERS_UPDATE:
 			if (!all_pairs.containsKey(params.pair))
 				return error_string;
-			if (0 != params.chart_start_time && params.pair.equals("btc_usd"))
-				return this.btceUSD_bitcoincharts(params.chart_start_time);
+			// if (0 != params.chart_start_time &&
+			// params.pair.equals("btc_usd"))
+			// return this.btceUSD_bitcoincharts(params.chart_start_time);
+			if (0 != params.chart_start_time)
+				return orders_update_sae(params.pair, params.chart_start_time);
 			return this.orders_update(params.pair);
 		case BTCE_UPDATE:
 			if (!all_pairs.containsKey(params.pair))
@@ -252,6 +255,17 @@ public class BTCEHelper {
 				+ "&Prev=&Next=&t=S&b=&a1=&m1=10&a2=&m2=25&x=0&i1=&i2=&i3=&i4=&v=1&cv=0&ps=0&l=0&p=0&";
 		// Log.e("bitcoinchart", url);
 		return downloadFromServer(url);
+	}
+
+	protected String orders_update_sae(String pair, long start_time) {
+		assert (all_pairs.containsKey(pair));
+		Log.e("update", "update form sae: start:" + start_time);
+		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+		parameters.add(new BasicNameValuePair("pair", pair));
+		parameters.add(new BasicNameValuePair("start", "" + start_time));
+		parameters.add(new BasicNameValuePair("num", "480"));
+		return downloadFromServer("http://btcefetch.sinaapp.com/candle/pair/"
+				+ pair + "/", null, parameters);
 	}
 
 	protected String getInfo() {

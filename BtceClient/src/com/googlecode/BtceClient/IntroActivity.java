@@ -1158,6 +1158,12 @@ public class IntroActivity extends Activity implements OnGestureListener,
 								.getparams()).execute());
 					}
 				}
+				long last_time = m_dbmgr.get_last_chart_time(m_params.pair);
+				long test = System.currentTimeMillis() / 1000 / 1800 * 1800;
+				if (24 * 60 * 60 <= test - last_time) {
+					m_params.chart_start_time = last_time;
+				}
+
 				m_params.method = BTCEHelper.btce_methods.ORDERS_UPDATE;
 				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
 						.execute());
@@ -1445,6 +1451,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return -1;
 		}
 		return 0;
 	}
@@ -1511,7 +1518,19 @@ public class IntroActivity extends Activity implements OnGestureListener,
 										kchart_view.k_times
 												* ((MyApp) getApplicationContext()).app_candlestick_number,
 										0));
-			feedJosn_last_price(pair, obj);
+
+			// -1 if update from sae
+			if (0 > feedJosn_last_price(pair, obj)) {
+				m_params.reset();
+				long last_time = m_dbmgr.get_last_chart_time(m_params.pair);
+				if (24 * 60 * 60 <= (System.currentTimeMillis() / 1000 % 1800 - last_time)) {
+					m_params.chart_start_time = last_time;
+				}
+				m_params.method = BTCEHelper.btce_methods.ORDERS_UPDATE;
+				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
+						.execute());
+			}
+
 			update_statusStr(
 					System.currentTimeMillis() / 1000,
 					String.format(
@@ -1645,7 +1664,8 @@ public class IntroActivity extends Activity implements OnGestureListener,
 					feedJosn_ticker(fetch_result);
 					break;
 				case ORDERS_UPDATE:
-					if (0 != param.chart_start_time
+					if (((MyApp) getApplicationContext()).use_bitcoincharts
+							&& 0 != param.chart_start_time
 							&& param.pair.equals("btc_usd")) {
 						feedJosn_bitcoincharts(param.pair, result);
 					} else {
@@ -1677,7 +1697,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 					}
 					break;
 				case DEPTH:
-					//feedJosn_depth(result, param.pair, create_time);
+					// feedJosn_depth(result, param.pair, create_time);
 					if (m_params.pair.equals(param.pair)) {
 						depth_str = result;
 						dp_chart.feedJosn_depth(result);

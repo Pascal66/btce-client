@@ -286,14 +286,18 @@ public class CandleStickView extends View {
 				JSONArray jitem = chart_datas.getJSONArray(i);
 				ChartItem item = new ChartItem();
 
-				String chart_time = jitem.getString(0);
 				try {
+					String chart_time = jitem.getString(0);
 					item.time = chart_date_format.parse(chart_time).getTime() / 1000;
 					// Log.e("time",""+item.time+" vs "+System.currentTimeMillis()
 					// / 1000);
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//for sae format
+					try {
+						item.time = jitem.getLong(0);
+					} catch (JSONException e2) {
+						e2.printStackTrace();
+					}
 				}
 
 				item.low = jitem.getDouble(1);
@@ -308,22 +312,24 @@ public class CandleStickView extends View {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		ChartItem end_item = new ChartItem();
-		end_item.time = System.currentTimeMillis() / 1000;
-		items.add(end_item);
 		final long one_day = 24 * 60 * 60;
-		for (int i = items.size() - 2; i >= 0; --i) {
-			long test_time = end_item.time / one_day * one_day
-					+ items.get(i).time;
-			while (test_time > items.get(i + 1).time) {
-				test_time -= one_day;
+		if (!items.isEmpty() && items.get(0).time < one_day) {
+			ChartItem end_item = new ChartItem();
+			end_item.time = System.currentTimeMillis() / 1000;
+			items.add(end_item);
+			for (int i = items.size() - 2; i >= 0; --i) {
+				long test_time = end_item.time / one_day * one_day
+						+ items.get(i).time;
+				while (test_time > items.get(i + 1).time) {
+					test_time -= one_day;
+				}
+				items.get(i).time = test_time;
+				// Log.e("test time",""+test_time+" vs "+System.currentTimeMillis()/1000);
+				// temp_date.setTime(test_time * 1000);
+				// Log.e("test time",print_date_format.format(temp_date));
 			}
-			items.get(i).time = test_time;
-			// Log.e("test time",""+test_time+" vs "+System.currentTimeMillis()/1000);
-			// temp_date.setTime(test_time * 1000);
-			// Log.e("test time",print_date_format.format(temp_date));
+			items.remove(items.size() - 1);
 		}
-		items.remove(items.size() - 1);
 		return items;
 	}
 
