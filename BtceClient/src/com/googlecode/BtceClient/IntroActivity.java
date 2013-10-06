@@ -1523,7 +1523,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			if (0 > feedJosn_last_price(pair, obj)) {
 				m_params.reset();
 				long last_time = m_dbmgr.get_last_chart_time(m_params.pair);
-				if (24 * 60 * 60 <= (System.currentTimeMillis() / 1000 % 1800 - last_time)) {
+				if (24 * 60 * 60 <= (System.currentTimeMillis() / 1000 / 1800 * 1800 - last_time)) {
 					m_params.chart_start_time = last_time;
 				}
 				m_params.method = BTCEHelper.btce_methods.ORDERS_UPDATE;
