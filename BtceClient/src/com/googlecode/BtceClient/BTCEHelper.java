@@ -64,7 +64,7 @@ public class BTCEHelper {
 	private static final BTCEPairs all_pairs = new BTCEPairs();
 
 	enum btce_methods {
-		FEE, TICKER, TRADES, DEPTH, ORDERS_UPDATE, BTCE_UPDATE, GET_INFO, TRANS_HISTORY, TRADE_HISTORY, ORDER_LIST, TRADE, CANCEL_ORDER, UNKNOWN
+		FEE, TICKER, TRADES, DEPTH, ORDERS_UPDATE, BTCE_UPDATE, GET_INFO, TRANS_HISTORY, TRADE_HISTORY, ORDER_LIST, ACTIVE_ORDERS, TRADE, CANCEL_ORDER, UNKNOWN
 	}
 
 	private btce_params params = new btce_params();
@@ -186,6 +186,10 @@ public class BTCEHelper {
 					params.his_from_id, params.his_end_id, params.asc,
 					params.his_since, params.his_end, params.pair,
 					params.order_active);
+		case ACTIVE_ORDERS:
+			if (!all_pairs.containsKey(params.pair))
+				params.pair = "all pairs";
+			return this.ActiveOrders(params.pair);
 		case TRADE:
 			if (!all_pairs.containsKey(params.pair))
 				return error_string;
@@ -386,6 +390,16 @@ public class BTCEHelper {
 			parameters.add(new BasicNameValuePair("active", "0"));
 
 		List<NameValuePair> encryedHeader = encryHeader_updatePostdata(method,
+				parameters);
+		return downloadFromServer(trade_api_url, encryedHeader, parameters);
+	}
+	
+	protected String ActiveOrders(String pair) {
+		if (null == pair || pair.equals("all pairs"))
+			pair = "0";
+		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+		parameters.add(new BasicNameValuePair("pair", pair));
+		List<NameValuePair> encryedHeader = encryHeader_updatePostdata("ActiveOrders",
 				parameters);
 		return downloadFromServer(trade_api_url, encryedHeader, parameters);
 	}

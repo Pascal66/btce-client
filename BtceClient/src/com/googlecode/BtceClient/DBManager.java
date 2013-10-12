@@ -110,6 +110,14 @@ public class DBManager {
 		}
 		return order_list.size();
 	}
+	
+	public int reset_order_status(int from, int to) {
+		ArrayList<order_info> list = get_order_list(null, null,from);
+		for (order_info item : list) {
+			item.status = to;
+		}
+		return update_order(list);
+	}
 
 	public int update_chart(Vector<ChartItem> chart_items, String pair) {
 		long last_time = get_last_chart_time(pair);

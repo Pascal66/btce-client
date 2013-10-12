@@ -61,6 +61,9 @@
     <string name="order_list_ing">"Getting the order list..."</string>
     <string name="order_list_ok">"Get order list successful"</string>
     <string name="order_list_error">"Get order list Error: "</string>
+    <string name="active_orders_ing">"Getting active orders..."</string>
+    <string name="active_orders_ok">"Getting active orders successful"</string>
+    <string name="active_orders_error">"Getting active orders Error:"</string>
     <string name="histroy_trans">"TransHistory"</string>
     <string name="histroy_trade">"TradeHistory"</string>
     <string name="history_ing">"Getting history list..."</string>
