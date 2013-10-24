@@ -23,6 +23,7 @@ public class BTCEPairs extends HashMap<String, String> {
 		this.put("ltc_eur", "27");
 		this.put("nmc_usd", "28");
 		this.put("nvc_usd", "29");
+		this.put("xpm_btc", "30");
 		
 		trade_depth_pairs = new HashMap<String, String>();
 //		trade_depth_pairs.put("btc_usd", "1");
