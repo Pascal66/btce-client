@@ -114,7 +114,7 @@ public class OrdersViewActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case UPDATE_ID:
-			//update_orders();
+			// update_orders();
 			get_active_orders();
 		}
 		return super.onOptionsItemSelected(item);
@@ -228,12 +228,12 @@ public class OrdersViewActivity extends Activity {
 
 		m_dbmgr = ((MyApp) getApplicationContext()).app_dbmgr;
 		active_orders_num = m_dbmgr.get_order_active();
-		//if (0 == active_orders_num)
-		//	s_status.setSelection(0);
-		//else
-			s_status.setSelection(1);
+		// if (0 == active_orders_num)
+		// s_status.setSelection(0);
+		// else
+		s_status.setSelection(1);
 		if (active_orders_num != this.getIntent().getIntExtra("number", -1))
-			//update_orders();
+			// update_orders();
 			get_active_orders();
 	}
 
@@ -251,7 +251,7 @@ public class OrdersViewActivity extends Activity {
 		temp_param.pair = "all pairs";
 		new UpdateOrderTask().execute(temp_param);
 	}
-	
+
 	public void get_active_orders() {
 		update_statusStr(System.currentTimeMillis() / 1000, this.getResources()
 				.getString(R.string.active_orders_ing));
@@ -352,7 +352,7 @@ public class OrdersViewActivity extends Activity {
 			update_statusStr(System.currentTimeMillis() / 1000, this
 					.getResources().getString(R.string.cancel_order_ok)
 					+ order_id);
-			//update_orders();
+			// update_orders();
 			get_active_orders();
 			updated = true;
 			((MyApp) getApplicationContext()).app_trans_num += 1;
@@ -369,9 +369,15 @@ public class OrdersViewActivity extends Activity {
 	public int feedJosn_getorders(JSONObject obj) {
 		try {
 			if (1 != obj.getInt("success")) {
+				String error_info = obj.getString("error");
+				if ("no orders".equalsIgnoreCase(error_info) && 0 != m_dbmgr.get_order_active()) {
+					m_dbmgr.reset_order_status(0, 1);
+					// update the list
+					new SpinnerSelectedListener().onItemSelected(null, null, 0, 0);
+				}
 				update_statusStr(System.currentTimeMillis() / 1000, this
 						.getResources().getString(R.string.order_list_error)
-						+ obj.getString("error"));
+						+ error_info);
 				return -1;
 			}
 			JSONObject rt = obj.getJSONObject("return");
@@ -397,7 +403,7 @@ public class OrdersViewActivity extends Activity {
 				result_orders.add(order_item);
 			}
 
-			m_dbmgr.reset_order_status(0,1);
+			m_dbmgr.reset_order_status(0, 1);
 			m_dbmgr.update_order(result_orders);
 			active_orders_num = m_dbmgr.get_order_active();
 			if (0 != active_orders_num)
@@ -471,7 +477,7 @@ public class OrdersViewActivity extends Activity {
 	public void finish() {
 		// TODO Auto-generated method stub
 		Intent intent = new Intent();
-		intent.putExtra("result", active_orders_num);
+		intent.putExtra("result", m_dbmgr.get_order_active());
 		setResult(RESULT_OK, intent);
 		super.finish();
 	}
