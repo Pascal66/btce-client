@@ -292,7 +292,7 @@ public class CandleStickView extends View {
 					// Log.e("time",""+item.time+" vs "+System.currentTimeMillis()
 					// / 1000);
 				} catch (ParseException e) {
-					//for sae format
+					// for sae format
 					try {
 						item.time = jitem.getLong(0);
 					} catch (JSONException e2) {
@@ -319,7 +319,7 @@ public class CandleStickView extends View {
 			items.add(end_item);
 			for (int i = items.size() - 2; i >= 0; --i) {
 				long test_time = end_item.time / one_day * one_day
-						+ items.get(i).time;
+						+ items.get(i).time + one_day;
 				while (test_time > items.get(i + 1).time) {
 					test_time -= one_day;
 				}

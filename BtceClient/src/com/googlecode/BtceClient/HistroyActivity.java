@@ -269,7 +269,7 @@ public class HistroyActivity extends Activity {
 		});
 		m_statusView.setText((String) m_logs.get(m_logs.size() - 1));
 
-		if (m_dbmgr.get_trans_count() != ((MyApp) getApplicationContext()).app_trans_num)
+		if (m_dbmgr.get_trans_count() < ((MyApp) getApplicationContext()).app_trans_num)
 			update_trans_trades();
 		else {
 			update_trans_list();
