@@ -2,6 +2,8 @@ package com.googlecode.BtceClient;
 
 import java.util.ArrayList;
 
+import org.apache.http.client.CookieStore;
+
 import com.googlecode.BtceClient.BTCEHelper.btce_params;
 import com.googlecode.BtceClient.OrdersViewActivity.order_info;
 
@@ -29,4 +31,5 @@ public class MyApp extends Application {
 	boolean use_bitcoincharts = false;
 	boolean show_volume_bar = false;
 	boolean show_price_line = false;
+	CookieStore cookies = null;
 }

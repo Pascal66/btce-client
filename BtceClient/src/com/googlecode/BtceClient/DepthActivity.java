@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.http.client.CookieStore;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.googlecode.BtceClient.R;
 import com.googlecode.BtceClient.BTCEHelper.btce_params;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -144,7 +146,7 @@ public class DepthActivity extends Activity {
 	public void update_depth() {
 		btce_params temp_param = m_params.getparams();
 		temp_param.method = BTCEHelper.btce_methods.DEPTH;
-		new DepthTask(temp_param).execute(null);
+		new DepthTask(temp_param,((MyApp) getApplicationContext()).cookies).execute(null);
 	}
 
 	public void update_statusStr(long time_in_second, String info) {
@@ -156,9 +158,11 @@ public class DepthActivity extends Activity {
 	/* Params (Integer), Progress (Integer), Result (String) */
 	private class DepthTask extends AsyncTask<Integer, Integer, String> {
 		btce_params param;
+		CookieStore cookies;
 
-		DepthTask(btce_params param) {
+		DepthTask(btce_params param,CookieStore cookies) {
 			this.param = param;
+			this.cookies = cookies;
 		}
 
 		@Override
@@ -183,7 +187,7 @@ public class DepthActivity extends Activity {
 		protected String doInBackground(Integer... params) {
 			String result = "";
 			// param = params[0];
-			BTCEHelper btce = new BTCEHelper();
+			BTCEHelper btce = new BTCEHelper(cookies);
 			result = btce.do_something(param);
 			return result;
 		}

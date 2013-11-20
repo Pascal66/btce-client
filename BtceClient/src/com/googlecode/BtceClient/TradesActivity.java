@@ -177,7 +177,7 @@ public class TradesActivity extends Activity {
 		protected String doInBackground(Integer... params) {
 			String result = "";
 			// param = params[0];
-			BTCEHelper btce = new BTCEHelper();
+			BTCEHelper btce = new BTCEHelper(((MyApp) getApplicationContext()).cookies);
 			result = btce.do_something(param);
 			return result;
 		}

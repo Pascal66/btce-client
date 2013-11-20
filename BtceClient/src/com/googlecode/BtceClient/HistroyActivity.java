@@ -346,7 +346,7 @@ public class HistroyActivity extends Activity {
 		protected String[] doInBackground(Integer... params) {
 			String[] result = new String[2];
 
-			BTCEHelper btce = new BTCEHelper();
+			BTCEHelper btce = new BTCEHelper(((MyApp) getApplicationContext()).cookies);
 			btce_params temp_param = m_params.getparams();
 			temp_param.reset();
 			temp_param.method = BTCEHelper.btce_methods.TRANS_HISTORY;

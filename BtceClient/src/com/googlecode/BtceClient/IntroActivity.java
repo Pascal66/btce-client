@@ -11,6 +11,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import org.apache.http.client.CookieStore;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -184,7 +186,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 	private InputHandler mHandler = new InputHandler();
 
 	boolean is_pad = true;
-
+		
 	@SuppressLint("HandlerLeak")
 	class InputHandler extends Handler {
 		@Override
@@ -798,6 +800,8 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		// }
 		// });
 
+		DefaultHttpClient client = new DefaultHttpClient();
+		((MyApp) getApplicationContext()).cookies = client.getCookieStore();
 		initialData();
 		loadPreference();
 		initialDB();
@@ -1649,7 +1653,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		@Override
 		protected String doInBackground(Integer... params) {
 			String result = "";
-			BTCEHelper btce = new BTCEHelper();
+			BTCEHelper btce = new BTCEHelper(((MyApp) getApplicationContext()).cookies);
 			result = btce.do_something(param);
 			return result;
 		}

@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 import javax.crypto.Mac;
@@ -30,7 +32,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.HttpClient;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -41,14 +43,19 @@ import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.util.Log;
 
@@ -70,9 +77,18 @@ public class BTCEHelper {
 	private btce_params params = new btce_params();
 	DecimalFormat formatter8 = new DecimalFormat();
 
-	BTCEHelper() {
+	CookieStore cookies;
+	DefaultHttpClient client = getNewHttpClient();
+
+	// BTCEHelper() {
+	// formatter8.setMaximumFractionDigits(8);
+	// formatter8.setGroupingUsed(false);
+	// }
+
+	BTCEHelper(CookieStore ck) {
 		formatter8.setMaximumFractionDigits(8);
 		formatter8.setGroupingUsed(false);
+		cookies = ck;
 	}
 
 	static class btce_params implements Cloneable {
@@ -160,7 +176,7 @@ public class BTCEHelper {
 			// return this.btceUSD_bitcoincharts(params.chart_start_time);
 			if (0 != params.chart_start_time)
 				return orders_update_sae(params.pair, params.chart_start_time);
-			return this.orders_update(params.pair);
+			return this.orders_update_exchange(params.pair);
 		case BTCE_UPDATE:
 			if (!all_pairs.containsKey(params.pair))
 				return error_string;
@@ -240,6 +256,82 @@ public class BTCEHelper {
 				+ btce_host_name));
 		return downloadFromServer(btce_scheme + "://" + btce_host_name
 				+ "/ajax/order.php", temp_header, parameters);
+	}
+
+	protected String orders_update_exchange(String pair) {
+		assert (all_pairs.containsKey(pair));
+		List<NameValuePair> temp_header = new ArrayList<NameValuePair>();
+		temp_header.add(new BasicNameValuePair("Referer", btce_scheme + "://"
+				+ btce_host_name + "/exchange/" + pair));
+		temp_header.add(new BasicNameValuePair("Origin", btce_scheme + "://"
+				+ btce_host_name));
+		String rtstr = downloadFromServer(btce_scheme + "://" + btce_host_name
+				+ "/exchange/" + pair, temp_header);
+		Pattern p;
+		Matcher m;
+		if (rtstr.contains("document.cookie=")) {
+			p = Pattern.compile("document.cookie=\"(.*?)\"");
+			m = p.matcher(rtstr);
+			if (!m.find())
+				return rtstr;
+			String ck = m.group(1);
+			String[] k_v = ck.split(";");
+			if (2 > k_v.length)
+				return rtstr;
+			k_v = k_v[0].split("=");
+			if (2 > k_v.length)
+				return rtstr;
+			BasicClientCookie a = new BasicClientCookie(k_v[0], k_v[1]);
+			for (Cookie t : cookies.getCookies()) {
+				if (t.getDomain().contains("btc-e")) {
+					a.setDomain(t.getDomain());
+					a.setExpiryDate(t.getExpiryDate());
+					a.setPath(t.getPath());
+					a.setVersion(t.getVersion());
+					break;
+				}
+			}
+			cookies.addCookie(a);
+			rtstr = downloadFromServer(btce_scheme + "://" + btce_host_name
+					+ "/exchange/" + pair, temp_header);
+		}
+		JSONObject error_obj = new JSONObject();
+		try {
+			error_obj.put("success", 0);
+			error_obj.put("error", "cannot parse html");
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		JSONObject js = new JSONObject();
+		try {
+			js.put("success", 1);
+			p = Pattern.compile("arrayToDataTable\\((.*?)\\);");
+			m = p.matcher(rtstr);
+			if (!m.find()) {
+				return error_obj.toString();
+			}
+			String str_chart_data = m.group(1);
+			str_chart_data = str_chart_data.substring(0,
+					str_chart_data.lastIndexOf(','));
+			JSONArray chart_datas = new JSONArray(str_chart_data);
+			js.put("chart_data", chart_datas);
+
+			JSONObject last = new JSONObject();
+			BTCEPairs temp = new BTCEPairs();
+			for (String key : temp.keySet()) {
+				p = Pattern.compile("'last" + temp.get(key) + "'>(.*?)<");
+				m = p.matcher(rtstr);
+				if (m.find())
+					last.put(temp.get(key), m.group(1));
+			}
+			js.put("last", last);
+			return js.toString();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return error_obj.toString();
 	}
 
 	protected String btceUSD_bitcoincharts(long start_time) {
@@ -393,14 +485,14 @@ public class BTCEHelper {
 				parameters);
 		return downloadFromServer(trade_api_url, encryedHeader, parameters);
 	}
-	
+
 	protected String ActiveOrders(String pair) {
 		if (null == pair || pair.equals("all pairs"))
 			pair = "0";
 		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
 		parameters.add(new BasicNameValuePair("pair", pair));
-		List<NameValuePair> encryedHeader = encryHeader_updatePostdata("ActiveOrders",
-				parameters);
+		List<NameValuePair> encryedHeader = encryHeader_updatePostdata(
+				"ActiveOrders", parameters);
 		return downloadFromServer(trade_api_url, encryedHeader, parameters);
 	}
 
@@ -478,7 +570,7 @@ public class BTCEHelper {
 		return downloadFromServer(url, header, null);
 	}
 
-	public HttpClient getNewHttpClient() {
+	public DefaultHttpClient getNewHttpClient() {
 		try {
 			KeyStore trustStore = KeyStore.getInstance(KeyStore
 					.getDefaultType());
@@ -507,7 +599,6 @@ public class BTCEHelper {
 
 	protected synchronized String downloadFromServer(String url,
 			List<NameValuePair> header, List<NameValuePair> data) {
-		HttpClient client = getNewHttpClient();
 
 		if (-1 != params.proxy_port) {
 			((AbstractHttpClient) client)
@@ -520,6 +611,8 @@ public class BTCEHelper {
 			// HttpHost(params.proxy_host, params.proxy_port));
 			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
 					new HttpHost(params.proxy_host, params.proxy_port));
+		} else {
+			client.getParams().removeParameter(ConnRoutePNames.DEFAULT_PROXY);
 		}
 		HttpHost target = new HttpHost(btce_host_name, 443, btce_scheme);
 		HttpUriRequest request;
@@ -546,9 +639,15 @@ public class BTCEHelper {
 			}
 		}
 		request.setHeader("Accept-Encoding", "gzip");
+		if (null == cookies) {
+			cookies = client.getCookieStore();
+		} else {
+			client.setCookieStore(cookies);
+		}
 		try {
 			// HttpResponse response = client.execute(target, request);
 			HttpResponse response = client.execute(request);
+			cookies = client.getCookieStore();
 			StatusLine status = response.getStatusLine();
 			if (status.getStatusCode() != HTTP_STATUS_OK) {
 				return "{\"success\":0,\"error\":\"" + status.toString()

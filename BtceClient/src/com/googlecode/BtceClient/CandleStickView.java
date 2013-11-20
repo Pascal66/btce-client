@@ -228,7 +228,6 @@ public class CandleStickView extends View {
 			e.printStackTrace();
 		}
 		return update_items(chart_datas);
-
 	}
 
 	public Vector<ChartItem> update_items_bitcoincharts(JSONArray chart_datas) {
