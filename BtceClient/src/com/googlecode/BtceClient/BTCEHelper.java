@@ -78,7 +78,7 @@ public class BTCEHelper {
 	DecimalFormat formatter8 = new DecimalFormat();
 
 	CookieStore cookies;
-	DefaultHttpClient client = getNewHttpClient();
+	boolean useCookie = false;
 
 	// BTCEHelper() {
 	// formatter8.setMaximumFractionDigits(8);
@@ -89,6 +89,7 @@ public class BTCEHelper {
 		formatter8.setMaximumFractionDigits(8);
 		formatter8.setGroupingUsed(false);
 		cookies = ck;
+		useCookie = false;
 	}
 
 	static class btce_params implements Cloneable {
@@ -176,6 +177,7 @@ public class BTCEHelper {
 			// return this.btceUSD_bitcoincharts(params.chart_start_time);
 			if (0 != params.chart_start_time)
 				return orders_update_sae(params.pair, params.chart_start_time);
+			useCookie = true;
 			return this.orders_update_exchange(params.pair);
 		case BTCE_UPDATE:
 			if (!all_pairs.containsKey(params.pair))
@@ -269,7 +271,8 @@ public class BTCEHelper {
 				+ "/exchange/" + pair, temp_header);
 		Pattern p;
 		Matcher m;
-		if (rtstr.contains("document.cookie=")) {
+		int retrynum = 3;
+		while (rtstr.contains("document.cookie=") && retrynum > 0) {
 			p = Pattern.compile("document.cookie=\"(.*?)\"");
 			m = p.matcher(rtstr);
 			if (!m.find())
@@ -294,6 +297,7 @@ public class BTCEHelper {
 			cookies.addCookie(a);
 			rtstr = downloadFromServer(btce_scheme + "://" + btce_host_name
 					+ "/exchange/" + pair, temp_header);
+			--retrynum;
 		}
 		JSONObject error_obj = new JSONObject();
 		try {
@@ -599,7 +603,7 @@ public class BTCEHelper {
 
 	protected synchronized String downloadFromServer(String url,
 			List<NameValuePair> header, List<NameValuePair> data) {
-
+		DefaultHttpClient client = getNewHttpClient();
 		if (-1 != params.proxy_port) {
 			((AbstractHttpClient) client)
 					.getCredentialsProvider()
@@ -641,13 +645,13 @@ public class BTCEHelper {
 		request.setHeader("Accept-Encoding", "gzip");
 		if (null == cookies) {
 			cookies = client.getCookieStore();
-		} else {
+		} else if (useCookie) {
 			client.setCookieStore(cookies);
 		}
 		try {
 			// HttpResponse response = client.execute(target, request);
 			HttpResponse response = client.execute(request);
-			cookies = client.getCookieStore();
+			// cookies = client.getCookieStore();
 			StatusLine status = response.getStatusLine();
 			if (status.getStatusCode() != HTTP_STATUS_OK) {
 				return "{\"success\":0,\"error\":\"" + status.toString()

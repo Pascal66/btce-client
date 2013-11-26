@@ -354,6 +354,9 @@ public class TradesView extends View {
 					+ CandleStickView.my_formatter(
 							m_trades_items.get(i).amount, 8)
 					+ " / "
+					+ CandleStickView.my_formatter(m_trades_items.get(i).amount
+							* m_trades_items.get(i).price, 8)
+					+ " / "
 					+ error_time_format
 							.format(m_trades_items.get(i).date * 1000);
 			// Log.e("tradesview",info);

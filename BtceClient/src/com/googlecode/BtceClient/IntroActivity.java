@@ -20,6 +20,9 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -56,6 +59,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -186,7 +190,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 	private InputHandler mHandler = new InputHandler();
 
 	boolean is_pad = true;
-		
+
 	@SuppressLint("HandlerLeak")
 	class InputHandler extends Handler {
 		@Override
@@ -812,11 +816,13 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		update_statusStr(System.currentTimeMillis() / 1000, this.getResources()
 				.getString(R.string.ready_info));
 		show_status_info();
+		// showDefaultNotification();
 	}
 
 	@Override
 	protected void onDestroy() {
 		// 应用的最后一个Activity关闭时应释放DB
+		removeNotification();
 		m_dbmgr.closeDB();
 		super.onDestroy();
 	}
@@ -1272,6 +1278,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			update_list_data();
 			m_info_list.setAdapter(new Info_list_Adapter(
 					getApplicationContext()));
+			showDefaultNotification(m_params.pair + ": " + m_ticker.last);
 			update_statusStr(System.currentTimeMillis() / 1000, this
 					.getResources().getString(R.string.ticker_ok));
 		} catch (JSONException e) {
@@ -1563,6 +1570,8 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				mViewFlipper.showPrevious();
 				return true;
 			}
+			// showDefaultNotification();
+			// moveTaskToBack(true);
 		}
 
 		return super.onKeyDown(keyCode, event);
@@ -1653,7 +1662,8 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		@Override
 		protected String doInBackground(Integer... params) {
 			String result = "";
-			BTCEHelper btce = new BTCEHelper(((MyApp) getApplicationContext()).cookies);
+			BTCEHelper btce = new BTCEHelper(
+					((MyApp) getApplicationContext()).cookies);
 			result = btce.do_something(param);
 			return result;
 		}
@@ -1758,6 +1768,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			return tv;
 		}
 	}
+
 	//
 	// private class trades_list_Adapter extends BaseAdapter {
 	// public trades_list_Adapter(Context c) {
@@ -1800,4 +1811,95 @@ public class IntroActivity extends Activity implements OnGestureListener,
 	// return tv;
 	// }
 	// }
+
+	//
+	// //自定义显示的通知 ，创建RemoteView对象
+	// private void showCustomizeNotification() {
+	//
+	// CharSequence title = "i am new";
+	// int icon = R.drawable.icon;
+	// long when = System.currentTimeMillis();
+	// Notification noti = new Notification(icon, title, when + 10000);
+	// noti.flags = Notification.FLAG_INSISTENT;
+	//
+	// // 1、创建一个自定义的消息布局 view.xml
+	// // 2、在程序代码中使用RemoteViews的方法来定义image和text。然后把RemoteViews对象传到contentView字段
+	// RemoteViews remoteView = new
+	// RemoteViews(this.getPackageName(),R.layout.notification);
+	// remoteView.setImageViewResource(R.id.image, R.drawable.icon);
+	// remoteView.setTextViewText(R.id.text , "通知类型为：自定义View");
+	// noti.contentView = remoteView;
+	// //
+	// 3、为Notification的contentIntent字段定义一个Intent(注意，使用自定义View不需要setLatestEventInfo()方法)
+	//
+	// //这儿点击后简单启动Settings模块
+	// PendingIntent contentIntent = PendingIntent.getActivity
+	// (MainActivity.this, 0,new Intent("android.settings.SETTINGS"), 0);
+	// noti.contentIntent = contentIntent;
+	//
+	// NotificationManager mnotiManager = (NotificationManager)
+	// getSystemService(Context.NOTIFICATION_SERVICE);
+	// mnotiManager.notify(0, noti);
+	//
+	// }
+	//
+	// 默认显示的的Notification
+	private void showDefaultNotification(String info) {
+		// 定义Notication的各种属性
+		CharSequence title = "i am new";
+		int icon = R.drawable.icon;
+		long when = System.currentTimeMillis();
+		Notification noti = new Notification(icon, title, when + 10000);
+		noti.flags = Notification.FLAG_INSISTENT;
+
+		// 创建一个通知
+		Notification mNotification = new Notification();
+
+		// 设置属性值
+		mNotification.icon = R.drawable.icon;
+		mNotification.tickerText = info;
+		mNotification.when = System.currentTimeMillis(); // 立即发生此通知
+
+		// 带参数的构造函数,属性值如上
+		// Notification mNotification = = new
+		// Notification(R.drawable.icon,"NotificationTest",
+		// System.currentTimeMillis()));
+
+		// 添加声音效果
+		mNotification.defaults |= Notification.DEFAULT_LIGHTS;
+
+		// 添加震动,需要添加震动权限 : Virbate Permission
+		// mNotification.defaults |= Notification.DEFAULT_VIBRATE ;
+
+		// 添加状态标志
+
+		// FLAG_AUTO_CANCEL 该通知能被状态栏的清除按钮给清除掉
+		// FLAG_NO_CLEAR 该通知能被状态栏的清除按钮给清除掉
+		// FLAG_ONGOING_EVENT 通知放置在正在运行
+		// FLAG_INSISTENT 通知的音乐效果一直播放
+		mNotification.flags = Notification.FLAG_ONGOING_EVENT;
+
+		// 将该通知显示为默认View
+		Intent notificationIntent = new Intent(this, this.getClass());
+		notificationIntent.setAction(Intent.ACTION_MAIN);
+		notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+		PendingIntent contentIntent = PendingIntent.getActivity(
+				IntroActivity.this, 0, notificationIntent, 0);
+		mNotification.setLatestEventInfo(IntroActivity.this, "BTCE Client",
+				info, contentIntent);
+
+		// 设置setLatestEventInfo方法,如果不设置会App报错异常
+		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+		// 注册此通知
+		// 如果该NOTIFICATION_ID的通知已存在，会显示最新通知的相关信息 ，比如tickerText 等
+		mNotificationManager.notify(2, mNotification);
+
+	}
+
+	private void removeNotification() {
+		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		// 取消的只是当前Context的Notification
+		mNotificationManager.cancel(2);
+	}
 }

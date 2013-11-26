@@ -607,15 +607,15 @@ public class CandleStickView extends View {
 		}
 
 		mPaint.setColor(0XFF008000);
-		canvas.drawText(formatter5.format(0 * K_volume_max / num_rows),
+		canvas.drawText(my_formatter(0 * K_volume_max / num_rows, 6),
 				margin_left, r_chart.top + (num_rows - 0) * r_chart.height()
 						/ num_rows, mPaint);
-		canvas.drawText(formatter5.format(num_rows * K_volume_max / num_rows),
+		canvas.drawText(my_formatter(num_rows * K_volume_max / num_rows, 6),
 				margin_left,
 				r_chart.top + (num_rows - num_rows) * r_chart.height()
 						/ num_rows + 2 * textSize - 5, mPaint);
 		for (int i = 1; i < num_rows; ++i) {
-			canvas.drawText(formatter5.format(i * K_volume_max / num_rows),
+			canvas.drawText(my_formatter(i * K_volume_max / num_rows, 6),
 					margin_left,
 					r_chart.top + (num_rows - i) * r_chart.height() / num_rows
 							+ textSize, mPaint);
