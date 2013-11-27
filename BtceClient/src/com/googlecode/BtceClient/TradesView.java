@@ -43,10 +43,11 @@ public class TradesView extends View {
 	long update_time = 0;
 
 	Path price_path = new Path();
+	Path cur_path = new Path();
 
 	int bgColor = 0, frameColor = 0, gridColor = 0, textColor = 0;
 	int bid_line_color = 0, bid_fill_color = 0, ask_line_color = 0,
-			ask_fill_color = 0, price_line_color = 0;
+			ask_fill_color = 0, price_line_color = 0, cur_line_color = 0;
 	int point_color = 0, focus_line_color = 0;;
 	int point_size = 10, bid_line_size = 3, ask_line_size = 3;
 	float textSize = 0;
@@ -83,6 +84,8 @@ public class TradesView extends View {
 	double amount_V_min;
 	double price_V_min;
 	double price_V_max;
+	double cur_V_min;
+	double cur_V_max;
 
 	SimpleDateFormat error_time_format = new SimpleDateFormat("HH:mm:ss");
 
@@ -97,8 +100,8 @@ public class TradesView extends View {
 	public int feedJosn_trades(String string) throws JSONException {
 		update_time = System.currentTimeMillis();
 		m_trades_items.clear();
-		amount_V_max = amount_V_min = price_V_max = 0;
-		price_V_min = 1000000000;
+		cur_V_max = amount_V_max = amount_V_min = price_V_max = 0;
+		cur_V_min = price_V_min = Double.MAX_VALUE;
 		JSONArray obj = null;
 		try {
 			obj = new JSONArray(string);
@@ -128,6 +131,10 @@ public class TradesView extends View {
 						: price_V_max;
 				price_V_min = price_V_min > item.price ? item.price
 						: price_V_min;
+				cur_V_max = cur_V_max < item.price * item.amount ? item.price
+						* item.amount : cur_V_max;
+				cur_V_min = cur_V_min > item.price * item.amount ? item.price
+						* item.amount : cur_V_min;
 				amount_V_max = amount_V_max < item.amount ? item.amount
 						: amount_V_max;
 			}
@@ -173,6 +180,8 @@ public class TradesView extends View {
 				0XFF4E8CD9);
 		price_line_color = array.getColor(
 				R.styleable.TradesView_td_pricelineColor, 0X00FF00FF);
+		cur_line_color = array.getColor(
+				R.styleable.TradesView_td_curlineColor, 0XFFFF0000);
 		ask_line_size = array
 				.getColor(R.styleable.TradesView_td_asklineSize, 3);
 		ask_fill_color = array.getColor(R.styleable.TradesView_td_askfillColor,
@@ -249,6 +258,7 @@ public class TradesView extends View {
 
 		// draw price&amount line
 		price_path.reset();
+		cur_path.reset();
 		// if (m_trades_items.isEmpty())
 		// return;
 		//
@@ -267,6 +277,11 @@ public class TradesView extends View {
 				/ (price_K_max - price_K_min);
 		double price_b = r_chart.top - price_k * price_K_max;
 
+		double cur_K_max = cur_V_max;
+		double cur_K_min = cur_V_min;
+		double cur_k = (r_chart.top - r_chart.bottom) / (cur_K_max - cur_K_min);
+		double cur_b = r_chart.top - cur_k * cur_K_max;
+
 		float block_width = (r_chart.right - r_chart.left)
 				/ m_trades_items.size();
 		float amount_line_width = block_width / 2 * 1;
@@ -277,6 +292,10 @@ public class TradesView extends View {
 				.moveTo((float) (r_chart.left + block_width / 2 + 0 * block_width),
 						(float) (m_trades_items.get(size - 0 - 1).price
 								* price_k + price_b));
+		cur_path.moveTo(
+				(float) (r_chart.left + block_width / 2 + 0 * block_width),
+				(float) (m_trades_items.get(size - 0 - 1).price
+						* m_trades_items.get(size - 0 - 1).amount * cur_k + cur_b));
 		r_block.set(
 				(int) (r_chart.left + block_width / 2 + 0 * block_width - amount_line_width / 2),
 				(int) (cacu(m_trades_items.get(size - 0 - 1).amount,
@@ -295,6 +314,11 @@ public class TradesView extends View {
 					- i - 1)
 					* block_width), (float) (m_trades_items.get(i).price
 					* price_k + price_b));
+			cur_path.lineTo(
+					(float) (r_chart.left + block_width / 2 + (size - i - 1)
+							* block_width),
+					(float) (m_trades_items.get(i).price
+							* m_trades_items.get(i).amount * cur_k + cur_b));
 			r_block.set((int) (r_chart.left + block_width / 2 + (size - i - 1)
 					* block_width - amount_line_width / 2),
 					(int) (cacu(m_trades_items.get(i).amount, amount_V_max)
@@ -312,10 +336,12 @@ public class TradesView extends View {
 		}
 
 		mPaint.setStrokeCap(Paint.Cap.ROUND);
-		mPaint.setColor(price_line_color);
 		mPaint.setStyle(Style.STROKE);
+		mPaint.setColor(price_line_color);
 		// mPaint.setStrokeWidth(ask_line_size);
 		canvas.drawPath(price_path, mPaint);
+		mPaint.setColor(cur_line_color);
+		canvas.drawPath(cur_path, mPaint);
 
 		float index = 0;
 		if (mousedown) {

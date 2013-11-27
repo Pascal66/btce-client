@@ -26,6 +26,7 @@
         TChart:td_pointColor="#FF00FF00"
         TChart:td_pointSize="10"
         TChart:td_pricelineColor="#FF00FF00"
+        TChart:td_curlineColor="#FF0000FF"
         TChart:td_focusLineColor="#FFFFFFFF" />
 
     <TextView

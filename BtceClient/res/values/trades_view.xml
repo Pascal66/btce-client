@@ -16,6 +16,7 @@
 		<attr name="td_pointColor" format="color"/>
 		<attr name="td_pointSize" format="integer"/>
 		<attr name="td_pricelineColor" format="color"/>
+		<attr name="td_curlineColor" format="color"/>
 		<attr name="td_focusLineColor" format="color"/>
 	</declare-styleable>
 </resources>
