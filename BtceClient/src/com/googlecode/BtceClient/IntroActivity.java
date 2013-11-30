@@ -19,10 +19,12 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -1278,6 +1280,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			update_list_data();
 			m_info_list.setAdapter(new Info_list_Adapter(
 					getApplicationContext()));
+			// if (!isfront())
 			showDefaultNotification(m_params.pair + ": " + m_ticker.last);
 			update_statusStr(System.currentTimeMillis() / 1000, this
 					.getResources().getString(R.string.ticker_ok));
@@ -1571,7 +1574,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				return true;
 			}
 			// showDefaultNotification();
-			// moveTaskToBack(true);
+			moveTaskToBack(true);
 		}
 
 		return super.onKeyDown(keyCode, event);
@@ -1901,5 +1904,22 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		// 取消的只是当前Context的Notification
 		mNotificationManager.cancel(2);
+	}
+
+	protected boolean isfront() {
+		ActivityManager am = (ActivityManager) this
+				.getSystemService(ACTIVITY_SERVICE);
+
+		// get the info from the currently running task
+		List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+
+		// Log.d("topActivity", "CURRENT Activity ::"
+		// + taskInfo.get(0).topActivity.getClassName());
+
+		ComponentName componentInfo = taskInfo.get(0).topActivity;
+		if (this.getPackageName().equals(componentInfo.getPackageName()))
+			return true;
+		return false;
+
 	}
 }

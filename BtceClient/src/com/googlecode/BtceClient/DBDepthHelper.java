@@ -8,8 +8,8 @@ import android.util.Log;
 public class DBDepthHelper extends SQLiteOpenHelper {
 
 	private static String DATABASE_NAME = "depth.db";
-	private static final int DATABASE_VERSION = 3;
-	
+	private static final int DATABASE_VERSION = 4;
+
 	public DBDepthHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
@@ -19,10 +19,9 @@ public class DBDepthHelper extends SQLiteOpenHelper {
 		// TODO Auto-generated method stub
 		BTCEPairs p = new BTCEPairs();
 		for (String pair : p.keySet()) {
-			String sql_string = "CREATE TABLE IF NOT EXISTS "
-					+ pair
+			String sql_string = "CREATE TABLE IF NOT EXISTS " + pair
 					+ "(_id INTEGER PRIMARY KEY, depth TEXT)";
-			//Log.e("SQL", sql_string);
+			// Log.e("SQL", sql_string);
 			db.execSQL(sql_string);
 		}
 	}
@@ -30,13 +29,9 @@ public class DBDepthHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// TODO Auto-generated method stub
-		if (1==oldVersion) {
+		if (4 > oldVersion) {
 			onCreate(db);
-			oldVersion++;
-		}
-		if (2==oldVersion) {
-			onCreate(db);
-			oldVersion++;
+			oldVersion = 4;
 		}
 	}
 

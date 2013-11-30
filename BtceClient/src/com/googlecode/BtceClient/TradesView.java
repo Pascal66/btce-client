@@ -366,6 +366,10 @@ public class TradesView extends View {
 			canvas.drawPoint(r_chart.left + block_width / 2 + (size - i - 1)
 					* block_width, (float) (m_trades_items.get(i).price
 					* price_k + price_b), mPaint);
+			mPaint.setColor(cur_line_color);
+			canvas.drawPoint(r_chart.left + block_width / 2 + (size - i - 1)
+					* block_width, (float) (m_trades_items.get(i).price*m_trades_items.get(i).amount
+					* cur_k + cur_b), mPaint);
 			mPaint.setColor(point_color ^ 0x00FFFFFF);
 			canvas.drawPoint(r_chart.left + block_width / 2 + (size - i - 1)
 					* block_width,

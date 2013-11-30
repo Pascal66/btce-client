@@ -82,6 +82,7 @@
                 TChart:td_pointColor="#FF00FF00"
                 TChart:td_pointSize="10"
                 TChart:td_pricelineColor="#FF00FF00"
+        		TChart:td_curlineColor="#FF9F9F9F"
                 TChart:td_textColor="#FFD3D3D3" />
 
             <LinearLayout
