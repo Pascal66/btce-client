@@ -370,7 +370,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 					.getWindowToken(), 0);
 			im_ctrl.hideSoftInputFromWindow(dlg.findViewById(R.id.period)
 					.getWindowToken(), 0);
-			initialView();
+			initialCandleView();
 		}
 	};
 
@@ -554,9 +554,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		initial_all_pair_wifi_timer();
 	}
 
-	void initialView() {
-		// m_caculate_view.setText(pair.toUpperCase());
-		// kchart_view.invalidate();
+	void initialCandleView(){
 		kchart_view.show_price_line = ((MyApp) getApplicationContext()).show_price_line;
 		kchart_view.show_volume_bar = ((MyApp) getApplicationContext()).show_volume_bar;
 		kchart_view.k_times = ((MyApp) getApplicationContext()).app_candlestick_period;
@@ -570,7 +568,10 @@ public class IntroActivity extends Activity implements OnGestureListener,
 								kchart_view.k_times
 										* ((MyApp) getApplicationContext()).app_candlestick_number,
 								0));
-
+		
+	}
+	void initialView() {
+		initialCandleView();
 		depth_str = "";
 		trades_str = "";
 		try {
@@ -580,10 +581,9 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		m_status_view.setText(m_params.pair);
+		// m_status_view.setText(m_params.pair);
 		update_list_data();
 		m_info_list.setAdapter(new Info_list_Adapter(getApplicationContext()));
-
 	}
 
 	void update_list_data() {
@@ -865,7 +865,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			savePreference();
 			m_dbmgr.closeDB();
 			initialDB();
-			initialView();
+			//initialView();
 			initialTimer();
 		}
 	}
