@@ -36,7 +36,7 @@ public class DepthView extends View {
 	public void setOnDoubleClickListener(OnDoubleClickListener l) {
 		mListener = l;
 	}
-	
+
 	Paint mPaint;
 	long update_time = 0;
 	List<depth_item> m_ask_items = new ArrayList<depth_item>();
@@ -99,7 +99,7 @@ public class DepthView extends View {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return 0;
+		return feedJosn_depth(new JSONObject());
 	}
 
 	public int feedJosn_depth(JSONObject obj) {
@@ -291,11 +291,12 @@ public class DepthView extends View {
 					r_chart.top + i * r_chart.height() / num_rows, mPaint);
 		}
 		int info_text_y = (int) (margin_top + text_infoSize);
-		if(0 < update_time){
+		if (0 < update_time) {
 			mPaint.setStyle(Style.FILL);
 			mPaint.setColor(text_infoColor);
 			mPaint.setStrokeWidth(1);
-			canvas.drawText(error_time_format.format(update_time), margin_left,info_text_y, mPaint);
+			canvas.drawText(error_time_format.format(update_time), margin_left,
+					info_text_y, mPaint);
 		}
 		if (m_ask_items.isEmpty() || m_bid_items.isEmpty())
 			return;
@@ -384,7 +385,7 @@ public class DepthView extends View {
 		switch (action) {
 
 		case MotionEvent.ACTION_DOWN:
-			
+
 			// Log.d(TAG, "onTouchEvent2 action:ACTION_DOWN");
 			long thisTime = System.currentTimeMillis();
 			if (thisTime - lastTouchTime < 250 && Math.abs(ev.getX() - bx) < 50
