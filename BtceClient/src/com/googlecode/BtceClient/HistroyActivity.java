@@ -15,7 +15,7 @@ import com.googlecode.BtceClient.R;
 import com.googlecode.BtceClient.BTCEHelper.btce_params;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
+//import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -47,7 +47,7 @@ public class HistroyActivity extends Activity {
 	ListView m_trade_his;
 	TextView m_statusView;
 	private LayoutInflater m_inflater;
-	private ProgressDialog progressDialog;
+	// private ProgressDialog progressDialog;
 	DBManager m_dbmgr;
 
 	String statusStr;
@@ -283,7 +283,8 @@ public class HistroyActivity extends Activity {
 					int position, long id) {
 				Intent intent = new Intent();
 				intent.setClass(HistroyActivity.this, PriceActivity.class);
-				intent.putExtra("is_sell", m_trade_his_items.get(position).type.toLowerCase().equals("sell"));
+				intent.putExtra("is_sell", m_trade_his_items.get(position).type
+						.toLowerCase().equals("sell"));
 				intent.putExtra("price", m_trade_his_items.get(position).rate);
 				if (m_trade_his_items.get(position).pair.equals("usd_rur"))
 					intent.putExtra("fee", 0.5);
@@ -334,19 +335,20 @@ public class HistroyActivity extends Activity {
 					HistroyActivity.this.getResources().getString(
 							R.string.history_ing));
 			m_statusView.setText(statusStr);
-			progressDialog = ProgressDialog.show(
-					HistroyActivity.this,
-					HistroyActivity.this.getResources().getString(
-							R.string.Progress_title), HistroyActivity.this
-							.getResources()
-							.getString(R.string.Progress_message), true, false);
+			// progressDialog = ProgressDialog.show(
+			// HistroyActivity.this,
+			// HistroyActivity.this.getResources().getString(
+			// R.string.Progress_title), HistroyActivity.this
+			// .getResources()
+			// .getString(R.string.Progress_message), true, false);
 		}
 
 		@Override
 		protected String[] doInBackground(Integer... params) {
 			String[] result = new String[2];
 
-			BTCEHelper btce = new BTCEHelper(((MyApp) getApplicationContext()).cookies);
+			BTCEHelper btce = new BTCEHelper(
+					((MyApp) getApplicationContext()).cookies);
 			btce_params temp_param = m_params.getparams();
 			temp_param.reset();
 			temp_param.method = BTCEHelper.btce_methods.TRANS_HISTORY;
@@ -381,7 +383,7 @@ public class HistroyActivity extends Activity {
 								+ e.getMessage());
 			}
 			m_statusView.setText(statusStr);
-			progressDialog.dismiss();
+			// progressDialog.dismiss();
 		}
 	}
 

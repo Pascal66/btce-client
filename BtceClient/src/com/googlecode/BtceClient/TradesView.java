@@ -93,6 +93,7 @@ public class TradesView extends View {
 		long date = 0;
 		double price = 0;
 		double amount = 0;
+		double currency = 0;
 		long tid = 0;
 		int trade_type = 0;// 0 for ask, else for bid
 	};
@@ -180,8 +181,8 @@ public class TradesView extends View {
 				0XFF4E8CD9);
 		price_line_color = array.getColor(
 				R.styleable.TradesView_td_pricelineColor, 0X00FF00FF);
-		cur_line_color = array.getColor(
-				R.styleable.TradesView_td_curlineColor, 0XFFFF0000);
+		cur_line_color = array.getColor(R.styleable.TradesView_td_curlineColor,
+				0XFFFF0000);
 		ask_line_size = array
 				.getColor(R.styleable.TradesView_td_asklineSize, 3);
 		ask_fill_color = array.getColor(R.styleable.TradesView_td_askfillColor,
@@ -368,8 +369,8 @@ public class TradesView extends View {
 					* price_k + price_b), mPaint);
 			mPaint.setColor(cur_line_color);
 			canvas.drawPoint(r_chart.left + block_width / 2 + (size - i - 1)
-					* block_width, (float) (m_trades_items.get(i).price*m_trades_items.get(i).amount
-					* cur_k + cur_b), mPaint);
+					* block_width, (float) (m_trades_items.get(i).price
+					* m_trades_items.get(i).amount * cur_k + cur_b), mPaint);
 			mPaint.setColor(point_color ^ 0x00FFFFFF);
 			canvas.drawPoint(r_chart.left + block_width / 2 + (size - i - 1)
 					* block_width,

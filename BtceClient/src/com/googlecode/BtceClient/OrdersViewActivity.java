@@ -53,11 +53,11 @@ public class OrdersViewActivity extends Activity {
 	Date temp_date = new Date();
 	DecimalFormat formatter8 = new DecimalFormat();
 	String statusStr;
-	private ProgressDialog progressDialog;
+	// private ProgressDialog progressDialog;
 	TextView m_statusView;
 	AlertDialog.Builder builder;
 	boolean updated = false;
-	int item_pos = -1;
+	// int item_pos = -1;
 	private Spinner s_pair, s_type, s_status;
 
 	float historicX = Float.NaN, historicY = Float.NaN;
@@ -186,44 +186,67 @@ public class OrdersViewActivity extends Activity {
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+					final int position, long id) {
 				if (0 == m_orders.get(position).status) {
 					builder.setMessage(
 							OrdersViewActivity.this.getResources().getString(
 									R.string.cancel_order_question))
-							.setPositiveButton("Yes", dialogClickListener)
-							.setNegativeButton("No", dialogClickListener)
-							.show();
-					item_pos = position;
+							.setPositiveButton("Yes",
+									new DialogInterface.OnClickListener() {
+
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
+											order_info order_item = m_orders
+													.get(position);
+											update_statusStr(
+													System.currentTimeMillis() / 1000,
+													OrdersViewActivity.this
+															.getResources()
+															.getString(
+																	R.string.cancel_order_ing)
+															+ order_item.id);
+											m_statusView.setText(statusStr);
+											btce_params temp_param = m_params
+													.getparams();
+											temp_param.reset();
+											temp_param.method = BTCEHelper.btce_methods.CANCEL_ORDER;
+											temp_param.order_id = order_item.id;
+											new UpdateOrderTask()
+													.execute(temp_param);
+										}
+									}).setNegativeButton("No", null).show();
+					// item_pos = position;
 				}
 			}
-
-			DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					if (-1 == item_pos)
-						return;
-					switch (which) {
-					case DialogInterface.BUTTON_POSITIVE:
-						order_info order_item = m_orders.get(item_pos);
-						update_statusStr(System.currentTimeMillis() / 1000,
-								OrdersViewActivity.this.getResources()
-										.getString(R.string.cancel_order_ing)
-										+ order_item.id);
-						m_statusView.setText(statusStr);
-						btce_params temp_param = m_params.getparams();
-						temp_param.reset();
-						temp_param.method = BTCEHelper.btce_methods.CANCEL_ORDER;
-						temp_param.order_id = order_item.id;
-						new UpdateOrderTask().execute(temp_param);
-						break;
-
-					case DialogInterface.BUTTON_NEGATIVE:
-						// No button clicked
-						break;
-					}
-				}
-			};
+			//
+			// DialogInterface.OnClickListener dialogClickListener = new
+			// DialogInterface.OnClickListener() {
+			// @Override
+			// public void onClick(DialogInterface dialog, int which) {
+			// if (-1 == item_pos)
+			// return;
+			// switch (which) {
+			// case DialogInterface.BUTTON_POSITIVE:
+			// order_info order_item = m_orders.get(item_pos);
+			// update_statusStr(System.currentTimeMillis() / 1000,
+			// OrdersViewActivity.this.getResources()
+			// .getString(R.string.cancel_order_ing)
+			// + order_item.id);
+			// m_statusView.setText(statusStr);
+			// btce_params temp_param = m_params.getparams();
+			// temp_param.reset();
+			// temp_param.method = BTCEHelper.btce_methods.CANCEL_ORDER;
+			// temp_param.order_id = order_item.id;
+			// new UpdateOrderTask().execute(temp_param);
+			// break;
+			//
+			// case DialogInterface.BUTTON_NEGATIVE:
+			// // No button clicked
+			// break;
+			// }
+			// }
+			// };
 		});
 
 		m_dbmgr = ((MyApp) getApplicationContext()).app_dbmgr;
@@ -235,6 +258,11 @@ public class OrdersViewActivity extends Activity {
 		if (active_orders_num != this.getIntent().getIntExtra("number", -1))
 			// update_orders();
 			get_active_orders();
+		else if (0 == active_orders_num) {
+			update_statusStr(System.currentTimeMillis() / 1000,
+					"there are no active orders");
+			m_statusView.setText(statusStr);
+		}
 	}
 
 	public void update_orders() {
@@ -272,26 +300,27 @@ public class OrdersViewActivity extends Activity {
 		protected void onPreExecute() {
 			// TODO Auto-generated method stub
 			super.onPreExecute();
-			progressDialog = ProgressDialog.show(
-					OrdersViewActivity.this,
-					OrdersViewActivity.this.getResources().getString(
-							R.string.Progress_title), OrdersViewActivity.this
-							.getResources()
-							.getString(R.string.Progress_message), true, false);
+			// progressDialog = ProgressDialog.show(
+			// OrdersViewActivity.this,
+			// OrdersViewActivity.this.getResources().getString(
+			// R.string.Progress_title), OrdersViewActivity.this
+			// .getResources()
+			// .getString(R.string.Progress_message), true, false);
 		}
 
 		@Override
 		protected String doInBackground(btce_params... params) {
 			String result = "";
 			param = params[0];
-			BTCEHelper btce = new BTCEHelper(((MyApp) getApplicationContext()).cookies);
+			BTCEHelper btce = new BTCEHelper(
+					((MyApp) getApplicationContext()).cookies);
 			result = btce.do_something(param);
 			return result;
 		}
 
 		@Override
 		protected void onPostExecute(String result) {
-			progressDialog.dismiss();
+			// progressDialog.dismiss();
 			try {
 				JSONObject fetch_result = null;
 				fetch_result = new JSONObject(result);
@@ -340,10 +369,19 @@ public class OrdersViewActivity extends Activity {
 						+ obj.getString("error"));
 				return -1;
 			}
-			m_orders.remove(item_pos);
 			JSONObject rt = obj.getJSONObject("return");
-
 			int order_id = rt.getInt("order_id");
+
+			m_dbmgr.set_order_status(order_id, 1);
+			// m_orders.remove(item_pos);
+			for (int i = 0; i < m_orders.size(); ++i) {
+				if (m_orders.get(i).id == order_id) {
+					m_orders.remove(i);
+					break;
+				}
+			}
+
+			// update funds
 			rt = rt.getJSONObject("funds");
 			Bundle m_pair_funds = ((MyApp) getApplicationContext()).app_pair_funds;
 			for (String coin_str : m_pair_funds.keySet()) {
@@ -353,7 +391,7 @@ public class OrdersViewActivity extends Activity {
 					.getResources().getString(R.string.cancel_order_ok)
 					+ order_id);
 			// update_orders();
-			get_active_orders();
+			// get_active_orders();
 			updated = true;
 			((MyApp) getApplicationContext()).app_trans_num += 1;
 		} catch (JSONException e) {
@@ -370,10 +408,12 @@ public class OrdersViewActivity extends Activity {
 		try {
 			if (1 != obj.getInt("success")) {
 				String error_info = obj.getString("error");
-				if ("no orders".equalsIgnoreCase(error_info) && 0 != m_dbmgr.get_order_active()) {
+				if ("no orders".equalsIgnoreCase(error_info)
+						&& 0 != m_dbmgr.get_order_active()) {
 					m_dbmgr.reset_order_status(0, 1);
 					// update the list
-					new SpinnerSelectedListener().onItemSelected(null, null, 0, 0);
+					new SpinnerSelectedListener().onItemSelected(null, null, 0,
+							0);
 				}
 				update_statusStr(System.currentTimeMillis() / 1000, this
 						.getResources().getString(R.string.order_list_error)

@@ -10,7 +10,7 @@ import org.json.JSONException;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ProgressDialog;
+//import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -47,7 +47,7 @@ public class TradesActivity extends Activity {
 	btce_params m_params;
 	DecimalFormat formatter6 = new DecimalFormat();
 
-	private ProgressDialog progressDialog;
+	// private ProgressDialog progressDialog;
 
 	@SuppressLint("HandlerLeak")
 	class InputHandler extends Handler {
@@ -159,12 +159,12 @@ public class TradesActivity extends Activity {
 		protected void onPreExecute() {
 			// TODO Auto-generated method stub
 			super.onPreExecute();
-			progressDialog = ProgressDialog.show(
-					TradesActivity.this,
-					TradesActivity.this.getResources().getString(
-							R.string.Progress_title), TradesActivity.this
-							.getResources()
-							.getString(R.string.Progress_message), true, false);
+			// progressDialog = ProgressDialog.show(
+			// TradesActivity.this,
+			// TradesActivity.this.getResources().getString(
+			// R.string.Progress_title), TradesActivity.this
+			// .getResources()
+			// .getString(R.string.Progress_message), true, false);
 			update_statusStr(
 					System.currentTimeMillis() / 1000,
 					TradesActivity.this.getResources().getString(
@@ -177,14 +177,15 @@ public class TradesActivity extends Activity {
 		protected String doInBackground(Integer... params) {
 			String result = "";
 			// param = params[0];
-			BTCEHelper btce = new BTCEHelper(((MyApp) getApplicationContext()).cookies);
+			BTCEHelper btce = new BTCEHelper(
+					((MyApp) getApplicationContext()).cookies);
 			result = btce.do_something(param);
 			return result;
 		}
 
 		@Override
 		protected void onPostExecute(String result) {
-			progressDialog.dismiss();
+			// progressDialog.dismiss();
 			try {
 				// JSONObject fetch_result = null;
 				// fetch_result = new JSONObject(result);

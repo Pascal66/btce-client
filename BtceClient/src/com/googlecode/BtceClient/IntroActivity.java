@@ -104,6 +104,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 	static final private int TRADES_VIEW = MENU_BASE + 3;
 	static final private int SETTING_ID = MENU_BASE + 3128;
 	static final private int PRICE_ID = MENU_BASE + 3129;
+	static final private int TRADE_ID = MENU_BASE + 3130;
 
 	static final int ALL_PAIR_PRICE = 0;
 	static final int ALL_PAIR_VOLUMES = 1;
@@ -554,7 +555,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		initial_all_pair_wifi_timer();
 	}
 
-	void initialCandleView(){
+	void initialCandleView() {
 		kchart_view.show_price_line = ((MyApp) getApplicationContext()).show_price_line;
 		kchart_view.show_volume_bar = ((MyApp) getApplicationContext()).show_volume_bar;
 		kchart_view.k_times = ((MyApp) getApplicationContext()).app_candlestick_period;
@@ -568,8 +569,9 @@ public class IntroActivity extends Activity implements OnGestureListener,
 								kchart_view.k_times
 										* ((MyApp) getApplicationContext()).app_candlestick_number,
 								0));
-		
+
 	}
+
 	void initialView() {
 		initialCandleView();
 		depth_str = "";
@@ -865,7 +867,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			savePreference();
 			m_dbmgr.closeDB();
 			initialDB();
-			//initialView();
+			// initialView();
 			initialTimer();
 		}
 	}
@@ -941,6 +943,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		menu.add(0, EXIT_ID, 0, R.string.exit);
 		menu.add(0, UPDATE_ALL_CHART, 0, R.string.update);
 		menu.add(0, PRICE_ID, 0, R.string.price);
+		menu.add(0, TRADE_ID, 0, R.string.orders);
 		// menu.add(0, DEPTH_VIEW, 0, R.string.depth);
 		// menu.add(0, TRADES_VIEW, 0, R.string.trades);
 		menu.add(0, SETTING_ID, 0, R.string.setting);
@@ -992,6 +995,16 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			intent.setClass(IntroActivity.this, PriceActivity.class);
 			intent.putExtra("fee", fee_level);
 			startActivityForResult(intent, PRICE_ID);
+			return true;
+		case TRADE_ID:
+			intent.setClass(IntroActivity.this, TradeActivity.class);
+			intent.putExtra("currency",
+					m_pair_funds.getDouble(m_params.pair.substring(4)));
+			intent.putExtra("coins",
+					m_pair_funds.getDouble(m_params.pair.substring(0, 3)));
+			intent.putExtra("price", m_ticker.last);
+			intent.putExtra("pair", m_params.pair);
+			startActivityForResult(intent, TRADE_ID);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -1282,6 +1295,9 @@ public class IntroActivity extends Activity implements OnGestureListener,
 					getApplicationContext()));
 			// if (!isfront())
 			showDefaultNotification(m_params.pair + ": " + m_ticker.last);
+			Toast.makeText(getApplicationContext(),
+					m_params.pair + ": " + m_ticker.last, Toast.LENGTH_SHORT)
+					.show();
 			update_statusStr(System.currentTimeMillis() / 1000, this
 					.getResources().getString(R.string.ticker_ok));
 		} catch (JSONException e) {
@@ -1335,6 +1351,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				update_statusStr(System.currentTimeMillis() / 1000, pair + ":"
 						+ this.getResources().getString(R.string.trades_error)
 						+ error.getString("error"));
+				show_status_info();
 				return 0;
 				// }
 			} catch (JSONException e1) {

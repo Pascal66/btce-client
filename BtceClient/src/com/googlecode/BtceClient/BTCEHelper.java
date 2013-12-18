@@ -75,7 +75,7 @@ public class BTCEHelper {
 	}
 
 	private btce_params params = new btce_params();
-	DecimalFormat formatter8 = new DecimalFormat();
+	DecimalFormat formatter5 = new DecimalFormat();
 
 	CookieStore cookies;
 	boolean useCookie = false;
@@ -86,8 +86,8 @@ public class BTCEHelper {
 	// }
 
 	BTCEHelper(CookieStore ck) {
-		formatter8.setMaximumFractionDigits(8);
-		formatter8.setGroupingUsed(false);
+		formatter5.setMaximumFractionDigits(5);
+		formatter5.setGroupingUsed(false);
 		cookies = ck;
 		useCookie = false;
 	}
@@ -384,9 +384,9 @@ public class BTCEHelper {
 			parameters.add(new BasicNameValuePair("type", "sell"));
 		else
 			parameters.add(new BasicNameValuePair("type", "buy"));
-		parameters.add(new BasicNameValuePair("rate", formatter8
+		parameters.add(new BasicNameValuePair("rate", formatter5
 				.format(trade_price)));
-		parameters.add(new BasicNameValuePair("amount", formatter8
+		parameters.add(new BasicNameValuePair("amount", formatter5
 				.format(trade_amount)));
 		List<NameValuePair> encryedHeader = encryHeader_updatePostdata("Trade",
 				parameters);

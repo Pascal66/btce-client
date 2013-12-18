@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.googlecode.BtceClient.ResizeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:TChart="http://schemas.android.com/apk/res/com.googlecode.BtceClient"
+    android:id="@+id/root_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:orientation="vertical" >
+
+        <view
+            android:id="@+id/tradechart_view"
+            android:layout_width="fill_parent"
+            android:layout_height="240dp"
+            class="com.googlecode.BtceClient.TradeView"
+            TChart:td_askfillColor="#7F4E8CD9"
+            TChart:td_asklineColor="#FF4E8CD9"
+            TChart:td_asklineSize="3"
+            TChart:td_bgColor="#FF000000"
+            TChart:td_bidfillColor="#7F75B103"
+            TChart:td_bidlineColor="#FF75B103"
+            TChart:td_bidlineSize="3"
+            TChart:td_curlineColor="#FF9F9F9F"
+            TChart:td_focusLineColor="#FFFFFFFF"
+            TChart:td_frameColor="#FF00FFFF"
+            TChart:td_gridColor="#FF00FFFF"
+            TChart:td_infoColor="#FF00FFFF"
+            TChart:td_infoSize="12sp"
+            TChart:td_pointColor="#FF00FF00"
+            TChart:td_pointSize="10"
+            TChart:td_pricelineColor="#FF00FF00"
+            TChart:td_textColor="#FFD3D3D3" />
+
+        <com.googlecode.BtceClient.SeekBarWithText
+            android:id="@+id/trade_number"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:max="100" />
+
+        <com.googlecode.BtceClient.SeekBarWithText
+            android:id="@+id/price_min"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:max="100" />
+
+        <com.googlecode.BtceClient.SeekBarWithText
+            android:id="@+id/price_max"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:max="100" />
+
+        <com.googlecode.BtceClient.SeekBarWithText
+            android:id="@+id/currcny"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:max="100" />
+
+        <com.googlecode.BtceClient.SeekBarWithText
+            android:id="@+id/sleep_time"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:max="100" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <Spinner
+                android:id="@+id/orders"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/save"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="Save" />
+
+            <Button
+                android:id="@+id/swap"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="Swap" />
+
+            <Button
+                android:id="@+id/type"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="@string/buy"
+                android:textOff="@string/buy"
+                android:textOn="@string/sell" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/add"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="Add" />
+
+            <Button
+                android:id="@+id/rename"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="Rename" />
+
+            <Button
+                android:id="@+id/remove"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="Remove" />
+
+            <Button
+                android:id="@+id/trade"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:text="Start" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/status_view"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:text="" />
+        
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <ListView
+            android:id="@+id/user_trades_list"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+        </ListView>
+    </LinearLayout>
+
+</com.googlecode.BtceClient.ResizeLayout>

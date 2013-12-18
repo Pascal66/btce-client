@@ -25,6 +25,7 @@
     <string name="clear">"Clear"</string>
     <string name="save">"Save"</string>
     <string name="price">"Price"</string>
+    <string name="orders">"Trade"</string>
     <!-- information -->
     <string name="invalid_amount">"Invalid Amount"</string>
     <string name="invalid_price">"Invalid Price"</string>
@@ -76,6 +77,9 @@
     <string name="task_error">"BTETask Error: "</string>
     <string name="Progress_title">"Loading..."</string>
     <string name="Progress_message">"Please wait..."</string>
+    <string name="pattern_name">"pattern name"</string>
+    <string name="start">"Start"</string>
+    <string name="stop">"Stop"</string>
 
     <string-array name="trans_type_array">
         <item> types </item>

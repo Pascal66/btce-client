@@ -16,7 +16,7 @@ import com.googlecode.BtceClient.BTCEHelper.btce_params;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ProgressDialog;
+//import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -51,7 +51,7 @@ public class DepthActivity extends Activity {
 	btce_params m_params;
 	DecimalFormat formatter8 = new DecimalFormat();
 
-	private ProgressDialog progressDialog;
+	// private ProgressDialog progressDialog;
 
 	@SuppressLint("HandlerLeak")
 	class InputHandler extends Handler {
@@ -146,7 +146,8 @@ public class DepthActivity extends Activity {
 	public void update_depth() {
 		btce_params temp_param = m_params.getparams();
 		temp_param.method = BTCEHelper.btce_methods.DEPTH;
-		new DepthTask(temp_param,((MyApp) getApplicationContext()).cookies).execute(null);
+		new DepthTask(temp_param, ((MyApp) getApplicationContext()).cookies)
+				.execute(null);
 	}
 
 	public void update_statusStr(long time_in_second, String info) {
@@ -160,7 +161,7 @@ public class DepthActivity extends Activity {
 		btce_params param;
 		CookieStore cookies;
 
-		DepthTask(btce_params param,CookieStore cookies) {
+		DepthTask(btce_params param, CookieStore cookies) {
 			this.param = param;
 			this.cookies = cookies;
 		}
@@ -169,12 +170,12 @@ public class DepthActivity extends Activity {
 		protected void onPreExecute() {
 			// TODO Auto-generated method stub
 			super.onPreExecute();
-			progressDialog = ProgressDialog.show(
-					DepthActivity.this,
-					DepthActivity.this.getResources().getString(
-							R.string.Progress_title), DepthActivity.this
-							.getResources()
-							.getString(R.string.Progress_message), true, false);
+			// progressDialog = ProgressDialog.show(
+			// DepthActivity.this,
+			// DepthActivity.this.getResources().getString(
+			// R.string.Progress_title), DepthActivity.this
+			// .getResources()
+			// .getString(R.string.Progress_message), true, false);
 			update_statusStr(
 					System.currentTimeMillis() / 1000,
 					DepthActivity.this.getResources().getString(
@@ -194,7 +195,7 @@ public class DepthActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			progressDialog.dismiss();
+			// progressDialog.dismiss();
 			try {
 				JSONObject fetch_result = null;
 				fetch_result = new JSONObject(result);
