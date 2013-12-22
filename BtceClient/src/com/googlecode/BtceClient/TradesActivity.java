@@ -46,6 +46,7 @@ public class TradesActivity extends Activity {
 	private InputHandler mHandler = new InputHandler();
 	btce_params m_params;
 	DecimalFormat formatter6 = new DecimalFormat();
+	private static final int MSG_TRADESVIEW_DBCLK = 5;
 
 	// private ProgressDialog progressDialog;
 
@@ -57,6 +58,9 @@ public class TradesActivity extends Activity {
 			case MSG_RESIZE: {
 			}
 				break;
+			case MSG_TRADESVIEW_DBCLK: {
+				update_trades();
+			}
 			default:
 				break;
 			}
@@ -101,6 +105,16 @@ public class TradesActivity extends Activity {
 
 			}
 
+		});
+		td_chart.setOnDoubleClickListener(new TradesView.OnDoubleClickListener() {
+
+			@Override
+			public void OnDoubleClick() {
+				// TODO Auto-generated method stub
+				Message msg = new Message();
+				msg.what = MSG_TRADESVIEW_DBCLK;
+				mHandler.sendMessage(msg);
+			}
 		});
 		// update_trades();
 		try {

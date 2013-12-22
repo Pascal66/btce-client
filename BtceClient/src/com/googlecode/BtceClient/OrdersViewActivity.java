@@ -255,7 +255,8 @@ public class OrdersViewActivity extends Activity {
 		// s_status.setSelection(0);
 		// else
 		s_status.setSelection(1);
-		if (active_orders_num != this.getIntent().getIntExtra("number", -1))
+		int intent_num = this.getIntent().getIntExtra("number", -1);
+		if (-1 != intent_num && active_orders_num != intent_num)
 			// update_orders();
 			get_active_orders();
 		else if (0 == active_orders_num) {

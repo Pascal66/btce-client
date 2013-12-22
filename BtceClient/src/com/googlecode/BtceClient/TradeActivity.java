@@ -28,6 +28,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -137,6 +139,33 @@ public class TradeActivity extends Activity {
 			}
 			super.handleMessage(msg);
 		}
+	}
+
+	static final private int MENU_BASE = Menu.FIRST + 100;
+	static final private int ACTOD_ID = MENU_BASE;
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+
+		/* the context menu currently has only one option */
+		menu.add(0, ACTOD_ID, 0,
+				this.getResources().getString(R.string.act_order));
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent = new Intent();
+		switch (item.getItemId()) {
+		case ACTOD_ID:
+			intent.setClass(TradeActivity.this, OrdersViewActivity.class);
+			// intent.putExtra("number", order_num);
+			// startActivityForResult(intent, position);
+			this.startActivity(intent);
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	/** Called when the activity is first created. */

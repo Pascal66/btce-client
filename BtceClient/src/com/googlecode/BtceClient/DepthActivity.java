@@ -50,6 +50,7 @@ public class DepthActivity extends Activity {
 	private InputHandler mHandler = new InputHandler();
 	btce_params m_params;
 	DecimalFormat formatter8 = new DecimalFormat();
+	private static final int MSG_DEPTHVIEW_DBCLK = 4;
 
 	// private ProgressDialog progressDialog;
 
@@ -61,6 +62,9 @@ public class DepthActivity extends Activity {
 			case MSG_RESIZE: {
 			}
 				break;
+			case MSG_DEPTHVIEW_DBCLK: {
+				update_depth();
+			}
 			default:
 				break;
 			}
@@ -103,6 +107,16 @@ public class DepthActivity extends Activity {
 				intent.setClass(DepthActivity.this, LogViewActivity.class);
 				startActivity(intent);
 
+			}
+		});
+		dp_chart.setOnDoubleClickListener(new DepthView.OnDoubleClickListener() {
+
+			@Override
+			public void OnDoubleClick() {
+				// TODO Auto-generated method stub
+				Message msg = new Message();
+				msg.what = MSG_DEPTHVIEW_DBCLK;
+				mHandler.sendMessage(msg);
 			}
 		});
 		// update_depth();
@@ -199,6 +213,19 @@ public class DepthActivity extends Activity {
 			try {
 				JSONObject fetch_result = null;
 				fetch_result = new JSONObject(result);
+				if (1 != fetch_result.getInt("success")) {
+					update_statusStr(
+							System.currentTimeMillis() / 1000,
+							DepthActivity.this.getResources().getString(
+									R.string.depth_error)
+									+ fetch_result.getString("error"));
+
+				} else {
+					update_statusStr(
+							System.currentTimeMillis() / 1000,
+							DepthActivity.this.getResources().getString(
+									R.string.depth_ok));
+				}
 				// feedJosn_depth(fetch_result);
 				dp_chart.feedJosn_depth(fetch_result);
 
