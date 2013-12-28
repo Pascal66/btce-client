@@ -7,7 +7,7 @@
     <string name="trade">"GO"</string>
     <string name="volume">"Volume"</string>
     <string name="funds">"Funds"</string>
-    <string name="trans">"Trans"</string>
+    <string name="trans">"Histroy"</string>
     <string name="act_order">"Active Orders"</string>
     <string name="fee">"Fee"</string>
     <string name="ready_info">"everything is ready"</string>

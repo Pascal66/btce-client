@@ -7,7 +7,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:focusable="true"  
+        android:focusable="true"
         android:focusableInTouchMode="true" >
 
         <ToggleButton
@@ -24,9 +24,9 @@
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:ems="10"
-            android:inputType="numberDecimal" >
+            android:inputType="numberDecimal"
+            android:selectAllOnFocus="true" >
         </EditText>
-
     </LinearLayout>
 
     <ListView

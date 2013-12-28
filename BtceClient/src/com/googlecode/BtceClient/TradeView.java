@@ -420,35 +420,35 @@ public class TradeView extends View {
 		mPaint.setColor(text_infoColor);
 		String information = "";
 		if (-1 != control_point) {
-			information = my_formatter(spline.getX()[control_point], 4) + " / "
+			information = my_formatter(spline.getX()[control_point], 4) + "/"
 					+ my_formatter(spline.getY()[control_point], 4);
-			canvas.drawText(information, r_chart.left, info_text_y
+			canvas.drawText(information, margin_left, info_text_y
 					+ text_infoSize - 3, mPaint);
 		}
 		if (mousedown && -1 != touch_index && -1 == control_point) {
 			if (is_sell)
 				information = my_formatter(
 						m_orders_items.get(touch_index).price, 6)
-						+ " / "
+						+ "/"
 						+ my_formatter(
 								this.fector
 										* m_orders_items.get(touch_index).currency,
 								6)
-						+ " / "
+						+ "/"
 						+ my_formatter(m_orders_items.get(touch_index).amount,
 								6);
 			else
 				information = my_formatter(
 						m_orders_items.get(touch_index).price, 6)
-						+ " / "
+						+ "/"
 						+ my_formatter(m_orders_items.get(touch_index).amount,
 								6)
-						+ " / "
+						+ "/"
 						+ my_formatter(
 								this.fector
 										* m_orders_items.get(touch_index).currency,
 								6);
-			canvas.drawText(information, r_chart.left, info_text_y
+			canvas.drawText(information, margin_left, info_text_y
 					+ text_infoSize - 3, mPaint);
 			int num = 0;
 			double all_cur = 0, all_amount = 0;
@@ -463,12 +463,12 @@ public class TradeView extends View {
 			}
 			all_cur = this.fector * all_cur;
 			if (is_sell)
-				left_info = num + " / " + my_formatter(all_amount / all_cur, 6)
-						+ " / " + my_formatter(all_cur, 6) + " / "
+				left_info = num + "/" + my_formatter(all_amount / all_cur, 6)
+						+ "/" + my_formatter(all_cur, 6) + "/"
 						+ my_formatter(all_amount, 6);
 			else
-				left_info = num + " / " + my_formatter(all_cur / all_amount, 6)
-						+ " / " + my_formatter(all_amount, 6) + " / "
+				left_info = num + "/" + my_formatter(all_cur / all_amount, 6)
+						+ "/" + my_formatter(all_amount, 6) + "/"
 						+ my_formatter(all_cur, 6);
 
 			num = 0;
@@ -483,29 +483,29 @@ public class TradeView extends View {
 			}
 			all_cur = this.fector * all_cur;
 			if (is_sell)
-				right_info = num + " / "
-						+ my_formatter(all_amount / all_cur, 6) + " / "
-						+ my_formatter(all_cur, 6) + " / "
+				right_info = num + "/"
+						+ my_formatter(all_amount / all_cur, 6) + "/"
+						+ my_formatter(all_cur, 6) + "/"
 						+ my_formatter(all_amount, 6);
 			else
-				right_info = num + " / "
-						+ my_formatter(all_cur / all_amount, 6) + " / "
-						+ my_formatter(all_amount, 6) + " / "
+				right_info = num + "/"
+						+ my_formatter(all_cur / all_amount, 6) + "/"
+						+ my_formatter(all_amount, 6) + "/"
 						+ my_formatter(all_cur, 6);
-			canvas.drawText(left_info, r_chart.left, info_text_y - 3, mPaint);
+			canvas.drawText(left_info, margin_left, info_text_y - 3, mPaint);
 			canvas.drawText(right_info, width - mPaint.measureText(right_info),
 					info_text_y - 3, mPaint);
 		} else {
 		}
 		if (is_sell)
-			information = aviable_orders + " / "
-					+ my_formatter(total_amount / total_cur, 6) + " / "
-					+ my_formatter(total_cur, 6) + " / "
+			information = aviable_orders + "/"
+					+ my_formatter(total_amount / total_cur, 6) + "/"
+					+ my_formatter(total_cur, 6) + "/"
 					+ my_formatter(total_amount, 6);
 		else
-			information = aviable_orders + " / "
-					+ my_formatter(total_cur / total_amount, 6) + " / "
-					+ my_formatter(total_amount, 6) + " / "
+			information = aviable_orders + "/"
+					+ my_formatter(total_cur / total_amount, 6) + "/"
+					+ my_formatter(total_amount, 6) + "/"
 					+ my_formatter(total_cur, 6);
 		canvas.drawText(information, width - mPaint.measureText(information),
 				info_text_y + text_infoSize - 3, mPaint);

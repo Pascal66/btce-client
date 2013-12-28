@@ -27,6 +27,7 @@ public class SeekBarWithText extends SeekBar {
 	protected DecimalFormat formatter2 = new DecimalFormat();
 	protected double max_value = 0;
 	protected double base_value = 0;
+	protected double ratio = 1;
 
 	public SeekBarWithText(Context context) {
 		super(context);
@@ -46,6 +47,10 @@ public class SeekBarWithText extends SeekBar {
 		base_value = vl;
 	}
 
+	public void setRatio(double r) {
+		ratio = r;
+	}
+
 	public double getProgressValue() {
 		int progress = this.getProgress();
 		int maxProgress = this.getMax();
@@ -55,8 +60,8 @@ public class SeekBarWithText extends SeekBar {
 
 	public void setProgressValue(double vl) {
 		int maxProgress = this.getMax();
-		this.setProgress((int) ((vl - base_value) / (max_value - base_value)
-				* this.getMax()));
+		this.setProgress((int) ((vl - base_value) / (max_value - base_value) * this
+				.getMax()));
 	}
 
 	protected void initData() {
@@ -128,8 +133,13 @@ public class SeekBarWithText extends SeekBar {
 
 		String info = overlayText.replace("%M", "" + maxProgress);
 		info = info.replace("%P", "" + progress);
-		info = info.replace("%p", formatter2.format(100 * percentProgress)
-				+ "%");
+		info = info.replace(
+				"%p",
+				formatter2.format(ratio
+						* 100
+						* (base_value + percentProgress
+								* (max_value - base_value)) / max_value)
+						+ "%");
 		info = info.replace("%m", formatter2.format(max_value));
 		info = info.replace(
 				"%v",

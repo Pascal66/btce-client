@@ -7,7 +7,7 @@
 
     <TextView
         android:id="@+id/histroy_status"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:singleLine="true"
         android:text="this is test" />
@@ -40,28 +40,29 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="" />
-			     <LinearLayout
-			         android:layout_width="fill_parent"
-			         android:layout_height="wrap_content" >
-			
-			         <Spinner
-			             android:id="@+id/spinner_trans_currency"
-			             android:layout_width="0dp"
-			             android:layout_height="wrap_content"
-			             android:layout_weight="1" />
-			
-			         <Spinner
-			             android:id="@+id/spinner_trans_type"
-			             android:layout_width="0dp"
-			             android:layout_height="wrap_content"
-			             android:layout_weight="1" />
-			
-			         <Spinner
-			             android:id="@+id/spinner_trans_status"
-			             android:layout_width="0dp"
-			             android:layout_height="wrap_content"
-			             android:layout_weight="1" />
-			     </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" >
+
+                    <Spinner
+                        android:id="@+id/spinner_trans_currency"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <Spinner
+                        android:id="@+id/spinner_trans_type"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <Spinner
+                        android:id="@+id/spinner_trans_status"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+                </LinearLayout>
 
                 <ListView
                     android:id="@+id/trans_his_list"
@@ -81,29 +82,60 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="" />
-			     <LinearLayout
-			         android:layout_width="fill_parent"
-			         android:layout_height="wrap_content" >
-			
-			         <Spinner
-			             android:id="@+id/spinner_trade_pair"
-			             android:layout_width="0dp"
-			             android:layout_height="wrap_content"
-			             android:layout_weight="1" />
-			
-			         <Spinner
-			             android:id="@+id/spinner_trade_type"
-			             android:layout_width="0dp"
-			             android:layout_height="wrap_content"
-			             android:layout_weight="1" />
-			
-			         <Spinner
-			             android:id="@+id/spinner_trade_yours"
-			             android:layout_width="0dp"
-			             android:layout_height="wrap_content"
-			             android:layout_weight="1" />
-			     </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" >
+
+                    <Spinner
+                        android:id="@+id/spinner_trade_pair"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <Spinner
+                        android:id="@+id/spinner_trade_type"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <Spinner
+                        android:id="@+id/spinner_trade_yours"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/info_layout"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="right|center_vertical" >
+
+                    <TextView
+                        android:id="@+id/info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="TextView" />
+
+                    <ImageButton
+                        android:id="@+id/shift"
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@android:drawable/btn_star"
+                        android:visibility="gone" />
+
+                    <ImageButton
+                        android:id="@+id/clear"
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel" />
+
+                </LinearLayout>
+                
                 <ListView
                     android:id="@+id/trade_his_list"
                     android:layout_width="fill_parent"

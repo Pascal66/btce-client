@@ -647,6 +647,10 @@ public class CandleStickView extends View {
 			info = my_formatter((1 - item.low / item.open) * 100, 4) + "%";
 			mPaint.setColor(block_downColor | 0XFF0F0F0F);
 			canvas.drawText(info, 3 + left, info_text_y - 3, mPaint);
+			left = 2 * left;
+			info = my_formatter((item.close / item.open - 1) * 100, 4) + "%";
+			mPaint.setColor(text_infoColor);
+			canvas.drawText(info, 3 + left, info_text_y - 3, mPaint);
 		} else {
 			String info = "T:" + print_date_format.format(temp_date) + " V:"
 					+ my_formatter(item.volume, 6) + " C:"
@@ -667,6 +671,10 @@ public class CandleStickView extends View {
 			info = my_formatter((1 - item.low / item.open) * 100, 4) + "%";
 			mPaint.setColor(block_downColor | 0XFF0F0F0F);
 			canvas.drawText(info, 3, 2 * info_text_y - 3, mPaint);
+			float left = mPaint.measureText(info + "  ");
+			info = my_formatter((item.close / item.open - 1) * 100, 4) + "%";
+			mPaint.setColor(text_infoColor);
+			canvas.drawText(info, 3 + left, 2 * info_text_y - 3, mPaint);
 		}
 	}
 

@@ -58,6 +58,7 @@
                 TChart:td_bidfillColor="#7F75B103"
                 TChart:td_bidlineColor="#FF75B103"
                 TChart:td_bidlineSize="3"
+                TChart:td_curlineColor="#FF9F9F9F"
                 TChart:td_focusLineColor="#FFFFFFFF"
                 TChart:td_frameColor="#FF00FFFF"
                 TChart:td_gridColor="#FF00FFFF"
@@ -66,7 +67,6 @@
                 TChart:td_pointColor="#FF00FF00"
                 TChart:td_pointSize="10"
                 TChart:td_pricelineColor="#FF00FF00"
-        		TChart:td_curlineColor="#FF9F9F9F"
                 TChart:td_textColor="#FFD3D3D3" />
         </LinearLayout>
 
@@ -120,7 +120,8 @@
                         android:ems="10"
                         android:hint="@string/price_hint"
                         android:inputType="numberDecimal"
-                        android:maxLines="1" />
+                        android:maxLines="1"
+                        android:selectAllOnFocus="true" />
 
                     <ToggleButton
                         android:id="@+id/is_sell"
@@ -139,7 +140,8 @@
                         android:ems="10"
                         android:hint="@string/amount_hint"
                         android:inputType="numberDecimal"
-                        android:maxLines="1" />
+                        android:maxLines="1"
+                        android:selectAllOnFocus="true" />
 
                     <Button
                         android:id="@+id/trade_btn"

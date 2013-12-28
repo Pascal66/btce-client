@@ -941,7 +941,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 
 		/* the context menu currently has only one option */
 		menu.add(0, EXIT_ID, 0, R.string.exit);
-		menu.add(0, UPDATE_ALL_CHART, 0, R.string.update);
+		// menu.add(0, UPDATE_ALL_CHART, 0, R.string.update);
 		menu.add(0, PRICE_ID, 0, R.string.price);
 		menu.add(0, TRADE_ID, 0, R.string.orders);
 		// menu.add(0, DEPTH_VIEW, 0, R.string.depth);
@@ -994,6 +994,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		case PRICE_ID:
 			intent.setClass(IntroActivity.this, PriceActivity.class);
 			intent.putExtra("fee", fee_level);
+			intent.putExtra("price", m_ticker.last);
 			startActivityForResult(intent, PRICE_ID);
 			return true;
 		case TRADE_ID:

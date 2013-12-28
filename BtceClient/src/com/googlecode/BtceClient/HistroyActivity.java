@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,6 +30,11 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TabHost;
@@ -57,11 +63,16 @@ public class HistroyActivity extends Activity {
 			"dd.MM.yy HH:mm:ss");
 	SimpleDateFormat error_time_format = new SimpleDateFormat("HH:mm:ss");
 	DecimalFormat formatter8 = new DecimalFormat();
+	DecimalFormat formatter5 = new DecimalFormat();
 
 	ArrayList<trade_his_item> m_trade_his_items = new ArrayList<trade_his_item>();
 	ArrayList<trans_his_item> m_trans_his_items = new ArrayList<trans_his_item>();
 	private Spinner trans_currency, trans_type, trans_status;
 	private Spinner trade_pair, trade_type, trade_yours;
+	LinearLayout info_layout;
+	ImageButton clear, shift;
+	TextView m_info;
+	ImageButton m_clear;
 
 	// private static final String[] str_trans_types = { "types", "1", "2", "3",
 	// "4", "5" };
@@ -85,6 +96,7 @@ public class HistroyActivity extends Activity {
 		int order_id;
 		boolean is_your_order;
 		long time;
+		boolean checked = false;
 	}
 
 	static class trans_his_item {
@@ -165,6 +177,8 @@ public class HistroyActivity extends Activity {
 		m_pair_funds = ((MyApp) getApplicationContext()).app_pair_funds;
 		formatter8.setMaximumFractionDigits(8);
 		formatter8.setGroupingUsed(false);
+		formatter5.setMaximumFractionDigits(5);
+		formatter5.setGroupingUsed(false);
 
 		setContentView(R.layout.histroy_view);
 		TabHost tabs = (TabHost) findViewById(R.id.tabhost);
@@ -192,6 +206,10 @@ public class HistroyActivity extends Activity {
 		trade_pair = (Spinner) findViewById(R.id.spinner_trade_pair);
 		trade_type = (Spinner) findViewById(R.id.spinner_trade_type);
 		trade_yours = (Spinner) findViewById(R.id.spinner_trade_yours);
+		info_layout = (LinearLayout) findViewById(R.id.info_layout);
+		info_layout.setVisibility(info_layout.GONE);
+		m_info = (TextView) findViewById(R.id.info);
+		m_clear = (ImageButton) findViewById(R.id.clear);
 
 		ArrayAdapter<String> temp_adapter;
 
@@ -292,6 +310,34 @@ public class HistroyActivity extends Activity {
 					intent.putExtra("fee", 0.2);
 				startActivity(intent);
 			}
+		});
+		m_clear.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				for (int i = 0; i < m_trade_his_items.size(); ++i) {
+					m_trade_his_items.get(i).checked = false;
+				}
+				HistroyActivity.this.showInfo();
+			}
+		});
+		m_info.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				trade_his_item temp = (trade_his_item) m_info.getTag();
+				Intent intent = new Intent();
+				intent.setClass(HistroyActivity.this, PriceActivity.class);
+				intent.putExtra("is_sell",
+						temp.type.toLowerCase().equals("sell"));
+				intent.putExtra("price", temp.rate);
+				if (temp.pair.equals("usd_rur"))
+					intent.putExtra("fee", 0.5);
+				else
+					intent.putExtra("fee", 0.2);
+				startActivity(intent);
+			}
+
 		});
 	}
 
@@ -441,8 +487,40 @@ public class HistroyActivity extends Activity {
 		return 0;
 	}
 
+	void showInfo() {
+		int checknum = 0;
+		double currency = 0, amount = 0;
+		trade_his_item temp = new trade_his_item();
+		for (int i = 0; i < m_trade_his_items.size(); ++i) {
+			if (m_trade_his_items.get(i).checked) {
+				checknum++;
+				amount += m_trade_his_items.get(i).amount;
+				currency += m_trade_his_items.get(i).amount
+						* m_trade_his_items.get(i).rate;
+				temp.type = m_trade_his_items.get(i).type;
+				temp.pair = m_trade_his_items.get(i).pair;
+			}
+		}
+		if (0 < checknum) {
+			info_layout.setVisibility(info_layout.VISIBLE);
+			m_info.setText("" + checknum + " / "
+					+ formatter5.format(currency / amount) + " / "
+					+ formatter5.format(amount) + " / "
+					+ formatter5.format(currency));
+			temp.rate = currency / amount;
+			m_info.setTag(temp);
+		} else
+			info_layout.setVisibility(info_layout.GONE);
+		m_trade_his.invalidateViews();
+	}
+
 	/*--- ListAdapter for rendering JSON data ---*/
 	private class trade_histroy_list_Adapter extends BaseAdapter {
+		private class ViewHoler {
+			TextView pair, type, amount, rate, time;
+			CheckBox ckbox;
+		}
+
 		public trade_histroy_list_Adapter(Context c) {
 		}
 
@@ -463,30 +541,104 @@ public class HistroyActivity extends Activity {
 
 		@Override
 		public View getView(int pos, View convertView, ViewGroup parent) {
-			View tv = null;
+			// View tv = null;
 			TextView t;
+			CheckBox c;
+			ViewHoler vh;
 
-			if (convertView == null)
-				tv = m_inflater.inflate(R.layout.trade_his_item, parent, false);
-			else
-				tv = convertView;
+			trade_his_item cur_item = m_trade_his_items.get(pos);
+			if (convertView == null) {
+				convertView = m_inflater.inflate(R.layout.trade_his_item,
+						parent, false);
+				vh = new ViewHoler();
+				vh.pair = (TextView) convertView.findViewById(R.id.trade_pair);
+				vh.type = (TextView) convertView.findViewById(R.id.trade_type);
+				vh.amount = (TextView) convertView
+						.findViewById(R.id.trade_amount);
+				vh.rate = (TextView) convertView.findViewById(R.id.trade_rate);
+				vh.time = (TextView) convertView.findViewById(R.id.trade_time);
+				vh.ckbox = (CheckBox) convertView.findViewById(R.id.check);
+				convertView.setTag(vh);
+			} else {
+				// tv = convertView;
+				vh = (ViewHoler) convertView.getTag();
+			}
 
-			t = (TextView) tv.findViewById(R.id.trade_pair);
-			t.setText(m_trade_his_items.get(pos).pair.toUpperCase());
-			t = (TextView) tv.findViewById(R.id.trade_type);
-			t.setText(m_trade_his_items.get(pos).type.toUpperCase());
-			t = (TextView) tv.findViewById(R.id.trade_amount);
-			t.setText("" + formatter8.format(m_trade_his_items.get(pos).amount));
-			t = (TextView) tv.findViewById(R.id.trade_rate);
-			t.setText("" + formatter8.format(m_trade_his_items.get(pos).rate));
-			t = (TextView) tv.findViewById(R.id.trade_time);
-			temp_date.setTime(m_trade_his_items.get(pos).time * 1000);
-			t.setText("id:" + m_trade_his_items.get(pos).id + "order_id"
-					+ m_trade_his_items.get(pos).order_id + "yours:"
-					+ m_trade_his_items.get(pos).is_your_order + " "
-					+ trade_time_format.format(temp_date));
-			return tv;
+			// t = (TextView) tv.findViewById(R.id.trade_pair);
+			vh.pair.setText(cur_item.pair.toUpperCase());
+			// t = (TextView) tv.findViewById(R.id.trade_type);
+			vh.type.setText(cur_item.type.toUpperCase());
+			// t = (TextView) tv.findViewById(R.id.trade_amount);
+			vh.amount.setText("" + formatter8.format(cur_item.amount));
+			// t = (TextView) tv.findViewById(R.id.trade_rate);
+			vh.rate.setText("" + formatter8.format(cur_item.rate));
+			// t = (TextView) tv.findViewById(R.id.trade_time);
+			temp_date.setTime(cur_item.time * 1000);
+			vh.time.setText("id:" + cur_item.id + "order_id"
+					+ cur_item.order_id + "yours:" + cur_item.is_your_order
+					+ " " + trade_time_format.format(temp_date));
+
+			// c = (CheckBox) tv.findViewById(R.id.check);
+			// cur_item.checked = c.isChecked();
+			vh.ckbox.setTag(cur_item);
+			vh.ckbox.setOnCheckedChangeListener(null);
+			vh.ckbox.setChecked(cur_item.checked);
+			vh.ckbox.setOnCheckedChangeListener(checkListener);
+			return convertView;
 		}
+
+		private OnCheckedChangeListener checkListener = new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton checkboxView,
+					boolean isChecked) {
+				trade_his_item item = (trade_his_item) checkboxView.getTag();
+				if (isChecked) {
+					int first_select = -1;
+					for (int i = 0; i < m_trade_his_items.size(); ++i) {
+						if (m_trade_his_items.get(i).checked) {
+							first_select = i;
+							break;
+						}
+					}
+					if (-1 == first_select
+							|| (m_trade_his_items.get(first_select).type
+									.equals(item.type) && m_trade_his_items
+									.get(first_select).pair.equals(item.pair))) {
+						item.checked = isChecked;
+						int index = m_trade_his_items.indexOf(item);
+						if (-1 != index) {
+							for (int i = index - 1; i >= 0; --i) {
+								if (m_trade_his_items.get(i).type
+										.equals(item.type)
+										&& m_trade_his_items.get(i).pair
+												.equals(item.pair)) {
+									m_trade_his_items.get(i).checked = isChecked;
+									// list check
+								} else {
+									break;
+								}
+							}
+							for (int i = index + 1; i < m_trade_his_items
+									.size(); ++i) {
+								if (m_trade_his_items.get(i).type
+										.equals(item.type)
+										&& m_trade_his_items.get(i).pair
+												.equals(item.pair)) {
+									m_trade_his_items.get(i).checked = isChecked;
+									// list check
+								} else {
+									break;
+								}
+							}
+						}
+					} else
+						checkboxView.setChecked(!isChecked);
+				} else {
+					item.checked = isChecked;
+				}
+				HistroyActivity.this.showInfo();
+			}
+		};
 	}
 
 	public int feedJosn_trans_histroy(JSONObject obj) {
@@ -522,7 +674,6 @@ public class HistroyActivity extends Activity {
 				trans_item.time = trans_json.getLong("timestamp");
 				// m_trans_his_items.add(trans_item);
 				result_list.add(trans_item);
-
 			}
 			m_dbmgr.update_trans(result_list);
 			update_trans_list();

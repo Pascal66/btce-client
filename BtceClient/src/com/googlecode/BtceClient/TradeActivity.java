@@ -236,12 +236,14 @@ public class TradeActivity extends Activity {
 		m_price_min.setMax(1900 / 2);
 		m_price_min.setBaseValue(pmin);
 		m_price_min.setMaxValue(pmax);
-		m_price_min.setOverlayText("From: %v");
+		m_price_min.setRatio(2);
+		m_price_min.setOverlayText("from %p of current Price: %v");
 
 		m_price_max.setMax(1900 / 2);
 		m_price_max.setBaseValue(pmin);
 		m_price_max.setMaxValue(pmax);
-		m_price_max.setOverlayText("To: %v");
+		m_price_max.setRatio(2);
+		m_price_max.setOverlayText("to %p of current Price: %v");
 
 		m_price_slp.setBaseValue(1);
 		m_price_slp.setMaxValue(60);
@@ -400,6 +402,7 @@ public class TradeActivity extends Activity {
 			if (null != item) {
 				spline_chart.setSpline(item.x, item.y);
 				m_trade_num.setProgress(item.piece);
+				m_price_min.setProgress(item.from);
 				m_price_max.setProgress(item.to);
 				m_price_min.setProgress(item.from);
 				m_price_cur.setProgress(item.cur);
