@@ -259,6 +259,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 						.setChecked(((MyApp) getApplicationContext()).show_volume_bar);
 				((CheckBox) candle_view.findViewById(R.id.price_line))
 						.setChecked(((MyApp) getApplicationContext()).show_price_line);
+				((EditText) candle_view.findViewById(R.id.period)).selectAll();
 				AlertDialog dlg = new AlertDialog.Builder(IntroActivity.this)
 						.setTitle("Candlestick:")
 						.setIcon(android.R.drawable.ic_dialog_info)
@@ -781,6 +782,11 @@ public class IntroActivity extends Activity implements OnGestureListener,
 					intent.setClass(IntroActivity.this, PairFoundActivity.class);
 					intent.putExtra(str_value, m_last_price);
 					startActivityForResult(intent, position);
+				} else if (position == ALL_PAIR_VOLUMES) {
+					intent.setClass(IntroActivity.this, PriceActivity.class);
+					intent.putExtra("fee", fee_level);
+					intent.putExtra("price", m_ticker.last);
+					startActivityForResult(intent, PRICE_ID);
 				} else if (position == ALL_PAIR_FUNDS) {
 					intent.setClass(IntroActivity.this, PairFoundActivity.class);
 					intent.putExtra(str_value, m_pair_funds);
@@ -795,6 +801,15 @@ public class IntroActivity extends Activity implements OnGestureListener,
 							OrdersViewActivity.class);
 					intent.putExtra("number", order_num);
 					startActivityForResult(intent, position);
+				} else if (position == ALL_PAIR_FEES) {
+					intent.setClass(IntroActivity.this, TradeActivity.class);
+					intent.putExtra("currency",
+							m_pair_funds.getDouble(m_params.pair.substring(4)));
+					intent.putExtra("coins", m_pair_funds
+							.getDouble(m_params.pair.substring(0, 3)));
+					intent.putExtra("price", m_ticker.last);
+					intent.putExtra("pair", m_params.pair);
+					startActivityForResult(intent, TRADE_ID);
 				}
 			}
 		});

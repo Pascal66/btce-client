@@ -3,24 +3,27 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
-    
+
     <EditText
         android:id="@+id/number"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="number"
         android:ems="10"
-        android:inputType="number" >
-        <requestFocus />
-    </EditText>
-    
+        android:hint="number"
+        android:inputType="number"
+        android:selectAllOnFocus="true" />
+
     <EditText
         android:id="@+id/period"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="period: n*30 minutes"
         android:ems="10"
-        android:inputType="number" />
+        android:hint="period: n*30 minutes"
+        android:inputType="number"
+        android:selectAllOnFocus="true" >
+
+        <requestFocus />
+    </EditText>
 
     <CheckBox
         android:id="@+id/vol_bar"

@@ -676,6 +676,32 @@ public class CandleStickView extends View {
 			mPaint.setColor(text_infoColor);
 			canvas.drawText(info, 3 + left, 2 * info_text_y - 3, mPaint);
 		}
+		float current_price = (float) (k * item.close + b);
+		current_price = current_price > r_chart.bottom ? r_chart.bottom
+				: current_price;
+		current_price = current_price < r_chart.top ? r_chart.top
+				: current_price;
+		mPaint.setColor(0XFF00FF00);
+		canvas.drawLine(r_chart.left, current_price, r_chart.right,
+				current_price, mPaint);
+		String cur_price = my_formatter(item.close, 6);
+		Rect bounds = new Rect();
+		mPaint.getTextBounds(cur_price, 0, cur_price.length(), bounds);
+		bounds.top -= 1;
+		bounds.bottom += 2;
+		bounds.left -= 2;
+		// bounds.right += 1;
+		mPaint.setStyle(Style.FILL);
+		mPaint.setColor(0XFF0000FF);
+		bounds.offsetTo(margin_left, (int) (current_price - textSize / 2));
+		bounds.offset(0, bounds.bottom > r_chart.bottom ? r_chart.bottom
+				- bounds.bottom : 0);
+		bounds.offset(0, bounds.top < r_chart.top ? r_chart.top - bounds.top
+				: 0);
+		canvas.drawRect(bounds, mPaint);
+		mPaint.setColor(0XFF00FF00);
+		canvas.drawText(cur_price, bounds.left + 1, bounds.top + textSize - 3,
+				mPaint);
 	}
 
 	@Override
