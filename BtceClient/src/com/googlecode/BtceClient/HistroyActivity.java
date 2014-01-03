@@ -124,7 +124,7 @@ public class HistroyActivity extends Activity {
 			int status = trans_status.getSelectedItemPosition();
 			m_trans_his_items.clear();
 			m_trans_his_items = m_dbmgr.get_trans_list(currency, type, status,
-					50);
+					100);
 			m_trans_his.setAdapter(new trans_histroy_list_Adapter(
 					getApplicationContext()));
 		}
@@ -141,7 +141,7 @@ public class HistroyActivity extends Activity {
 			int type = trade_type.getSelectedItemPosition();
 			int yours = trade_yours.getSelectedItemPosition();
 			m_trade_his_items.clear();
-			m_trade_his_items = m_dbmgr.get_trade_list(pair, type, yours, 50);
+			m_trade_his_items = m_dbmgr.get_trade_list(pair, type, yours, 100);
 			m_trade_his.setAdapter(new trade_histroy_list_Adapter(
 					getApplicationContext()));
 		}
@@ -216,7 +216,7 @@ public class HistroyActivity extends Activity {
 		temp_adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_spinner_item,
 				asSortedList(m_pair_funds.keySet()));
-		temp_adapter.insert("All", 0);
+		temp_adapter.insert("Pairs", 0);
 		temp_adapter
 				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		trans_currency.setAdapter(temp_adapter);
@@ -245,7 +245,7 @@ public class HistroyActivity extends Activity {
 		temp_adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_spinner_item,
 				asSortedList(all_pairs.keySet()));
-		temp_adapter.insert("All", 0);
+		temp_adapter.insert("Pairs", 0);
 		temp_adapter
 				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		trade_pair.setAdapter(temp_adapter);

@@ -1034,8 +1034,9 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				price = m_price.getHint().toString();
 			} else {
 				int p = price.indexOf('.');
-				if (-1 != p && 6 <= price.length() - p) {
-					price = price.substring(0, p + 6);
+				int fraction = 6;
+				if (-1 != p && fraction <= price.length() - p) {
+					price = price.substring(0, p + fraction);
 					m_price.removeTextChangedListener(price_or_amount_changed_handler);
 					int editStart = m_price.getSelectionStart();
 					m_price.setText(price);
@@ -1222,7 +1223,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 					if (!temp_pairs.trade_depth_pairs.keySet().contains(
 							m_params.pair))
 						temp_pairs.trade_depth_pairs.put(m_params.pair,
-								temp_pairs.get(m_params.pair));
+								temp_pairs.get(m_params.pair).sequence);
 					for (String pair : temp_pairs.trade_depth_pairs.keySet()) {
 						m_params.method = BTCEHelper.btce_methods.TRADES;
 						btce_tasks.add((BTCETask) new BTCETask(m_params
@@ -1492,8 +1493,8 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		try {
 			last_price = obj.getJSONObject("last");
 			for (String pair_key : new BTCEPairs().keySet()) {
-				m_last_price.putDouble(pair_key,
-						last_price.getDouble(new BTCEPairs().get(pair_key)));
+				m_last_price.putDouble(pair_key, last_price
+						.getDouble(new BTCEPairs().get(pair_key).sequence));
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block

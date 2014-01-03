@@ -75,7 +75,8 @@ public class BTCEHelper {
 	}
 
 	private btce_params params = new btce_params();
-	DecimalFormat formatter5 = new DecimalFormat();
+	DecimalFormat formatter8 = new DecimalFormat();
+	DecimalFormat formatterx = new DecimalFormat();
 
 	CookieStore cookies;
 	boolean useCookie = false;
@@ -86,8 +87,10 @@ public class BTCEHelper {
 	// }
 
 	BTCEHelper(CookieStore ck) {
-		formatter5.setMaximumFractionDigits(5);
-		formatter5.setGroupingUsed(false);
+		formatter8.setMaximumFractionDigits(8);
+		formatter8.setGroupingUsed(false);
+		formatterx.setMaximumFractionDigits(8);
+		formatterx.setGroupingUsed(false);
 		cookies = ck;
 		useCookie = false;
 	}
@@ -250,7 +253,8 @@ public class BTCEHelper {
 		assert (all_pairs.containsKey(pair));
 		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
 		parameters.add(new BasicNameValuePair("act", "orders_update"));
-		parameters.add(new BasicNameValuePair("pair", all_pairs.get(pair)));
+		parameters.add(new BasicNameValuePair("pair",
+				all_pairs.get(pair).sequence));
 		List<NameValuePair> temp_header = new ArrayList<NameValuePair>();
 		temp_header.add(new BasicNameValuePair("Referer", btce_scheme + "://"
 				+ btce_host_name + "/exchange/" + pair));
@@ -324,10 +328,11 @@ public class BTCEHelper {
 			JSONObject last = new JSONObject();
 			BTCEPairs temp = new BTCEPairs();
 			for (String key : temp.keySet()) {
-				p = Pattern.compile("'last" + temp.get(key) + "'>(.*?)<");
+				p = Pattern.compile("'last" + temp.get(key).sequence
+						+ "'>(.*?)<");
 				m = p.matcher(rtstr);
 				if (m.find())
-					last.put(temp.get(key), m.group(1));
+					last.put(temp.get(key).sequence, m.group(1));
 			}
 			js.put("last", last);
 			return js.toString();
@@ -384,9 +389,10 @@ public class BTCEHelper {
 			parameters.add(new BasicNameValuePair("type", "sell"));
 		else
 			parameters.add(new BasicNameValuePair("type", "buy"));
-		parameters.add(new BasicNameValuePair("rate", formatter5
+		formatterx.setMaximumFractionDigits(all_pairs.get(pair).fraction);
+		parameters.add(new BasicNameValuePair("rate", formatterx
 				.format(trade_price)));
-		parameters.add(new BasicNameValuePair("amount", formatter5
+		parameters.add(new BasicNameValuePair("amount", formatter8
 				.format(trade_amount)));
 		List<NameValuePair> encryedHeader = encryHeader_updatePostdata("Trade",
 				parameters);

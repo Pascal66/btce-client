@@ -7,7 +7,7 @@
     <string name="trade">"GO"</string>
     <string name="volume">"Volume"</string>
     <string name="funds">"Funds"</string>
-    <string name="trans">"Histroy"</string>
+    <string name="trans">"History"</string>
     <string name="act_order">"Active Orders"</string>
     <string name="fee">"Fee"</string>
     <string name="ready_info">"everything is ready"</string>
@@ -82,7 +82,7 @@
     <string name="stop">"Stop"</string>
 
     <string-array name="trans_type_array">
-        <item> types </item>
+        <item> Types </item>
         <item> 1 </item>
         <item> 2 </item>
         <item> 3 </item>
@@ -90,7 +90,7 @@
         <item> 5 </item>
     </string-array>
     <string-array name="trans_status_array">
-        <item> status </item>
+        <item> Status </item>
         <item> 1 </item>
         <item> 2 </item>
         <item> 3 </item>
@@ -98,17 +98,17 @@
         <item> 5 </item>
     </string-array>
     <string-array name="trade_type_array">
-        <item> All </item>
+        <item> Types </item>
         <item> Sell </item>
         <item> Buy </item>
     </string-array>
     <string-array name="trade_owner_array">
-        <item> All </item>
+        <item> Owner </item>
         <item> Yours </item>
         <item> Others </item>
     </string-array>
     <string-array name="order_status_array">
-        <item> All </item>
+        <item> Status </item>
         <item> Active </item>
         <item> Filled </item>
         <item> Canceled </item>
