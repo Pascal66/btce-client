@@ -14,7 +14,7 @@
     
      <LinearLayout
          android:layout_width="fill_parent"
-         android:layout_height="0dp"
+         android:layout_height="wrap_content"
          android:visibility="visible" >
 
          <Spinner
@@ -35,7 +35,7 @@
              android:id="@+id/spinner_status"
              android:layout_width="0dp"
              android:layout_height="wrap_content"
-             android:layout_weight="1"
+             android:layout_weight="0"
              android:visibility="visible" />
 
      </LinearLayout>

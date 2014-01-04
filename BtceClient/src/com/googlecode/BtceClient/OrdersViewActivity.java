@@ -143,7 +143,7 @@ public class OrdersViewActivity extends Activity {
 		temp_adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_spinner_item,
 				asSortedList(new BTCEPairs().keySet()));
-		temp_adapter.insert("All", 0);
+		temp_adapter.insert("Pairs", 0);
 		temp_adapter
 				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		s_pair.setAdapter(temp_adapter);
