@@ -13,9 +13,46 @@ import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.SeekBar;
 
 public class SeekBarWithText extends SeekBar {
+
+	int btn_regin = 0;
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		// TODO Auto-generated method stub"
+		int buttonsize = 50;
+		int step = 0;
+		if (event.getX() < buttonsize)
+			step = -1;
+		else if (event.getX() > this.getWidth() - buttonsize)
+			step = 1;
+		if (0 != step) {
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				btn_regin = step;
+				return true;
+			case MotionEvent.ACTION_UP:
+				if (btn_regin == step) {
+					this.setProgress(this.getProgress() + btn_regin);
+					btn_regin = 0;
+					return true;
+				}
+				break;
+			case MotionEvent.ACTION_MOVE:
+				if (btn_regin == step) {
+					return true;
+				}
+				break;
+			}
+		}
+		else if(MotionEvent.ACTION_MOVE != event.getAction())
+			btn_regin = 0;
+		return super.onTouchEvent(event);
+	}
 
 	private static final int textMargin = 6;
 	private static final int leftPlusRightTextMargins = textMargin + textMargin;
