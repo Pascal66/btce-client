@@ -14,7 +14,7 @@
         <view
             android:id="@+id/tradechart_view"
             android:layout_width="fill_parent"
-            android:layout_height="240dp"
+            android:layout_height="200dp"
             class="com.googlecode.BtceClient.TradeView"
             TChart:td_askfillColor="#7F4E8CD9"
             TChart:td_asklineColor="#FF4E8CD9"
@@ -33,6 +33,51 @@
             TChart:td_pointSize="10"
             TChart:td_pricelineColor="#FF00FF00"
             TChart:td_textColor="#FFD3D3D3" />
+
+        <TextView
+            android:id="@+id/status_view"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:text=""
+            android:focusable="true"  
+        	android:focusableInTouchMode="true" />
+
+        <LinearLayout
+            android:id="@+id/text_area"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <EditText
+                android:id="@+id/trade_price"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:ems="10"
+                android:hint="@string/price_hint"
+                android:inputType="numberDecimal"
+                android:maxLines="1"
+                android:selectAllOnFocus="true" />
+
+            <EditText
+                android:id="@+id/trade_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:ems="10"
+                android:hint="@string/amount_hint"
+                android:inputType="numberDecimal"
+                android:maxLines="1"
+                android:selectAllOnFocus="true" />
+
+            <Button
+                android:id="@+id/trade_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:text="@string/trade" />
+        </LinearLayout>
 
         <com.googlecode.BtceClient.SeekBarWithText
             android:id="@+id/trade_number"
@@ -140,13 +185,6 @@
                 android:layout_weight="1"
                 android:text="Start" />
         </LinearLayout>
-        <TextView
-            android:id="@+id/status_view"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:text="" />
-        
     </LinearLayout>
 
     <LinearLayout

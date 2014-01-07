@@ -20,11 +20,11 @@ import android.widget.SeekBar;
 public class SeekBarWithText extends SeekBar {
 
 	int btn_regin = 0;
+	int buttonsize = 50;// dp
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub"
-		int buttonsize = 50;
 		int step = 0;
 		if (event.getX() < buttonsize)
 			step = -1;
@@ -48,8 +48,7 @@ public class SeekBarWithText extends SeekBar {
 				}
 				break;
 			}
-		}
-		else if(MotionEvent.ACTION_MOVE != event.getAction())
+		} else
 			btn_regin = 0;
 		return super.onTouchEvent(event);
 	}
@@ -110,6 +109,8 @@ public class SeekBarWithText extends SeekBar {
 		formatter2.setMaximumFractionDigits(2);
 		formatter2.setGroupingUsed(false);
 		textPaint.setTextSize(18);
+		buttonsize = (int) (buttonsize
+				* this.getContext().getResources().getDisplayMetrics().density + 0.5);
 	}
 
 	// This attempts to ensure that the text fits inside your SeekBar on a

@@ -62,6 +62,9 @@ public class TradeView extends View {
 	int control_point = -1;
 	DecimalFormat formatter5 = new DecimalFormat();
 
+	int last_touch_index = -1;
+	trades_item double_click_item = new trades_item();
+
 	public TradeView(Context context) {
 		super(context);
 		// TODO Auto-generated constructor stub
@@ -391,7 +394,7 @@ public class TradeView extends View {
 		int aviable_orders = 0;
 		double total_amount = 0;
 		double total_cur = 0;
-		int touch_index = -1;
+		int temp_touch_index = -1;
 		for (int i = 0; i < m_orders_items.size(); ++i) {
 			trades_item item = m_orders_items.get(i);
 			float x = (float) (((item.price - price_min)
@@ -403,9 +406,10 @@ public class TradeView extends View {
 				total_cur += this.fector * item.currency;
 				aviable_orders += 1;
 			}
-			if (0 != trade_num && -1 == touch_index
+			if (0 != trade_num && -1 == temp_touch_index
 					&& Math.abs(ex - x) < r_chart.width() / trade_num / 2) {
-				touch_index = i;
+				temp_touch_index = i;
+				last_touch_index = temp_touch_index;
 				if (mousedown && -1 == control_point) {
 					mPaint.setColor(focus_line_color);
 					canvas.drawLine(x, (float) (y_b + y_k * 0), x, r_chart.top,
@@ -425,35 +429,35 @@ public class TradeView extends View {
 			canvas.drawText(information, margin_left, info_text_y
 					+ text_infoSize - 3, mPaint);
 		}
-		if (mousedown && -1 != touch_index && -1 == control_point) {
+		if (mousedown && -1 != temp_touch_index && -1 == control_point) {
 			if (is_sell)
 				information = my_formatter(
-						m_orders_items.get(touch_index).price, 6)
+						m_orders_items.get(temp_touch_index).price, 6)
 						+ "/"
 						+ my_formatter(
 								this.fector
-										* m_orders_items.get(touch_index).currency,
+										* m_orders_items.get(temp_touch_index).currency,
 								6)
 						+ "/"
-						+ my_formatter(m_orders_items.get(touch_index).amount,
-								6);
+						+ my_formatter(
+								m_orders_items.get(temp_touch_index).amount, 6);
 			else
 				information = my_formatter(
-						m_orders_items.get(touch_index).price, 6)
+						m_orders_items.get(temp_touch_index).price, 6)
 						+ "/"
-						+ my_formatter(m_orders_items.get(touch_index).amount,
-								6)
+						+ my_formatter(
+								m_orders_items.get(temp_touch_index).amount, 6)
 						+ "/"
 						+ my_formatter(
 								this.fector
-										* m_orders_items.get(touch_index).currency,
+										* m_orders_items.get(temp_touch_index).currency,
 								6);
 			canvas.drawText(information, margin_left, info_text_y
 					+ text_infoSize - 3, mPaint);
 			int num = 0;
 			double all_cur = 0, all_amount = 0;
 			String left_info, right_info;
-			for (int i = 0; i <= touch_index; ++i) {
+			for (int i = 0; i <= temp_touch_index; ++i) {
 				trades_item item = m_orders_items.get(i);
 				if (item.currency > 0) {
 					num += 1;
@@ -473,7 +477,7 @@ public class TradeView extends View {
 
 			num = 0;
 			all_cur = all_amount = 0;
-			for (int i = touch_index; i < m_orders_items.size(); ++i) {
+			for (int i = temp_touch_index; i < m_orders_items.size(); ++i) {
 				trades_item item = m_orders_items.get(i);
 				if (item.currency > 0) {
 					num += 1;
@@ -483,14 +487,12 @@ public class TradeView extends View {
 			}
 			all_cur = this.fector * all_cur;
 			if (is_sell)
-				right_info = num + "/"
-						+ my_formatter(all_amount / all_cur, 6) + "/"
-						+ my_formatter(all_cur, 6) + "/"
+				right_info = num + "/" + my_formatter(all_amount / all_cur, 6)
+						+ "/" + my_formatter(all_cur, 6) + "/"
 						+ my_formatter(all_amount, 6);
 			else
-				right_info = num + "/"
-						+ my_formatter(all_cur / all_amount, 6) + "/"
-						+ my_formatter(all_amount, 6) + "/"
+				right_info = num + "/" + my_formatter(all_cur / all_amount, 6)
+						+ "/" + my_formatter(all_amount, 6) + "/"
 						+ my_formatter(all_cur, 6);
 			canvas.drawText(left_info, margin_left, info_text_y - 3, mPaint);
 			canvas.drawText(right_info, width - mPaint.measureText(right_info),
@@ -568,6 +570,18 @@ public class TradeView extends View {
 			long thisTime = System.currentTimeMillis();
 			if (thisTime - lastTouchTime < 250 && Math.abs(ev.getX() - bx) < 50
 					&& Math.abs(ev.getY() - by) < 50) {
+				double_click_item.price = double_click_item.amount = 0;
+				if (m_orders_items.get(last_touch_index).currency > 0) {
+					trades_item item = m_orders_items.get(last_touch_index);
+					double_click_item.price = item.price;
+					if (is_sell) {
+						double_click_item.amount = fector * item.currency;
+						double_click_item.trade_type = 1;
+					} else {
+						double_click_item.amount = item.amount;
+						double_click_item.trade_type = 0;
+					}
+				}
 				// Double click
 				if (mListener != null) {
 					mListener.OnDoubleClick();

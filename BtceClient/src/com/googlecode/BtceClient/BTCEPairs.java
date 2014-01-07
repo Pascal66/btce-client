@@ -20,7 +20,7 @@ public class BTCEPairs extends HashMap<String, pair_values> {
 		this.put("ltc_rur", new pair_values("21", 5));// checked
 		this.put("nvc_btc", new pair_values("22", 5));// checked
 		// this.put("trc_btc", new pair_values("23",6));
-		this.put("ppc_btc", new pair_values("24", 3));// checked,8 is passed
+		this.put("ppc_btc", new pair_values("24", 5));// checked,8 is passed
 		this.put("ftc_btc", new pair_values("25", 5));// checked
 		// this.put("cnc_btc", new pair_values("26",6));
 		this.put("ltc_eur", new pair_values("27", 3));// checked

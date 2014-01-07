@@ -32,10 +32,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -56,13 +58,15 @@ public class TradeActivity extends Activity {
 	private SeekBarWithText m_price_slp;
 	private Button m_btn_swap;
 	private Button m_issell_btn;
-	private Button m_btn_go;
+	private Button m_btn_go, m_btn_go_one;
 	private Button m_btn_add;
 	private Button m_btn_save;
 	private Button m_btn_rename;
 	private Button m_btn_remove;
 	private Spinner m_spin_orders;
 	private LayoutInflater m_inflater;
+	private EditText m_price;
+	private EditText m_amount;
 
 	private double currency;
 	private double coins;
@@ -76,14 +80,17 @@ public class TradeActivity extends Activity {
 	DBManager m_dbmgr;
 	btce_params m_params;
 	LimitingList<String> m_logs;
-	DecimalFormat formatter6 = new DecimalFormat();
+	DecimalFormat formatterx = new DecimalFormat();
 	Date temp_date = new Date();
 	String statusStr;
 	SimpleDateFormat error_time_format = new SimpleDateFormat("HH:mm:ss");
+	private static final BTCEPairs all_pairs = new BTCEPairs();
 
 	private static final int MSG_RESIZE = 1;
 	private static final int TIMER_TRADES = 257;
+	private static final int MSG_CHART_DBCLK = 258;
 	private InputHandler mHandler = new InputHandler();
+	private InputMethodManager im_ctrl;
 
 	public static class auto_order_item {
 		long id;
@@ -134,6 +141,18 @@ public class TradeActivity extends Activity {
 				go_order();
 			}
 				break;
+			case MSG_CHART_DBCLK: {
+				m_price.setText("");
+				m_amount.setText("");
+				trades_item item = spline_chart.double_click_item;
+				if (item.price > 0) {
+					formatterx.setMaximumFractionDigits(all_pairs.get(pair).fraction);
+					m_price.setText(formatterx.format(item.price));
+					formatterx.setMaximumFractionDigits(8);
+					m_amount.setText(formatterx.format(item.amount));
+				}
+			}
+				break;
 			default:
 				break;
 			}
@@ -177,8 +196,8 @@ public class TradeActivity extends Activity {
 		m_params = ((MyApp) getApplicationContext()).app_params;
 		m_logs = ((MyApp) getApplicationContext()).app_logs;
 
-		formatter6.setMaximumFractionDigits(6);
-		formatter6.setGroupingUsed(false);
+		formatterx.setMaximumFractionDigits(8);
+		formatterx.setGroupingUsed(false);
 
 		setContentView(R.layout.trade_view);
 		spline_chart = (TradeView) findViewById(R.id.tradechart_view);
@@ -198,6 +217,12 @@ public class TradeActivity extends Activity {
 		m_btn_remove = (Button) findViewById(R.id.remove);
 		m_spin_orders = (Spinner) findViewById(R.id.orders);
 		m_inflater = LayoutInflater.from(this);
+		m_price = (EditText) findViewById(R.id.trade_price);
+		m_amount = (EditText) findViewById(R.id.trade_amount);
+		m_btn_go_one = (Button) findViewById(R.id.trade_btn);
+		m_btn_go_one.setOnClickListener(go_trade_handler);
+		im_ctrl = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		// m_issell_btn = (ToggleButton) findViewById(R.id.is_sell);
 		// ResizeLayout layout = (ResizeLayout) findViewById(R.id.root_layout);
 		// layout.setOnResizeListener(new ResizeLayout.OnResizeListener() {
 		// public void OnResize(int w, int h, int oldw, int oldh) {
@@ -208,6 +233,16 @@ public class TradeActivity extends Activity {
 		// mHandler.sendMessage(msg);
 		// }
 		// });
+		spline_chart
+				.setOnDoubleClickListener(new TradeView.OnDoubleClickListener() {
+					@Override
+					public void OnDoubleClick() {
+						// TODO Auto-generated method stub
+						Message msg = new Message();
+						msg.what = MSG_CHART_DBCLK;
+						mHandler.sendMessage(msg);
+					}
+				});
 		double price = getIntent().getDoubleExtra("price", 100);
 		if (0 == price)
 			price = 100;
@@ -362,6 +397,43 @@ public class TradeActivity extends Activity {
 			m_spin_orders.setSelection(0);
 		m_statusView.setText("ready");
 	}
+
+	OnClickListener go_trade_handler = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			im_ctrl.hideSoftInputFromWindow(m_amount.getWindowToken(), 0);
+			String amount = m_amount.getText().toString();
+			if (amount.equals("")) {
+				Toast.makeText(
+						getApplicationContext(),
+						TradeActivity.this.getResources().getString(
+								R.string.invalid_amount), Toast.LENGTH_LONG)
+						.show();
+				return;
+			}
+			String price = m_price.getText().toString();
+			if (price.equals(""))
+				price = m_price.getHint().toString();
+			if (price.equals(getResources().getString(R.string.price_hint))) {
+				Toast.makeText(
+						getApplicationContext(),
+						TradeActivity.this.getResources().getString(
+								R.string.invalid_price), Toast.LENGTH_LONG)
+						.show();
+				return;
+			}
+
+			m_params.reset();
+			m_params.method = BTCEHelper.btce_methods.TRADE;
+			m_params.trade_amount = Double.parseDouble(amount);
+			m_params.trade_price = Double.parseDouble(price);
+			m_params.sell = m_issell_btn.getText().equals(
+					TradeActivity.this.getResources().getString(R.string.sell));
+			new BTCETask(m_params.getparams()).execute();
+			// Toast.makeText(getApplicationContext(), "trade_" + m_params.pair,
+			// Toast.LENGTH_LONG).show();
+		}
+	};
 
 	void resetSpinOrders(String item_name) {
 		Vector<String> names = m_dbmgr.get_auto_orders_name();
