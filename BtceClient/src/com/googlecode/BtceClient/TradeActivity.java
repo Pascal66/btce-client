@@ -75,6 +75,7 @@ public class TradeActivity extends Activity {
 	Timer timer_trades;
 	List<trades_item> orders;
 	int order_index = 0;
+	int order_num = -1;
 
 	AlertDialog.Builder builder;
 	DBManager m_dbmgr;
@@ -179,7 +180,7 @@ public class TradeActivity extends Activity {
 		switch (item.getItemId()) {
 		case ACTOD_ID:
 			intent.setClass(TradeActivity.this, OrdersViewActivity.class);
-			// intent.putExtra("number", order_num);
+			intent.putExtra("number", order_num);
 			// startActivityForResult(intent, position);
 			this.startActivity(intent);
 			return true;
@@ -714,7 +715,7 @@ public class TradeActivity extends Activity {
 			} else {
 				double received = rt.getInt("received");
 				double remains = rt.getDouble("remains");
-				// order_num += 1;
+				order_num = Integer.MAX_VALUE;
 				update_statusStr(
 						System.currentTimeMillis() / 1000,
 						String.format(getResources().getString(
