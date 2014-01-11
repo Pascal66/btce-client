@@ -416,6 +416,12 @@ public class DBManager {
 		return his_db.rawQuery(query_str, null).getCount();
 	}
 
+	public ArrayList<order_info> get_order_list(String pair, boolean is_sell,
+			int status) {
+		String type = is_sell ? "Sell" : "Buy";
+		return get_order_list(pair, type, status);
+	}
+
 	public ArrayList<order_info> get_order_list(String pair, String type,
 			int status) {
 		String query_str = "SELECT * FROM " + DBHistroyHelper.order_table;
@@ -644,9 +650,9 @@ public class DBManager {
 			v.put("name", newname);
 			reference_db.update(DBReferenceHelper.atorder_table, v, "name = \""
 					+ oldname + "\"", null);
-			//reference_db.execSQL("UPDATE " + DBReferenceHelper.atorder_table
-			//		+ " SET name = \"" + newname + "\" where  name = \""
-			//		+ oldname + "\"", null);
+			// reference_db.execSQL("UPDATE " + DBReferenceHelper.atorder_table
+			// + " SET name = \"" + newname + "\" where  name = \""
+			// + oldname + "\"", null);
 			reference_db.setTransactionSuccessful();
 		} catch (SQLException e) {
 			e.printStackTrace();

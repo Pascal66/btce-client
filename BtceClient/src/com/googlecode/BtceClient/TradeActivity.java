@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.googlecode.BtceClient.BTCEHelper.btce_params;
+import com.googlecode.BtceClient.OrdersViewActivity.order_info;
 import com.googlecode.BtceClient.TradesView.trades_item;
 
 import android.annotation.SuppressLint;
@@ -47,6 +48,7 @@ import android.widget.ToggleButton;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 public class TradeActivity extends Activity {
+
 	static final String last_order = "last_order";
 	private TradeView spline_chart;
 	private ListView m_trades_list;
@@ -76,6 +78,7 @@ public class TradeActivity extends Activity {
 	List<trades_item> orders;
 	int order_index = 0;
 	int order_num = -1;
+	int RC_TradeActivity = 0;
 
 	AlertDialog.Builder builder;
 	DBManager m_dbmgr;
@@ -147,7 +150,8 @@ public class TradeActivity extends Activity {
 				m_amount.setText("");
 				trades_item item = spline_chart.double_click_item;
 				if (item.price > 0) {
-					formatterx.setMaximumFractionDigits(all_pairs.get(pair).fraction);
+					formatterx
+							.setMaximumFractionDigits(all_pairs.get(pair).fraction);
 					m_price.setText(formatterx.format(item.price));
 					formatterx.setMaximumFractionDigits(8);
 					m_amount.setText(formatterx.format(item.amount));
@@ -181,11 +185,29 @@ public class TradeActivity extends Activity {
 		case ACTOD_ID:
 			intent.setClass(TradeActivity.this, OrdersViewActivity.class);
 			intent.putExtra("number", order_num);
-			// startActivityForResult(intent, position);
-			this.startActivity(intent);
+			startActivityForResult(intent, RC_TradeActivity);
+			// this.startActivity(intent);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		if (RC_TradeActivity == requestCode) {
+			order_num = -1;
+			spline_chart.m_active_orders.clear();
+			boolean is_sell = m_issell_btn.getText().equals(
+					this.getResources().getString(R.string.sell));
+			for (order_info item : m_dbmgr.get_order_list(pair, is_sell, 0)) {
+				trades_item t = new trades_item();
+				t.amount = item.amount;
+				t.price = item.rate;
+				spline_chart.m_active_orders.add(t);
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	/** Called when the activity is first created. */

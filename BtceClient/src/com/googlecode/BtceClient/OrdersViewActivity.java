@@ -197,6 +197,8 @@ public class OrdersViewActivity extends Activity {
 										public void onClick(
 												DialogInterface dialog,
 												int which) {
+											if (position >= m_orders.size())
+												return;
 											order_info order_item = m_orders
 													.get(position);
 											update_statusStr(

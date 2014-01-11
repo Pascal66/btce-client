@@ -120,12 +120,11 @@
                         android:text="TextView" />
 
                     <ImageButton
-                        android:id="@+id/shift"
+                        android:id="@+id/order"
                         style="?android:attr/buttonStyleSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@android:drawable/btn_star"
-                        android:visibility="gone" />
+                        android:src="@android:drawable/btn_star" />
 
                     <ImageButton
                         android:id="@+id/clear"
@@ -133,9 +132,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@android:drawable/ic_menu_close_clear_cancel" />
-
                 </LinearLayout>
-                
+
                 <ListView
                     android:id="@+id/trade_his_list"
                     android:layout_width="fill_parent"

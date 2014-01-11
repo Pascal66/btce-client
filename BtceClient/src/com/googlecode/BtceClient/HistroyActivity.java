@@ -70,9 +70,9 @@ public class HistroyActivity extends Activity {
 	private Spinner trans_currency, trans_type, trans_status;
 	private Spinner trade_pair, trade_type, trade_yours;
 	LinearLayout info_layout;
-	ImageButton clear, shift;
 	TextView m_info;
 	ImageButton m_clear;
+	ImageButton m_order;
 
 	// private static final String[] str_trans_types = { "types", "1", "2", "3",
 	// "4", "5" };
@@ -210,6 +210,7 @@ public class HistroyActivity extends Activity {
 		info_layout.setVisibility(info_layout.GONE);
 		m_info = (TextView) findViewById(R.id.info);
 		m_clear = (ImageButton) findViewById(R.id.clear);
+		m_order = (ImageButton) findViewById(R.id.order);
 
 		ArrayAdapter<String> temp_adapter;
 

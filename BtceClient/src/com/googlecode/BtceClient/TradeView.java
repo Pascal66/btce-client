@@ -25,6 +25,7 @@ public class TradeView extends View {
 	double price_max, price_min, amount_max, currency_total;
 	int trade_num;
 	List<trades_item> m_orders_items = new ArrayList<trades_item>();
+	List<trades_item> m_active_orders = new ArrayList<trades_item>();
 	double fector;
 	double min_coin = 0.1;
 	boolean is_sell = false;
@@ -389,7 +390,6 @@ public class TradeView extends View {
 
 		// draw orders lines
 		mPaint.setStyle(Style.FILL);
-		mPaint.setStrokeWidth(1);
 		mPaint.setColor(bid_line_color);
 		int aviable_orders = 0;
 		double total_amount = 0;
@@ -400,6 +400,21 @@ public class TradeView extends View {
 			float x = (float) (((item.price - price_min)
 					/ (price_max - price_min) - x_b) / x_k);
 			if (item.currency > 0) {
+				mPaint.setStrokeWidth(1);
+				for (trades_item act : m_active_orders) {
+					if (Math.abs(act.price - item.price) < item.price / 1000) {
+						if (is_sell
+								&& Math.abs(act.amount - fector * item.currency) < fector
+										* item.currency / 1000) {
+							mPaint.setStrokeWidth(3);
+							break;
+						} else if (!is_sell
+								&& Math.abs(act.amount - item.amount) < item.amount / 1000) {
+							mPaint.setStrokeWidth(3);
+							break;
+						}
+					}
+				}
 				canvas.drawLine(x, (float) (y_b + y_k * 0), x,
 						(float) (y_b + y_k * item.currency), mPaint);
 				total_amount += item.amount;
@@ -412,6 +427,7 @@ public class TradeView extends View {
 				last_touch_index = temp_touch_index;
 				if (mousedown && -1 == control_point) {
 					mPaint.setColor(focus_line_color);
+					mPaint.setStrokeWidth(1);
 					canvas.drawLine(x, (float) (y_b + y_k * 0), x, r_chart.top,
 							mPaint);
 					mPaint.setColor(bid_line_color);
@@ -421,6 +437,7 @@ public class TradeView extends View {
 
 		// draw information text
 		mPaint.setStyle(Style.FILL);
+		mPaint.setStrokeWidth(1);
 		mPaint.setColor(text_infoColor);
 		String information = "";
 		if (-1 != control_point) {
