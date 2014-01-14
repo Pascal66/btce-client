@@ -62,6 +62,7 @@ public class TradeView extends View {
 	boolean mousedown = false;
 	int control_point = -1;
 	DecimalFormat formatter5 = new DecimalFormat();
+	DecimalFormat formatter2 = new DecimalFormat();
 
 	int last_touch_index = -1;
 	trades_item double_click_item = new trades_item();
@@ -127,6 +128,8 @@ public class TradeView extends View {
 		formatter5.setMaximumFractionDigits(5);// according to the "0.00000"
 		// above
 		formatter5.setGroupingUsed(false);
+		formatter2.setMaximumFractionDigits(2);
+		formatter2.setGroupingUsed(false);
 	}
 
 	public void setSpline(float x[], float y[]) {
@@ -439,7 +442,7 @@ public class TradeView extends View {
 		mPaint.setStyle(Style.FILL);
 		mPaint.setStrokeWidth(1);
 		mPaint.setColor(text_infoColor);
-		String information = "";
+		String information = "", avg_info = "";
 		if (-1 != control_point) {
 			information = my_formatter(spline.getX()[control_point], 4) + "/"
 					+ my_formatter(spline.getY()[control_point], 4);
@@ -447,6 +450,7 @@ public class TradeView extends View {
 					+ text_infoSize - 3, mPaint);
 		}
 		if (mousedown && -1 != temp_touch_index && -1 == control_point) {
+			// current order line
 			if (is_sell)
 				information = my_formatter(
 						m_orders_items.get(temp_touch_index).price, 6)
@@ -474,6 +478,7 @@ public class TradeView extends View {
 			int num = 0;
 			double all_cur = 0, all_amount = 0;
 			String left_info, right_info;
+			// left side
 			for (int i = 0; i <= temp_touch_index; ++i) {
 				trades_item item = m_orders_items.get(i);
 				if (item.currency > 0) {
@@ -483,15 +488,27 @@ public class TradeView extends View {
 				}
 			}
 			all_cur = this.fector * all_cur;
-			if (is_sell)
-				left_info = num + "/" + my_formatter(all_amount / all_cur, 6)
-						+ "/" + my_formatter(all_cur, 6) + "/"
+			double average_price = 0;
+			if (is_sell) {
+				average_price = all_amount / all_cur;
+				left_info = num + "/" + my_formatter(average_price, 6) + "/"
+						+ my_formatter(all_cur, 6) + "/"
 						+ my_formatter(all_amount, 6);
-			else
-				left_info = num + "/" + my_formatter(all_cur / all_amount, 6)
-						+ "/" + my_formatter(all_amount, 6) + "/"
+			} else {
+				average_price = all_cur / all_amount;
+				left_info = num + "/" + my_formatter(average_price, 6) + "/"
+						+ my_formatter(all_amount, 6) + "/"
 						+ my_formatter(all_cur, 6);
+			}
+			avg_info = formatter2.format(100 * (average_price - price_min)
+					/ (m_orders_items.get(temp_touch_index).price - price_min))
+					+ "% / ";
+			float x = (float) (((average_price - price_min)
+					/ (price_max - price_min) - x_b) / x_k);
+			// average line
+			canvas.drawLine(x, (float) (y_b + y_k * 0), x, r_chart.top, mPaint);
 
+			// right side
 			num = 0;
 			all_cur = all_amount = 0;
 			for (int i = temp_touch_index; i < m_orders_items.size(); ++i) {
@@ -503,31 +520,59 @@ public class TradeView extends View {
 				}
 			}
 			all_cur = this.fector * all_cur;
-			if (is_sell)
-				right_info = num + "/" + my_formatter(all_amount / all_cur, 6)
-						+ "/" + my_formatter(all_cur, 6) + "/"
+			if (is_sell) {
+				average_price = all_amount / all_cur;
+				right_info = num + "/" + my_formatter(average_price, 6) + "/"
+						+ my_formatter(all_cur, 6) + "/"
 						+ my_formatter(all_amount, 6);
-			else
-				right_info = num + "/" + my_formatter(all_cur / all_amount, 6)
-						+ "/" + my_formatter(all_amount, 6) + "/"
+			} else {
+				average_price = all_cur / all_amount;
+				right_info = num + "/" + my_formatter(average_price, 6) + "/"
+						+ my_formatter(all_amount, 6) + "/"
 						+ my_formatter(all_cur, 6);
+			}
+			avg_info += formatter2
+					.format(100
+							* (average_price - m_orders_items
+									.get(temp_touch_index).price)
+							/ (price_max - m_orders_items.get(temp_touch_index).price))
+					+ "%";
+			x = (float) (((average_price - price_min) / (price_max - price_min) - x_b) / x_k);
+			// average line
+			canvas.drawLine(x, (float) (y_b + y_k * 0), x, r_chart.top, mPaint);
 			canvas.drawText(left_info, margin_left, info_text_y - 3, mPaint);
 			canvas.drawText(right_info, width - mPaint.measureText(right_info),
 					info_text_y - 3, mPaint);
+			canvas.drawText(avg_info, width - mPaint.measureText(avg_info),
+					info_text_y + text_infoSize - 3, mPaint);
 		} else {
+			double average_price = 0;
+			if (is_sell) {
+				average_price = total_amount / total_cur;
+				information = aviable_orders + "/"
+						+ my_formatter(average_price, 6) + "/"
+						+ my_formatter(total_cur, 6) + "/"
+						+ my_formatter(total_amount, 6);
+			} else {
+				average_price = total_cur / total_amount;
+				information = aviable_orders + "/"
+						+ my_formatter(average_price, 6) + "/"
+						+ my_formatter(total_amount, 6) + "/"
+						+ my_formatter(total_cur, 6);
+			}
+			avg_info = formatter2.format(100 * (average_price - price_min)
+					/ (price_max - price_min))
+					+ "%";
+			canvas.drawText(avg_info, width - mPaint.measureText(avg_info),
+					info_text_y + text_infoSize - 3, mPaint);
+			canvas.drawText(information,
+					width - mPaint.measureText(information), info_text_y - 3,
+					mPaint);
+			float x = (float) (((average_price - price_min)
+					/ (price_max - price_min) - x_b) / x_k);
+			// average line
+			canvas.drawLine(x, (float) (y_b + y_k * 0), x, r_chart.top, mPaint);
 		}
-		if (is_sell)
-			information = aviable_orders + "/"
-					+ my_formatter(total_amount / total_cur, 6) + "/"
-					+ my_formatter(total_cur, 6) + "/"
-					+ my_formatter(total_amount, 6);
-		else
-			information = aviable_orders + "/"
-					+ my_formatter(total_cur / total_amount, 6) + "/"
-					+ my_formatter(total_amount, 6) + "/"
-					+ my_formatter(total_cur, 6);
-		canvas.drawText(information, width - mPaint.measureText(information),
-				info_text_y + text_infoSize - 3, mPaint);
 
 		// draw text of the Y axis
 		mPaint.setStyle(Style.FILL);

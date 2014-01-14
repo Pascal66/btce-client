@@ -262,9 +262,7 @@ public class OrdersViewActivity extends Activity {
 			// update_orders();
 			get_active_orders();
 		else if (0 == active_orders_num) {
-			update_statusStr(System.currentTimeMillis() / 1000,
-					"there are no active orders");
-			m_statusView.setText(statusStr);
+			m_statusView.setText("there are no active orders");
 		}
 	}
 

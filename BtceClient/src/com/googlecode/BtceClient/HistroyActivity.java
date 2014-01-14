@@ -601,10 +601,7 @@ public class HistroyActivity extends Activity {
 							break;
 						}
 					}
-					if (-1 == first_select
-							|| (m_trade_his_items.get(first_select).type
-									.equals(item.type) && m_trade_his_items
-									.get(first_select).pair.equals(item.pair))) {
+					if (-1 == first_select) {
 						item.checked = isChecked;
 						int index = m_trade_his_items.indexOf(item);
 						if (-1 != index) {
@@ -632,6 +629,11 @@ public class HistroyActivity extends Activity {
 								}
 							}
 						}
+					} else if (m_trade_his_items.get(first_select).type
+							.equals(item.type)
+							&& m_trade_his_items.get(first_select).pair
+									.equals(item.pair)) {
+						item.checked = isChecked;
 					} else
 						checkboxView.setChecked(!isChecked);
 				} else {

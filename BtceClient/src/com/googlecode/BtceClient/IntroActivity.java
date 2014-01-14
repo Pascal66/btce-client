@@ -556,6 +556,17 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		initial_all_pair_wifi_timer();
 	}
 
+	void cancelTimer() {
+		if (null != timer_mobile)
+			timer_mobile.cancel();
+		if (null != timer_wifi)
+			timer_wifi.cancel();
+		if (null != timer_wifi_all)
+			timer_wifi_all.cancel();
+		if (null != timer_mobile_all)
+			timer_mobile_all.cancel();
+	}
+
 	void initialCandleView() {
 		kchart_view.show_price_line = ((MyApp) getApplicationContext()).show_price_line;
 		kchart_view.show_volume_bar = ((MyApp) getApplicationContext()).show_volume_bar;
@@ -999,6 +1010,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			update_all_pair_chart();
 			return true;
 		case SETTING_ID:
+			cancelTimer();
 			intent.setClass(IntroActivity.this, SettingActivity.class);
 			startActivityForResult(intent, SETTING_ID);
 			return true;

@@ -314,7 +314,7 @@ public class SettingActivity extends Activity {
 
 		item = new setting_item();
 		item.key = "Secret";
-		item.value = m_params.secret.equals("") ? "null" : m_params.secret;
+		item.value = m_params.secret.equals("") ? "null" : "******"; // m_params.secret;
 		item.img_id = android.R.drawable.ic_menu_more;
 		m_setting_data.add(item);
 
