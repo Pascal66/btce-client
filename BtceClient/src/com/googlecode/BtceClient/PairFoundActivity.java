@@ -80,7 +80,7 @@ public class PairFoundActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				Intent intent = new Intent();
-				intent.putExtra("result", titles.get(position));
+				intent.putExtra("pair", titles.get(position));
 				setResult(RESULT_OK, intent);
 				finish();
 			}

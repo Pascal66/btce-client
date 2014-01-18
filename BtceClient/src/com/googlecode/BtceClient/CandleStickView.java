@@ -57,8 +57,8 @@ public class CandleStickView extends View {
 	int margin_bottom = 5;
 	float text_infoSize = 0;
 	int margin_space = 5;// margin of items in this view
-	int margin_K = 4;// space of the candle block
-	int width_K = 10;// width of the candle block
+	int margin_K = 2;// dp, space of the candle block
+	int width_K = 6;// dp, width of the candle block
 	int last_k_index = 0;// last index+1 of the visible blocks
 	int temp_last_k_index = last_k_index;// temp save the last index when mouse
 											// is down
@@ -171,6 +171,11 @@ public class CandleStickView extends View {
 		chart_date_format.setTimeZone(TimeZone.getTimeZone("GMT+4:00"));
 		chart_date_format_test.setTimeZone(TimeZone.getTimeZone("GMT+4:00"));
 		print_date_format.setTimeZone(TimeZone.getDefault());
+		float t = this.getContext().getResources().getDisplayMetrics().density;
+		if (t < 1.5f) // 1.3312501 for note8.0
+			t = 1.5f;
+		width_K = (int) (width_K * t);
+		margin_K = (int) (margin_K * t);
 	}
 
 	public static String my_formatter(double d, int bits) {

@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -251,13 +252,40 @@ public class OrdersViewActivity extends Activity {
 			// };
 		});
 
+		m_orderList.setOnItemLongClickListener(new OnItemLongClickListener() {
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					final int position, long id) {
+				// TODO Auto-generated method stub
+				// Log.v("long clicked","pos: " + pos);
+				new AlertDialog.Builder(OrdersViewActivity.this)
+						.setMessage("ReOrder?")
+						.setPositiveButton("OK",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int which) {
+										m_params.reset();
+										btce_params tt = m_params.getparams();
+										tt.method = BTCEHelper.btce_methods.TRADE;
+										order_info order_item = m_orders
+												.get(position);
+										tt.pair = order_item.pair;
+										tt.trade_amount = order_item.amount;
+										tt.trade_price = order_item.rate;
+										tt.sell = order_item.type
+												.equalsIgnoreCase("sell");
+										new BTCETask(tt).execute();
+									}
+								}).setNegativeButton("Cancel", null).show();
+				return true;
+			}
+		});
 		m_dbmgr = ((MyApp) getApplicationContext()).app_dbmgr;
 		active_orders_num = m_dbmgr.get_order_active();
 		// if (0 == active_orders_num)
 		// s_status.setSelection(0);
 		// else
 		s_status.setSelection(1);
-		int intent_num = this.getIntent().getIntExtra("number", -1);
+		int intent_num = this.getIntent().getIntExtra("OrdersNUM", -1);
 		if (-1 != intent_num && active_orders_num != intent_num)
 			// update_orders();
 			get_active_orders();
@@ -354,6 +382,120 @@ public class OrdersViewActivity extends Activity {
 					getApplicationContext()));
 			m_statusView.setText(statusStr);
 		}
+	}
+
+	/* Params (Integer), Progress (Integer), Result (String) */
+	private class BTCETask extends AsyncTask<Integer, Integer, String> {
+		btce_params param;
+		long create_time = 0;
+
+		public BTCETask(btce_params p) {
+			super();
+			param = p;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+			String info;
+			if (param.sell)
+				info = OrdersViewActivity.this.getResources().getString(
+						R.string.trade_sell_ing);
+			else
+				info = OrdersViewActivity.this.getResources().getString(
+						R.string.trade_buy_ing);
+			update_statusStr(System.currentTimeMillis() / 1000, String.format(
+					info, param.trade_amount, param.pair.substring(0, 3),
+					param.trade_price, param.pair.substring(4)));
+			show_status_info();
+		}
+
+		@Override
+		protected String doInBackground(Integer... params) {
+			String result = "";
+			BTCEHelper btce = new BTCEHelper(
+					((MyApp) getApplicationContext()).cookies);
+			result = btce.do_something(param);
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			JSONObject fetch_result;
+			try {
+				fetch_result = new JSONObject(result);
+				feedJosn_trade(fetch_result, param);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				update_statusStr(
+						System.currentTimeMillis() / 1000,
+						OrdersViewActivity.this.getResources().getString(
+								R.string.task_error)
+								+ e.getMessage() + "\n" + result);
+				show_status_info();
+			}
+		}
+	}
+
+	public void show_status_info() {
+		m_statusView.setText(statusStr);
+	}
+
+	public int feedJosn_trade(JSONObject obj, btce_params param) {
+		try {
+			if (1 != obj.getInt("success")) {
+				update_statusStr(
+						System.currentTimeMillis() / 1000,
+						getResources().getString(R.string.trade_error)
+								+ obj.getString("error"));
+				show_status_info();
+				return -1;
+			}
+			JSONObject rt = obj.getJSONObject("return");
+
+			long last_order_id = rt.getLong("order_id");
+			if (0 == last_order_id) {
+				update_statusStr(System.currentTimeMillis() / 1000,
+						getResources().getString(R.string.trade_ok));
+			} else {
+				double received = rt.getDouble("received");
+				double remains = rt.getDouble("remains");
+
+				order_info order_item = new order_info();
+				order_item.id = (int) last_order_id;
+				order_item.pair = param.pair;
+				order_item.type = param.sell ? "Sell" : "Buy";
+				order_item.amount = remains;
+				order_item.rate = param.trade_price;
+				order_item.time = System.currentTimeMillis() / 1000;
+				order_item.status = 0;
+				ArrayList<order_info> result_orders = new ArrayList<order_info>();
+				result_orders.add(order_item);
+				// m_dbmgr.reset_order_status(0, 1);
+				m_dbmgr.update_order(result_orders);
+				active_orders_num = m_dbmgr.get_order_active();
+				if (0 != active_orders_num)
+					s_status.setSelection(1);
+				// update the list
+				new SpinnerSelectedListener().onItemSelected(null, null, 0, 0);
+				update_statusStr(
+						System.currentTimeMillis() / 1000,
+						String.format(getResources().getString(
+								R.string.trade_ok_order, last_order_id,
+								received, remains)));
+			}
+			((MyApp) getApplicationContext()).app_trans_num += 1;
+
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			update_statusStr(System.currentTimeMillis() / 1000, getResources()
+					.getString(R.string.trade_error) + e.getMessage());
+		}
+		show_status_info();
+		return 0;
 	}
 
 	public void update_statusStr(long time_in_second, String info) {
@@ -518,7 +660,7 @@ public class OrdersViewActivity extends Activity {
 	public void finish() {
 		// TODO Auto-generated method stub
 		Intent intent = new Intent();
-		intent.putExtra("result", m_dbmgr.get_order_active());
+		intent.putExtra("OrdersNUM", m_dbmgr.get_order_active());
 		setResult(RESULT_OK, intent);
 		super.finish();
 	}

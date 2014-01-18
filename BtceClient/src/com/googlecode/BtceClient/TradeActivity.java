@@ -128,9 +128,12 @@ public class TradeActivity extends Activity {
 	@Override
 	public void finish() {
 		// TODO Auto-generated method stub
-		super.finish();
 		if (null != timer_trades)
 			timer_trades.cancel();
+		Intent intent = new Intent();
+		intent.putExtra("OrdersNUM", order_num);
+		setResult(RESULT_OK, intent);
+		super.finish();
 	}
 
 	@SuppressLint("HandlerLeak")
@@ -184,7 +187,7 @@ public class TradeActivity extends Activity {
 		switch (item.getItemId()) {
 		case ACTOD_ID:
 			intent.setClass(TradeActivity.this, OrdersViewActivity.class);
-			intent.putExtra("number", order_num);
+			intent.putExtra("OrdersNUM", order_num);
 			startActivityForResult(intent, RC_TradeActivity);
 			// this.startActivity(intent);
 			return true;
@@ -196,7 +199,7 @@ public class TradeActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// TODO Auto-generated method stub
 		if (RC_TradeActivity == requestCode) {
-			order_num = -1;
+			order_num = data.getIntExtra("OrdersNUM", 0);
 			spline_chart.m_active_orders.clear();
 			boolean is_sell = m_issell_btn.getText().equals(
 					this.getResources().getString(R.string.sell));
@@ -418,6 +421,7 @@ public class TradeActivity extends Activity {
 					last));
 		else
 			m_spin_orders.setSelection(0);
+		order_num = this.getIntent().getIntExtra("OrdersNUM", 0);
 		m_statusView.setText("ready");
 	}
 
@@ -514,7 +518,7 @@ public class TradeActivity extends Activity {
 				} else
 					m_issell_btn.setText(buy);
 				ontypeClick();
-				spline_chart.update_orders();
+				spline_chart.generate_orders();
 			}
 			m_dbmgr.save_value(last_order, order_name);
 		}
@@ -672,15 +676,15 @@ public class TradeActivity extends Activity {
 			// TODO Auto-generated method stub
 			super.onPreExecute();
 			String info;
-			if (m_params.sell)
+			if (param.sell)
 				info = TradeActivity.this.getResources().getString(
 						R.string.trade_sell_ing);
 			else
 				info = TradeActivity.this.getResources().getString(
 						R.string.trade_buy_ing);
 			update_statusStr(System.currentTimeMillis() / 1000, String.format(
-					info, m_params.trade_amount, m_params.pair.substring(0, 3),
-					m_params.trade_price, m_params.pair.substring(4)));
+					info, param.trade_amount, param.pair.substring(0, 3),
+					param.trade_price, param.pair.substring(4)));
 			show_status_info();
 		}
 
@@ -735,9 +739,9 @@ public class TradeActivity extends Activity {
 				update_statusStr(System.currentTimeMillis() / 1000,
 						getResources().getString(R.string.trade_ok));
 			} else {
-				double received = rt.getInt("received");
+				double received = rt.getDouble("received");
 				double remains = rt.getDouble("remains");
-				order_num = Integer.MAX_VALUE;
+				order_num += 1;
 				update_statusStr(
 						System.currentTimeMillis() / 1000,
 						String.format(getResources().getString(

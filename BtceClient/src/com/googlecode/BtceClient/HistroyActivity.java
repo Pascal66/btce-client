@@ -15,8 +15,10 @@ import com.googlecode.BtceClient.R;
 import com.googlecode.BtceClient.BTCEHelper.btce_params;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 //import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
@@ -39,6 +42,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 
@@ -73,6 +77,8 @@ public class HistroyActivity extends Activity {
 	TextView m_info;
 	ImageButton m_clear;
 	ImageButton m_order;
+
+	int order_num = 0;
 
 	// private static final String[] str_trans_types = { "types", "1", "2", "3",
 	// "4", "5" };
@@ -312,6 +318,36 @@ public class HistroyActivity extends Activity {
 				startActivity(intent);
 			}
 		});
+
+		m_trade_his.setOnItemLongClickListener(new OnItemLongClickListener() {
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					final int position, long id) {
+				// TODO Auto-generated method stub
+				// Log.v("long clicked","pos: " + pos);
+				new AlertDialog.Builder(HistroyActivity.this)
+						.setMessage("retrade?")
+						.setPositiveButton("OK",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int which) {
+										m_params.reset();
+										btce_params tt = m_params.getparams();
+										tt.method = BTCEHelper.btce_methods.TRADE;
+										tt.pair = m_trade_his_items
+												.get(position).pair;
+										tt.trade_amount = m_trade_his_items
+												.get(position).amount;
+										tt.trade_price = m_trade_his_items
+												.get(position).rate;
+										tt.sell = m_trade_his_items
+												.get(position).type
+												.equalsIgnoreCase("sell");
+										new BTCETask(tt).execute();
+									}
+								}).setNegativeButton("Cancel", null).show();
+				return true;
+			}
+		});
 		m_clear.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -432,6 +468,103 @@ public class HistroyActivity extends Activity {
 			m_statusView.setText(statusStr);
 			// progressDialog.dismiss();
 		}
+	}
+
+	/* Params (Integer), Progress (Integer), Result (String) */
+	private class BTCETask extends AsyncTask<Integer, Integer, String> {
+		btce_params param;
+		long create_time = 0;
+
+		public BTCETask(btce_params p) {
+			super();
+			param = p;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+			String info;
+			if (param.sell)
+				info = HistroyActivity.this.getResources().getString(
+						R.string.trade_sell_ing);
+			else
+				info = HistroyActivity.this.getResources().getString(
+						R.string.trade_buy_ing);
+			update_statusStr(System.currentTimeMillis() / 1000, String.format(
+					info, param.trade_amount, param.pair.substring(0, 3),
+					param.trade_price, param.pair.substring(4)));
+			show_status_info();
+		}
+
+		@Override
+		protected String doInBackground(Integer... params) {
+			String result = "";
+			BTCEHelper btce = new BTCEHelper(
+					((MyApp) getApplicationContext()).cookies);
+			result = btce.do_something(param);
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			JSONObject fetch_result;
+			try {
+				fetch_result = new JSONObject(result);
+				feedJosn_trade(fetch_result);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				update_statusStr(
+						System.currentTimeMillis() / 1000,
+						HistroyActivity.this.getResources().getString(
+								R.string.task_error)
+								+ e.getMessage() + "\n" + result);
+				show_status_info();
+			}
+		}
+	}
+
+	public void show_status_info() {
+		m_statusView.setText(statusStr);
+	}
+
+	public int feedJosn_trade(JSONObject obj) {
+		try {
+			if (1 != obj.getInt("success")) {
+				update_statusStr(
+						System.currentTimeMillis() / 1000,
+						getResources().getString(R.string.trade_error)
+								+ obj.getString("error"));
+				show_status_info();
+				return -1;
+			}
+			JSONObject rt = obj.getJSONObject("return");
+
+			long last_order_id = rt.getLong("order_id");
+			if (0 == last_order_id) {
+				update_statusStr(System.currentTimeMillis() / 1000,
+						getResources().getString(R.string.trade_ok));
+			} else {
+				double received = rt.getDouble("received");
+				double remains = rt.getDouble("remains");
+				order_num += 1;
+				update_statusStr(
+						System.currentTimeMillis() / 1000,
+						String.format(getResources().getString(
+								R.string.trade_ok_order, last_order_id,
+								received, remains)));
+			}
+			((MyApp) getApplicationContext()).app_trans_num += 1;
+
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			update_statusStr(System.currentTimeMillis() / 1000, getResources()
+					.getString(R.string.trade_error) + e.getMessage());
+		}
+		show_status_info();
+		return 0;
 	}
 
 	public int feedJosn_trade_histroy(JSONObject obj) {
@@ -732,7 +865,7 @@ public class HistroyActivity extends Activity {
 			t = (TextView) tv.findViewById(R.id.trans_currency);
 			t.setText(m_trans_his_items.get(pos).currency);
 			t = (TextView) tv.findViewById(R.id.trans_amount);
-			t.setText("" + formatter8.format(m_trans_his_items.get(pos).amount));
+			t.setText("" + formatter5.format(m_trans_his_items.get(pos).amount));
 			t = (TextView) tv.findViewById(R.id.trans_status);
 			t.setText("" + m_trans_his_items.get(pos).status);
 			t = (TextView) tv.findViewById(R.id.trans_desc);
@@ -750,7 +883,9 @@ public class HistroyActivity extends Activity {
 	@Override
 	public void finish() {
 		// TODO Auto-generated method stub
-		setResult(RESULT_OK);
+		Intent intent = new Intent();
+		intent.putExtra("order_changes", order_num);
+		setResult(RESULT_OK, intent);
 		super.finish();
 	}
 }

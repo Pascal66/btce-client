@@ -810,17 +810,10 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				} else if (position == ALL_PAIR_ORDERS) {
 					intent.setClass(IntroActivity.this,
 							OrdersViewActivity.class);
-					intent.putExtra("number", order_num);
+					intent.putExtra("OrdersNUM", order_num);
 					startActivityForResult(intent, position);
 				} else if (position == ALL_PAIR_FEES) {
-					intent.setClass(IntroActivity.this, TradeActivity.class);
-					intent.putExtra("currency",
-							m_pair_funds.getDouble(m_params.pair.substring(4)));
-					intent.putExtra("coins", m_pair_funds
-							.getDouble(m_params.pair.substring(0, 3)));
-					intent.putExtra("price", m_ticker.last);
-					intent.putExtra("pair", m_params.pair);
-					startActivityForResult(intent, TRADE_ID);
+					startTradeActivity();
 				}
 			}
 		});
@@ -849,6 +842,19 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		// showDefaultNotification();
 	}
 
+	void startTradeActivity() {
+		Intent intent = new Intent();
+		intent.setClass(IntroActivity.this, TradeActivity.class);
+		intent.putExtra("currency",
+				m_pair_funds.getDouble(m_params.pair.substring(4)));
+		intent.putExtra("coins",
+				m_pair_funds.getDouble(m_params.pair.substring(0, 3)));
+		intent.putExtra("price", m_ticker.last);
+		intent.putExtra("pair", m_params.pair);
+		intent.putExtra("OrdersNUM", order_num);
+		startActivityForResult(intent, TRADE_ID);
+	}
+
 	@Override
 	protected void onDestroy() {
 		// 应用的最后一个Activity关闭时应释放DB
@@ -862,7 +868,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == ALL_PAIR_PRICE) {
 			if (resultCode == Activity.RESULT_OK) {
-				String new_pair = data.getStringExtra("result");
+				String new_pair = data.getStringExtra("pair");
 				if (!m_params.pair.equals(new_pair)) {
 					m_params.pair = new_pair;
 					initial_pair_data();
@@ -881,11 +887,14 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			}
 		} else if (requestCode == ALL_PAIR_TRANS) {
 			// trans_num = data.getIntExtra("result", 0);
+			order_num += data.getIntExtra("order_changes", 0);
 			update_list_data();
 			m_info_list.setAdapter(new Info_list_Adapter(
 					getApplicationContext()));
-		} else if (requestCode == ALL_PAIR_ORDERS) {
-			order_num = data.getIntExtra("result", 0);
+		} else if (requestCode == ALL_PAIR_ORDERS
+				|| requestCode == ALL_PAIR_FEES
+				|| requestCode == TRADE_ID) {
+			order_num = data.getIntExtra("OrdersNUM", 0);
 			update_list_data();
 			m_info_list.setAdapter(new Info_list_Adapter(
 					getApplicationContext()));
@@ -1025,14 +1034,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			startActivityForResult(intent, PRICE_ID);
 			return true;
 		case TRADE_ID:
-			intent.setClass(IntroActivity.this, TradeActivity.class);
-			intent.putExtra("currency",
-					m_pair_funds.getDouble(m_params.pair.substring(4)));
-			intent.putExtra("coins",
-					m_pair_funds.getDouble(m_params.pair.substring(0, 3)));
-			intent.putExtra("price", m_ticker.last);
-			intent.putExtra("pair", m_params.pair);
-			startActivityForResult(intent, TRADE_ID);
+			startTradeActivity();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -1438,7 +1440,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				update_statusStr(System.currentTimeMillis() / 1000,
 						getResources().getString(R.string.trade_ok));
 			} else {
-				double received = rt.getInt("received");
+				double received = rt.getDouble("received");
 				double remains = rt.getDouble("remains");
 				order_num += 1;
 				update_statusStr(
@@ -1567,6 +1569,14 @@ public class IntroActivity extends Activity implements OnGestureListener,
 								+ getResources()
 										.getString(R.string.chart_error)
 								+ obj.getString("error"));
+				if (obj.has("chart_data")
+						&& 0 == obj.getJSONArray("chart_data").length()) {
+					m_params.reset();
+					m_params.method = BTCEHelper.btce_methods.ORDERS_UPDATE;
+					btce_tasks
+							.add((BTCETask) new BTCETask(m_params.getparams())
+									.execute());
+				}
 				return -1;
 			}
 			m_dbmgr.update_chart(kchart_view.update_items(obj), pair);
@@ -1583,7 +1593,8 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			if (0 > feedJosn_last_price(pair, obj)) {
 				m_params.reset();
 				long last_time = m_dbmgr.get_last_chart_time(m_params.pair);
-				if (24 * 60 * 60 <= (System.currentTimeMillis() / 1000 / 1800 * 1800 - last_time)) {
+				if (24 * 60 * 60 <= (System.currentTimeMillis() / 1000 / 1800 * 1800 - last_time)
+						&& 1 < obj.getJSONArray("chart_data").length()) {
 					m_params.chart_start_time = last_time;
 				}
 				m_params.method = BTCEHelper.btce_methods.ORDERS_UPDATE;
@@ -1646,7 +1657,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 						System.currentTimeMillis() / 1000,
 						IntroActivity.this.getResources().getString(
 								R.string.ticker_ing)
-								+ m_params.pair);
+								+ param.pair);
 				break;
 			case ORDERS_UPDATE:
 				update_statusStr(
@@ -1659,17 +1670,16 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				break;
 			case TRADE:
 				String info;
-				if (m_params.sell)
+				if (param.sell)
 					info = IntroActivity.this.getResources().getString(
 							R.string.trade_sell_ing);
 				else
 					info = IntroActivity.this.getResources().getString(
 							R.string.trade_buy_ing);
 				update_statusStr(System.currentTimeMillis() / 1000,
-						String.format(info, m_params.trade_amount,
-								m_params.pair.substring(0, 3),
-								m_params.trade_price,
-								m_params.pair.substring(4)));
+						String.format(info, param.trade_amount,
+								param.pair.substring(0, 3), param.trade_price,
+								param.pair.substring(4)));
 				break;
 			case GET_INFO:
 				update_statusStr(

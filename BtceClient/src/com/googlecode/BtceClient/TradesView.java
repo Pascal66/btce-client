@@ -96,6 +96,7 @@ public class TradesView extends View {
 		double currency = 0;
 		long tid = 0;
 		int trade_type = 0;// 0 for ask, else for bid
+		boolean invalidate = false;
 	};
 
 	public int feedJosn_trades(String string) throws JSONException {

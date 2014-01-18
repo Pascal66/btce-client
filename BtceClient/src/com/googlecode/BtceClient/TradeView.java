@@ -16,7 +16,10 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.Paint.Style;
 import android.graphics.RectF;
+import android.os.Handler;
+import android.os.Vibrator;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -60,12 +63,17 @@ public class TradeView extends View {
 	float ex = bx;
 	float ey = by;
 	boolean mousedown = false;
+	boolean long_pressed = false;
 	int control_point = -1;
 	DecimalFormat formatter5 = new DecimalFormat();
 	DecimalFormat formatter2 = new DecimalFormat();
 
 	int last_touch_index = -1;
+	double tap_price_min = 0, tap_price_max = 0;
 	trades_item double_click_item = new trades_item();
+	public static int LONG_PRESS_TIME = 500; // Time in miliseconds
+	final Handler _handler = new Handler();
+	Vibrator vibra = null;
 
 	public TradeView(Context context) {
 		super(context);
@@ -130,6 +138,8 @@ public class TradeView extends View {
 		formatter5.setGroupingUsed(false);
 		formatter2.setMaximumFractionDigits(2);
 		formatter2.setGroupingUsed(false);
+		vibra = (Vibrator) this.getContext().getSystemService(
+				Context.VIBRATOR_SERVICE);
 	}
 
 	public void setSpline(float x[], float y[]) {
@@ -165,22 +175,22 @@ public class TradeView extends View {
 		currency_total = currencyTotal;
 		trade_num = tradeNum;
 		min_coin = minicoin;
-		update_orders();
+		generate_orders();
 	}
 
 	public void updateNumber(int tradeNum) {
 		trade_num = tradeNum;
-		update_orders();
+		generate_orders();
 	}
 
 	public void updatePirceMin(double priceMin) {
 		price_min = priceMin;
-		update_orders();
+		generate_orders();
 	}
 
 	public void updatePirceMax(double priceMax) {
 		price_max = priceMax;
-		update_orders();
+		generate_orders();
 	}
 
 	public void updateCurrency(double currencyTotal) {
@@ -196,21 +206,30 @@ public class TradeView extends View {
 		is_sell = sell;
 	}
 
-	public void update_orders() {
+	public void generate_orders() {
 		m_orders_items.clear();
-		double all_currency = 0;
 		for (int i = 0; i < trade_num + 1; ++i) {
 			trades_item item = new trades_item();
-			item.currency = spline.interpolate(1.0F * i / trade_num);
 			item.price = (price_max - price_min) * i / trade_num + price_min;
-			all_currency += item.currency;
 			m_orders_items.add(item);
+		}
+		update_orders();
+	}
+
+	public void update_orders() {
+		double all_currency = 0;
+		for (int i = 0; i < m_orders_items.size(); ++i) {
+			trades_item item = m_orders_items.get(i);
+			item.currency = spline
+					.interpolate((float) ((item.price - price_min) / (price_max - price_min)));
+			all_currency += item.currency;
 		}
 		fector = currency_total / all_currency;
 		all_currency = 0;
 		for (int i = 0; i < m_orders_items.size(); ++i) {
 			trades_item item = m_orders_items.get(i);
-			if ((is_sell && fector * item.currency < min_coin)
+			if (item.invalidate
+					|| (is_sell && fector * item.currency < min_coin)
 					|| (!is_sell && fector * item.currency / item.price < min_coin))
 				item.currency = 0;
 			all_currency += item.currency;
@@ -329,38 +348,93 @@ public class TradeView extends View {
 		float y_k = -r_chart.height();// / (spline.bottom - (spline.top < 0 ?
 										// spline.top : 0));
 		float y_b = r_chart.top - y_k;// * spline.bottom;
+
+		int temp_touch_index = last_touch_index;
 		if (mousedown) {
-			if (-1 == control_point) {
-				for (int i = 0; i < spline.getX().length; ++i) {
-					if (25 > Math.hypot(bx - (spline.getX()[i] - x_b) / x_k, by
-							- (y_b + y_k * spline.getY()[i]))) {
-						control_point = i;
-						break;
+			double tap_price = (ex * x_k + x_b) * (price_max - price_min)
+					+ price_min;
+			double min_gap = (price_max - price_min) / trade_num / 10;
+			double temp_price_min = 0, temp_price_max = 0;
+			if (1 < m_orders_items.size()) {
+				int order_size = m_orders_items.size();
+				if (tap_price < (m_orders_items.get(0).price + m_orders_items
+						.get(1).price) / 2) {
+					temp_touch_index = 0;
+					temp_price_min = price_min;
+					temp_price_max = m_orders_items.get(1).price - min_gap;
+				} else if (tap_price > ((m_orders_items.get(order_size - 2).price + m_orders_items
+						.get(order_size - 1).price) / 2)) {
+					temp_touch_index = order_size - 1;
+					temp_price_min = m_orders_items.get(order_size - 2).price
+							+ min_gap;
+					temp_price_max = price_max;
+				} else {
+					for (int i = 1; i < order_size - 1; ++i) {
+						if (tap_price > (m_orders_items.get(i - 1).price + m_orders_items
+								.get(i).price) / 2
+								&& tap_price < (m_orders_items.get(i).price + m_orders_items
+										.get(i + 1).price) / 2) {
+							temp_touch_index = i;
+							temp_price_min = m_orders_items.get(i - 1).price
+									+ min_gap;
+							temp_price_max = m_orders_items.get(i + 1).price
+									- min_gap;
+							break;
+						}
 					}
 				}
+			} else if (0 < m_orders_items.size()) {
+				temp_touch_index = 0;
+				temp_price_min = price_min;
+				temp_price_max = price_max;
 			}
-			if (-1 != control_point) {
-				ex = ex < r_chart.left ? r_chart.left : ex;
-				ex = ex > r_chart.right ? r_chart.right : ex;
-				ey = ey < r_chart.top ? r_chart.top : ey;
-				ey = ey > r_chart.bottom ? r_chart.bottom : ey;
-				if (0 != control_point
-						&& spline.getX().length - 1 != control_point) {
-					float temp = x_k * ex + x_b;
-					if (temp > spline.getX()[control_point - 1] + 0.0001
-							&& temp < spline.getX()[control_point + 1] - 0.0001)
-						spline.getX()[control_point] = temp;
-				}
-				spline.getY()[control_point] = (ey - y_b) / y_k;
-				spline.reset();
-				x_k = (spline.right - spline.left) / r_chart.width();
-				x_b = spline.left - x_k * r_chart.left;
-				y_k = -r_chart.height();// / (spline.bottom - (spline.top < 0 ?
-										// spline.top : 0));
-				y_b = r_chart.top - y_k;// * spline.bottom;
+			// Log.e("size - 1", "min: " + temp_price_min + "max: "
+			// + temp_price_max);
+			// Log.e("last_touch_index:", "" + last_touch_index);
+			// Log.e("temp_touch_index:", "" + temp_touch_index);
+			if (temp_touch_index != -1 && !long_pressed) {
+				last_touch_index = temp_touch_index;
+				tap_price_min = temp_price_min;
+				tap_price_max = temp_price_max;
+			}
+			if (long_pressed && last_touch_index != -1
+					&& tap_price >= tap_price_min && tap_price <= tap_price_max) {
+				m_orders_items.get(temp_touch_index).price = tap_price;
 				update_orders();
+			} else {
+				if (-1 == control_point) {
+					for (int i = 0; i < spline.getX().length; ++i) {
+						if (25 > Math.hypot(
+								bx - (spline.getX()[i] - x_b) / x_k, by
+										- (y_b + y_k * spline.getY()[i]))) {
+							control_point = i;
+							break;
+						}
+					}
+				}
+				if (-1 != control_point) {
+					ex = ex < r_chart.left ? r_chart.left : ex;
+					ex = ex > r_chart.right ? r_chart.right : ex;
+					ey = ey < r_chart.top ? r_chart.top : ey;
+					ey = ey > r_chart.bottom ? r_chart.bottom : ey;
+					if (0 != control_point
+							&& spline.getX().length - 1 != control_point) {
+						float temp = x_k * ex + x_b;
+						if (temp > spline.getX()[control_point - 1] + 0.0001
+								&& temp < spline.getX()[control_point + 1] - 0.0001)
+							spline.getX()[control_point] = temp;
+					}
+					spline.getY()[control_point] = (ey - y_b) / y_k;
+					spline.reset();
+					x_k = (spline.right - spline.left) / r_chart.width();
+					x_b = spline.left - x_k * r_chart.left;
+					y_k = -r_chart.height();// / (spline.bottom - (spline.top <
+											// 0 ?
+											// spline.top : 0));
+					y_b = r_chart.top - y_k;// * spline.bottom;
+					update_orders();
+				}
 			}
-
 		}
 
 		amount_path.reset();
@@ -397,7 +471,6 @@ public class TradeView extends View {
 		int aviable_orders = 0;
 		double total_amount = 0;
 		double total_cur = 0;
-		int temp_touch_index = -1;
 		for (int i = 0; i < m_orders_items.size(); ++i) {
 			trades_item item = m_orders_items.get(i);
 			float x = (float) (((item.price - price_min)
@@ -424,17 +497,12 @@ public class TradeView extends View {
 				total_cur += this.fector * item.currency;
 				aviable_orders += 1;
 			}
-			if (0 != trade_num && -1 == temp_touch_index
-					&& Math.abs(ex - x) < r_chart.width() / trade_num / 2) {
-				temp_touch_index = i;
-				last_touch_index = temp_touch_index;
-				if (mousedown && -1 == control_point) {
-					mPaint.setColor(focus_line_color);
-					mPaint.setStrokeWidth(1);
-					canvas.drawLine(x, (float) (y_b + y_k * 0), x, r_chart.top,
-							mPaint);
-					mPaint.setColor(bid_line_color);
-				}
+			if (mousedown && -1 == control_point && i == last_touch_index) {
+				mPaint.setColor(focus_line_color);
+				mPaint.setStrokeWidth(1);
+				canvas.drawLine(x, (float) (y_b + y_k * 0), x, r_chart.top,
+						mPaint);
+				mPaint.setColor(bid_line_color);
 			}
 		}
 
@@ -449,29 +517,29 @@ public class TradeView extends View {
 			canvas.drawText(information, margin_left, info_text_y
 					+ text_infoSize - 3, mPaint);
 		}
-		if (mousedown && -1 != temp_touch_index && -1 == control_point) {
+		if (mousedown && -1 != last_touch_index && -1 == control_point) {
 			// current order line
 			if (is_sell)
 				information = my_formatter(
-						m_orders_items.get(temp_touch_index).price, 6)
+						m_orders_items.get(last_touch_index).price, 6)
 						+ "/"
 						+ my_formatter(
 								this.fector
-										* m_orders_items.get(temp_touch_index).currency,
+										* m_orders_items.get(last_touch_index).currency,
 								6)
 						+ "/"
 						+ my_formatter(
-								m_orders_items.get(temp_touch_index).amount, 6);
+								m_orders_items.get(last_touch_index).amount, 6);
 			else
 				information = my_formatter(
-						m_orders_items.get(temp_touch_index).price, 6)
+						m_orders_items.get(last_touch_index).price, 6)
 						+ "/"
 						+ my_formatter(
-								m_orders_items.get(temp_touch_index).amount, 6)
+								m_orders_items.get(last_touch_index).amount, 6)
 						+ "/"
 						+ my_formatter(
 								this.fector
-										* m_orders_items.get(temp_touch_index).currency,
+										* m_orders_items.get(last_touch_index).currency,
 								6);
 			canvas.drawText(information, margin_left, info_text_y
 					+ text_infoSize - 3, mPaint);
@@ -479,7 +547,7 @@ public class TradeView extends View {
 			double all_cur = 0, all_amount = 0;
 			String left_info, right_info;
 			// left side
-			for (int i = 0; i <= temp_touch_index; ++i) {
+			for (int i = 0; i <= last_touch_index; ++i) {
 				trades_item item = m_orders_items.get(i);
 				if (item.currency > 0) {
 					num += 1;
@@ -501,7 +569,7 @@ public class TradeView extends View {
 						+ my_formatter(all_cur, 6);
 			}
 			avg_info = formatter2.format(100 * (average_price - price_min)
-					/ (m_orders_items.get(temp_touch_index).price - price_min))
+					/ (m_orders_items.get(last_touch_index).price - price_min))
 					+ "% / ";
 			float x = (float) (((average_price - price_min)
 					/ (price_max - price_min) - x_b) / x_k);
@@ -511,7 +579,7 @@ public class TradeView extends View {
 			// right side
 			num = 0;
 			all_cur = all_amount = 0;
-			for (int i = temp_touch_index; i < m_orders_items.size(); ++i) {
+			for (int i = last_touch_index; i < m_orders_items.size(); ++i) {
 				trades_item item = m_orders_items.get(i);
 				if (item.currency > 0) {
 					num += 1;
@@ -534,8 +602,8 @@ public class TradeView extends View {
 			avg_info += formatter2
 					.format(100
 							* (average_price - m_orders_items
-									.get(temp_touch_index).price)
-							/ (price_max - m_orders_items.get(temp_touch_index).price))
+									.get(last_touch_index).price)
+							/ (price_max - m_orders_items.get(last_touch_index).price))
 					+ "%";
 			x = (float) (((average_price - price_min) / (price_max - price_min) - x_b) / x_k);
 			// average line
@@ -591,16 +659,27 @@ public class TradeView extends View {
 
 		// draw text of the X axis
 		float twd = mPaint.measureText(my_formatter(price_max, 5));
-		int last_column = -100;
-		for (int i = 0; i < trade_num; ++i) {
-			if ((i - last_column) * r_chart.width() / trade_num > 1.2 * twd
-					&& r_chart.width() - i * r_chart.width() / trade_num > 2.2 * twd) {
-				canvas.drawText(
-						my_formatter(price_min + i * (price_max - price_min)
-								/ trade_num, 5),
-						r_chart.left + i * r_chart.width() / trade_num,
-						r_chart.bottom + text_infoSize + margin_space, mPaint);
-				last_column = i;
+		canvas.drawText(my_formatter(price_min, 5), r_chart.left,
+				r_chart.bottom + text_infoSize + margin_space, mPaint);
+		if (m_orders_items.size() > 0) {
+			float xe = (float) (((m_orders_items.get(0).price - price_min)
+					/ (price_max - price_min) - x_b) / x_k);
+			if (xe - r_chart.left > 1.2 * twd && r_chart.right - xe > 2.2 * twd) {
+				canvas.drawText(my_formatter(m_orders_items.get(0).price, 5),
+						xe, r_chart.bottom + text_infoSize + margin_space,
+						mPaint);
+			}
+			for (int i = 1; i < m_orders_items.size(); ++i) {
+				xe = (float) (((m_orders_items.get(i).price - price_min)
+						/ (price_max - price_min) - x_b) / x_k);
+				float xb = (float) (((m_orders_items.get(i - 1).price - price_min)
+						/ (price_max - price_min) - x_b) / x_k);
+				if (xe - xb > 1.2 * twd && r_chart.right - xe > 2.2 * twd) {
+					canvas.drawText(
+							my_formatter(m_orders_items.get(i).price, 5), xe,
+							r_chart.bottom + text_infoSize + margin_space,
+							mPaint);
+				}
 			}
 		}
 		canvas.drawText(my_formatter(price_max, 5),
@@ -619,6 +698,14 @@ public class TradeView extends View {
 		mListener = l;
 	}
 
+	Runnable _longPressed = new Runnable() {
+		public void run() {
+			// Log.i("info", "LongPress");
+			long_pressed = true;
+			vibra.vibrate(50);
+		}
+	};
+
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
 
@@ -626,7 +713,7 @@ public class TradeView extends View {
 
 		switch (action) {
 
-		case MotionEvent.ACTION_DOWN:
+		case MotionEvent.ACTION_DOWN: {
 
 			// Log.d(TAG, "onTouchEvent2 action:ACTION_DOWN");
 			long thisTime = System.currentTimeMillis();
@@ -652,6 +739,7 @@ public class TradeView extends View {
 			} else {
 				// too slow
 				lastTouchTime = thisTime;
+				_handler.postDelayed(_longPressed, LONG_PRESS_TIME);
 			}
 
 			mousedown = true;
@@ -664,32 +752,51 @@ public class TradeView extends View {
 			this.invalidate();
 
 			break;
+		}
 
-		case MotionEvent.ACTION_MOVE:
+		case MotionEvent.ACTION_MOVE: {
 
 			ex = ev.getX();
 			ey = ev.getY();
+			if ((Math.abs(ex - bx) > 4) || (Math.abs(ey - by) > 4)) {
+				_handler.removeCallbacks(_longPressed);
+			}
 			this.invalidate();
-			// Log.d(TAG, Float.toString(bx) +"\tto\t"+ Float.toString(ex) + " "
-			// +Integer.toString(t));
+			// Log.d("move", Float.toString(bx) + "\tto\t" +
+			// Float.toString(ex));
 			// Log.d(TAG, "onTouchEvent2 action:ACTION_MOVE" + " "
 			// +Integer.toString(last_k_index));
 
 			break;
+		}
 
-		case MotionEvent.ACTION_UP:
+		case MotionEvent.ACTION_UP: {
 
 			// Log.d(TAG, "onTouchEvent2 action:ACTION_UP");
+			_handler.removeCallbacks(_longPressed);
+			long thisTime = System.currentTimeMillis();
+			if (thisTime - lastTouchTime < 250 && Math.abs(ev.getX() - bx) < 50
+					&& -1 != last_touch_index) {
+				// slide down
+				trades_item item = m_orders_items.get(last_touch_index);
+				int length = this.getHeight() / 2;
+				if ((!item.invalidate && ev.getY() - by > length)
+						|| (item.invalidate && ev.getY() - by < -length)) {
+					item.invalidate = !item.invalidate;
+					update_orders();
+					this.invalidate();
+				}
+			}
 
 			mousedown = false;
+			long_pressed = false;
 			control_point = -1;
 			this.invalidate();
 			break;
+		}
 
 		case MotionEvent.ACTION_CANCEL:
-
 			// Log.d(TAG, "onTouchEvent2 action:ACTION_CANCEL");
-
 			break;
 
 		}
