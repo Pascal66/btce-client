@@ -399,7 +399,7 @@ public class TradeView extends View {
 			}
 			if (long_pressed && last_touch_index != -1
 					&& tap_price >= tap_price_min && tap_price <= tap_price_max) {
-				m_orders_items.get(temp_touch_index).price = tap_price;
+				m_orders_items.get(last_touch_index).price = tap_price;
 				update_orders();
 			} else {
 				if (-1 == control_point) {
