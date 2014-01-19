@@ -79,6 +79,7 @@ public class HistroyActivity extends Activity {
 	ImageButton m_order;
 
 	int order_num = 0;
+	static final int max_size = 1000;
 
 	// private static final String[] str_trans_types = { "types", "1", "2", "3",
 	// "4", "5" };
@@ -436,6 +437,8 @@ public class HistroyActivity extends Activity {
 			temp_param.reset();
 			temp_param.method = BTCEHelper.btce_methods.TRANS_HISTORY;
 			temp_param.his_from_id = m_dbmgr.get_last_trans_id();
+			temp_param.asc = true;
+			temp_param.his_count = max_size;
 			result[0] = btce.do_something(temp_param);
 
 			temp_param = m_params.getparams();
@@ -443,6 +446,8 @@ public class HistroyActivity extends Activity {
 			temp_param.pair = "all pairs";
 			temp_param.method = BTCEHelper.btce_methods.TRADE_HISTORY;
 			temp_param.his_from_id = m_dbmgr.get_last_trade_id();
+			temp_param.asc = true;
+			temp_param.his_count = max_size;
 			result[1] = btce.do_something(temp_param);
 
 			return result;
@@ -450,10 +455,11 @@ public class HistroyActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(String[] result) {
+			int obj_size = 0;
 			try {
 				JSONObject fetch_result = null;
 				fetch_result = new JSONObject(result[0]);
-				feedJosn_trans_histroy(fetch_result);
+				obj_size = feedJosn_trans_histroy(fetch_result);
 				fetch_result = new JSONObject(result[1]);
 				feedJosn_trade_histroy(fetch_result);
 			} catch (JSONException e) {
@@ -467,6 +473,8 @@ public class HistroyActivity extends Activity {
 			}
 			m_statusView.setText(statusStr);
 			// progressDialog.dismiss();
+			if (max_size <= obj_size)
+				update_trans_trades();
 		}
 	}
 
@@ -778,6 +786,7 @@ public class HistroyActivity extends Activity {
 	}
 
 	public int feedJosn_trans_histroy(JSONObject obj) {
+		int obj_size = 0;
 		try {
 			if (1 != obj.getInt("success")) {
 				update_statusStr(
@@ -811,6 +820,7 @@ public class HistroyActivity extends Activity {
 				// m_trans_his_items.add(trans_item);
 				result_list.add(trans_item);
 			}
+			obj_size = result_list.size();
 			m_dbmgr.update_trans(result_list);
 			update_trans_list();
 
@@ -827,7 +837,7 @@ public class HistroyActivity extends Activity {
 							R.string.trans_history_error)
 							+ e.getMessage());
 		}
-		return 0;
+		return obj_size;
 	}
 
 	/*--- ListAdapter for rendering JSON data ---*/

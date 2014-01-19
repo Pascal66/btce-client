@@ -469,6 +469,9 @@ public class BTCEHelper {
 			if (-1 != end_id)
 				parameters.add(new BasicNameValuePair("end_id", Integer
 						.toString(end_id)));
+			else if (0 < count)
+				parameters.add(new BasicNameValuePair("count", Integer
+						.toString(count)));
 			else
 				parameters.add(new BasicNameValuePair("end_id", "2147483647"));
 		} else if (-1 != from && 0 < count) {

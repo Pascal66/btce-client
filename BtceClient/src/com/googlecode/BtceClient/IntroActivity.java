@@ -892,8 +892,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			m_info_list.setAdapter(new Info_list_Adapter(
 					getApplicationContext()));
 		} else if (requestCode == ALL_PAIR_ORDERS
-				|| requestCode == ALL_PAIR_FEES
-				|| requestCode == TRADE_ID) {
+				|| requestCode == ALL_PAIR_FEES || requestCode == TRADE_ID) {
 			order_num = data.getIntExtra("OrdersNUM", 0);
 			update_list_data();
 			m_info_list.setAdapter(new Info_list_Adapter(
