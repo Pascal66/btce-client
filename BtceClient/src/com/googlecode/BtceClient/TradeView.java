@@ -397,9 +397,14 @@ public class TradeView extends View {
 				tap_price_min = temp_price_min;
 				tap_price_max = temp_price_max;
 			}
-			if (long_pressed && last_touch_index != -1
-					&& tap_price >= tap_price_min && tap_price <= tap_price_max) {
-				m_orders_items.get(last_touch_index).price = tap_price;
+			if (long_pressed && last_touch_index != -1) {
+				if (tap_price < tap_price_min) {
+					m_orders_items.get(last_touch_index).price = tap_price_min;
+				} else if (tap_price > tap_price_max) {
+					m_orders_items.get(last_touch_index).price = tap_price_max;
+				} else {
+					m_orders_items.get(last_touch_index).price = tap_price;
+				}
 				update_orders();
 			} else {
 				if (-1 == control_point) {
@@ -661,25 +666,16 @@ public class TradeView extends View {
 		float twd = mPaint.measureText(my_formatter(price_max, 5));
 		canvas.drawText(my_formatter(price_min, 5), r_chart.left,
 				r_chart.bottom + text_infoSize + margin_space, mPaint);
-		if (m_orders_items.size() > 0) {
-			float xe = (float) (((m_orders_items.get(0).price - price_min)
+		float xe = r_chart.left;
+		float xb = xe;
+		for (int i = 0; i < m_orders_items.size(); ++i) {
+			xe = (float) (((m_orders_items.get(i).price - price_min)
 					/ (price_max - price_min) - x_b) / x_k);
-			if (xe - r_chart.left > 1.2 * twd && r_chart.right - xe > 2.2 * twd) {
-				canvas.drawText(my_formatter(m_orders_items.get(0).price, 5),
+			if (xe - xb > 1.2 * twd && r_chart.right - xe > 2.2 * twd) {
+				canvas.drawText(my_formatter(m_orders_items.get(i).price, 5),
 						xe, r_chart.bottom + text_infoSize + margin_space,
 						mPaint);
-			}
-			for (int i = 1; i < m_orders_items.size(); ++i) {
-				xe = (float) (((m_orders_items.get(i).price - price_min)
-						/ (price_max - price_min) - x_b) / x_k);
-				float xb = (float) (((m_orders_items.get(i - 1).price - price_min)
-						/ (price_max - price_min) - x_b) / x_k);
-				if (xe - xb > 1.2 * twd && r_chart.right - xe > 2.2 * twd) {
-					canvas.drawText(
-							my_formatter(m_orders_items.get(i).price, 5), xe,
-							r_chart.bottom + text_infoSize + margin_space,
-							mPaint);
-				}
+				xb = xe;
 			}
 		}
 		canvas.drawText(my_formatter(price_max, 5),
