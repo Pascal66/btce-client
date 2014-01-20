@@ -5,13 +5,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
-import org.apache.http.client.CookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,12 +61,12 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
+import com.googlecode.BtceClient.OrdersViewActivity.order_info;
 import com.googlecode.BtceClient.R;
 import com.googlecode.BtceClient.BTCEHelper.btce_params;
 import com.googlecode.BtceClient.ResizeLayout.OnResizeListener;
@@ -144,8 +144,9 @@ public class IntroActivity extends Activity implements OnGestureListener,
 	// List<depth_item> m_ask_items = new ArrayList<depth_item>();
 	// List<depth_item> m_bid_items = new ArrayList<depth_item>();
 	Bundle m_last_price = new Bundle();
-	Bundle m_pair_funds;
+	Bundle m_pair_funds, m_active_funds;
 	static String str_last_price = "last_price";
+	static String str_active_funds = "active_funds";
 	static String str_value = "value";
 	DBManager m_dbmgr;
 	int order_num = 0;
@@ -465,6 +466,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		m_params = ((MyApp) getApplicationContext()).app_params;
 		m_logs = ((MyApp) getApplicationContext()).app_logs;
 		m_pair_funds = ((MyApp) getApplicationContext()).app_pair_funds;
+		m_active_funds = ((MyApp) getApplicationContext()).app_active_funds;
 		// all_pairs = ((MyApp) getApplicationContext()).app_all_pairs;
 		m_params.secret = "";
 		m_params.key = "";
@@ -481,6 +483,8 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			m_last_price.putDouble(pair_key, 0.0);
 			m_pair_funds.putDouble(pair_key.substring(0, 3), 0.0);
 			m_pair_funds.putDouble(pair_key.substring(4), 0.0);
+			m_active_funds.putDouble(pair_key.substring(0, 3), 0.0);
+			m_active_funds.putDouble(pair_key.substring(4), 0.0);
 		}
 		initial_pair_data();
 	}
@@ -801,6 +805,8 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				} else if (position == ALL_PAIR_FUNDS) {
 					intent.setClass(IntroActivity.this, PairFoundActivity.class);
 					intent.putExtra(str_value, m_pair_funds);
+					update_active_funds();
+					intent.putExtra(str_active_funds, m_active_funds);
 					intent.putExtra(str_last_price, m_last_price);
 					startActivityForResult(intent, position);
 				} else if (position == ALL_PAIR_TRANS) {
@@ -840,6 +846,22 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				.getString(R.string.ready_info));
 		show_status_info();
 		// showDefaultNotification();
+	}
+
+	void update_active_funds() {
+		for (String key : m_active_funds.keySet())
+			m_active_funds.putDouble(key, 0.0);
+		for (order_info item : m_dbmgr.get_order_list(true, -1, -1)) {
+			if (item.type.equalsIgnoreCase("sell")) {
+				String key = item.pair.substring(0, 3);
+				m_active_funds.putDouble(key, m_active_funds.getDouble(key)
+						+ item.amount);
+			} else {
+				String key = item.pair.substring(4);
+				m_active_funds.putDouble(key, m_active_funds.getDouble(key)
+						+ item.amount * item.rate);
+			}
+		}
 	}
 
 	void startTradeActivity() {
@@ -1288,6 +1310,57 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		return error;
 	}
 
+	public int feedJosn_getorders(JSONObject obj) {
+		try {
+			if (1 != obj.getInt("success")) {
+				String error_info = obj.getString("error");
+				if ("no orders".equalsIgnoreCase(error_info)
+						&& 0 != m_dbmgr.get_order_active()) {
+					m_dbmgr.reset_order_status(0, 1);
+				}
+				update_statusStr(System.currentTimeMillis() / 1000, this
+						.getResources().getString(R.string.order_list_error)
+						+ error_info);
+				return -1;
+			}
+			JSONObject rt = obj.getJSONObject("return");
+			// m_orders.clear();
+			ArrayList<order_info> result_orders = new ArrayList<order_info>();
+			Iterator keys = rt.keys();
+			while (keys.hasNext()) {
+				// loop to get the dynamic key
+				String order_id = (String) keys.next();
+
+				// get the value of the dynamic key
+				JSONObject order_json = rt.getJSONObject(order_id);
+
+				// do something here with the value...
+				order_info order_item = new order_info();
+				order_item.id = Integer.parseInt(order_id);
+				order_item.pair = order_json.getString("pair");
+				order_item.type = order_json.getString("type");
+				order_item.amount = order_json.getDouble("amount");
+				order_item.rate = order_json.getDouble("rate");
+				order_item.time = order_json.getLong("timestamp_created");
+				order_item.status = order_json.getInt("status");
+				result_orders.add(order_item);
+			}
+
+			m_dbmgr.reset_order_status(0, 1);
+			m_dbmgr.update_order(result_orders);
+
+			update_statusStr(System.currentTimeMillis() / 1000, this
+					.getResources().getString(R.string.order_list_ok));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			update_statusStr(System.currentTimeMillis() / 1000,
+					this.getResources().getString(R.string.order_list_error)
+							+ e.toString());
+		}
+		return 0;
+	}
+
 	public void show_status_info() {
 		if (!keyboard_is_shown) {
 			m_status_view.setText(statusStr);
@@ -1423,7 +1496,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		return m_trades_items.size();
 	}
 
-	public int feedJosn_trade(JSONObject obj) {
+	public int feedJosn_trade(JSONObject obj, btce_params param) {
 		try {
 			if (1 != obj.getInt("success")) {
 				update_statusStr(
@@ -1441,6 +1514,20 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			} else {
 				double received = rt.getDouble("received");
 				double remains = rt.getDouble("remains");
+
+				order_info order_item = new order_info();
+				order_item.id = (int) last_order_id;
+				order_item.pair = param.pair;
+				order_item.type = param.sell ? "Sell" : "Buy";
+				order_item.amount = remains;
+				order_item.rate = param.trade_price;
+				order_item.time = System.currentTimeMillis() / 1000;
+				order_item.status = 0;
+				ArrayList<order_info> result_orders = new ArrayList<order_info>();
+				result_orders.add(order_item);
+				// m_dbmgr.reset_order_status(0, 1);
+				m_dbmgr.update_order(result_orders);
+
 				order_num += 1;
 				update_statusStr(
 						System.currentTimeMillis() / 1000,
@@ -1479,6 +1566,16 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			long update_time = rt.getLong("server_time");
 
 			order_num = rt.getInt("open_orders");
+			if (order_num != m_dbmgr.get_order_active()) {
+				if (0 == order_num) {
+					m_dbmgr.reset_order_status(0, 1);
+				} else {
+					m_params.method = BTCEHelper.btce_methods.ACTIVE_ORDERS;
+					btce_tasks
+							.add((BTCETask) new BTCETask(m_params.getparams())
+									.execute());
+				}
+			}
 			((MyApp) getApplicationContext()).app_trans_num = rt
 					.getInt("transaction_count");
 
@@ -1599,6 +1696,18 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				m_params.method = BTCEHelper.btce_methods.ORDERS_UPDATE;
 				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
 						.execute());
+			} else {
+				for (order_info item : m_dbmgr.get_order_list(true, -1, -1)) {
+					if ((item.type.equalsIgnoreCase("sell") && item.rate < m_last_price
+							.getDouble(item.pair))
+							|| (item.type.equalsIgnoreCase("buy") && item.rate > m_last_price
+									.getDouble(item.pair))) {
+						m_params.method = BTCEHelper.btce_methods.ACTIVE_ORDERS;
+						btce_tasks.add((BTCETask) new BTCETask(m_params
+								.getparams()).execute());
+						break;
+					}
+				}
 			}
 
 			update_statusStr(
@@ -1708,6 +1817,12 @@ public class IntroActivity extends Activity implements OnGestureListener,
 								R.string.depth_ing)
 								+ param.pair);
 				break;
+			case ACTIVE_ORDERS:
+				update_statusStr(
+						System.currentTimeMillis() / 1000,
+						IntroActivity.this.getResources().getString(
+								R.string.active_orders_ing));
+				break;
 			default:
 				update_statusStr(
 						System.currentTimeMillis() / 1000,
@@ -1751,7 +1866,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 					break;
 				case TRADE:
 					fetch_result = new JSONObject(result);
-					feedJosn_trade(fetch_result);
+					feedJosn_trade(fetch_result, param);
 					break;
 				case GET_INFO:
 					fetch_result = new JSONObject(result);
@@ -1774,6 +1889,10 @@ public class IntroActivity extends Activity implements OnGestureListener,
 						depth_str = result;
 						dp_chart.feedJosn_depth(result);
 					}
+					break;
+				case ACTIVE_ORDERS:
+					fetch_result = new JSONObject(result);
+					feedJosn_getorders(fetch_result);
 					break;
 				}
 			} catch (JSONException e) {

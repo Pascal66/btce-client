@@ -12,6 +12,7 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,16 +21,19 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
+
 import com.googlecode.BtceClient.R;
+
 import static com.googlecode.BtceClient.IntroActivity.str_last_price;
 import static com.googlecode.BtceClient.IntroActivity.str_value;
+import static com.googlecode.BtceClient.IntroActivity.str_active_funds;
 
 public class PairFoundActivity extends Activity {
-	private Bundle extra_values, last_price;
+	private Bundle extra_values, last_price, active_funds;
 	private LayoutInflater m_inflater;
 	List<String> titles;
 	ListView m_thisList;
-	DecimalFormat formatter7 = new DecimalFormat();
+	DecimalFormat formatter8 = new DecimalFormat();
 	double all_usd = 0, all_btc = 0;
 
 	@Override
@@ -38,28 +42,27 @@ public class PairFoundActivity extends Activity {
 
 		setContentView(R.layout.pair_found_view);
 
-		formatter7.setMaximumFractionDigits(7);
-		formatter7.setGroupingUsed(false);
+		formatter8.setMaximumFractionDigits(8);
+		formatter8.setGroupingUsed(false);
 
 		extra_values = this.getIntent().getBundleExtra(str_value);
 		last_price = this.getIntent().getBundleExtra(str_last_price);
+		active_funds = this.getIntent().getBundleExtra(str_active_funds);
 		if (null != last_price) {
 			all_usd = all_btc = 0;
 			String usd = "usd", btc = "btc";
+			double v = 0.0;
 			for (String key : extra_values.keySet()) {
+				v = extra_values.getDouble(key) + active_funds.getDouble(key);
 				if (key.equals(usd)) {
-					all_usd += extra_values.getDouble(key);
-					all_btc += extra_values.getDouble(key)
-							/ last_price.getDouble("btc_usd");
+					all_usd += v;
+					all_btc += v / last_price.getDouble("btc_usd");
 				} else if (key.equals(btc)) {
-					all_btc += extra_values.getDouble(key);
-					all_usd += extra_values.getDouble(key)
-							* last_price.getDouble("btc_usd");
+					all_btc += v;
+					all_usd += v * last_price.getDouble("btc_usd");
 				} else {
-					double key_usd = extra_values.getDouble(key)
-							* last_price.getDouble(key + "_" + usd);
-					double key_btc = extra_values.getDouble(key)
-							* last_price.getDouble(key + "_" + btc);
+					double key_usd = v * last_price.getDouble(key + "_" + usd);
+					double key_btc = v * last_price.getDouble(key + "_" + btc);
 					if ((0 == Double.compare(key_usd, 0.0))
 							&& (0 < Double.compare(key_btc, 0.0))) {
 						key_usd = key_btc * last_price.getDouble("btc_usd");
@@ -127,11 +130,18 @@ public class PairFoundActivity extends Activity {
 			t = (TextView) tv.findViewById(R.id.report_title);
 			t.setText(titles.get(pos).toUpperCase());
 			t = (TextView) tv.findViewById(R.id.report_info);
-			t.setText(""
-					+ formatter7.format(extra_values.getDouble(titles.get(pos))));
-
+			String info = "";
+			if (null != active_funds && pos > 1)
+				info += formatter8.format(extra_values.getDouble(titles
+						.get(pos)) + active_funds.getDouble(titles.get(pos)))
+						+ "<br><font color='#FF0000'>"
+						+ formatter8.format(active_funds.getDouble(titles
+								.get(pos))) + "</font>";
+			else
+				info += formatter8.format(extra_values.getDouble(titles
+						.get(pos)));
+			t.setText(Html.fromHtml(info));
 			return tv;
 		}
-
 	}
 }

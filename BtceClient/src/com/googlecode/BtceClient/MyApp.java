@@ -17,6 +17,7 @@ public class MyApp extends Application {
 	public btce_params app_params = new btce_params();
 	public ArrayList<order_info> app_orders = new ArrayList<order_info>();
 	public Bundle app_pair_funds = new Bundle();
+	public Bundle app_active_funds = new Bundle();
 	public DBManager app_dbmgr = null;
 	public int app_trans_num = 0;
 	// BTCEPairs app_all_pairs = new BTCEPairs();

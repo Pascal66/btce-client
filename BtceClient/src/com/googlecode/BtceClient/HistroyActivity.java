@@ -289,11 +289,9 @@ public class HistroyActivity extends Activity {
 				intent.setClass(HistroyActivity.this, LogViewActivity.class);
 				// intent.putStringArrayListExtra("value", m_logs);
 				startActivity(intent);
-
 			}
-
 		});
-		m_statusView.setText((String) m_logs.get(m_logs.size() - 1));
+		m_statusView.setText("ready");
 
 		if (m_dbmgr.get_trans_count() < ((MyApp) getApplicationContext()).app_trans_num)
 			update_trans_trades();
