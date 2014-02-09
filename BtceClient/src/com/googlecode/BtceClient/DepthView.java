@@ -168,17 +168,17 @@ public class DepthView extends View {
 				0XFFD3D3D3);
 		bid_line_color = array.getColor(R.styleable.DepthView_dp_bidlineColor,
 				0XFF75B103);
-		bid_line_size = array.getColor(R.styleable.DepthView_dp_bidlineSize, 3);
+		bid_line_size = array.getDimensionPixelSize(R.styleable.DepthView_dp_bidlineSize, 3);
 		bid_fill_color = array.getColor(R.styleable.DepthView_dp_bidfillColor,
 				0X7F75B103);
 		ask_line_color = array.getColor(R.styleable.DepthView_dp_asklineColor,
 				0XFF4E8CD9);
-		ask_line_size = array.getColor(R.styleable.DepthView_dp_asklineSize, 3);
+		ask_line_size = array.getDimensionPixelSize(R.styleable.DepthView_dp_asklineSize, 3);
 		ask_fill_color = array.getColor(R.styleable.DepthView_dp_askfillColor,
 				0X7F4E8CD9);
 		point_color = array.getColor(R.styleable.DepthView_dp_pointColor,
 				0XFF00FF00);
-		point_size = array.getInteger(R.styleable.DepthView_dp_pointSize, 10);
+		point_size = array.getDimensionPixelSize(R.styleable.DepthView_dp_pointSize, 10);
 		focus_line_color = array.getColor(
 				R.styleable.DepthView_dp_focusLineColor, 0XFFFFFFFF);
 		// mPaint.setColor(textColor);

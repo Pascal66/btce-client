@@ -8,13 +8,13 @@
 		<attr name="td_infoColor" format="color"/>
 		<attr name="td_infoSize" format="dimension"/>
 		<attr name="td_bidlineColor" format="color"/>
-		<attr name="td_bidlineSize" format="integer"/>
+		<attr name="td_bidlineSize" format="dimension"/>
 		<attr name="td_bidfillColor" format="color"/>
 		<attr name="td_asklineColor" format="color"/>
-		<attr name="td_asklineSize" format="integer"/>
+		<attr name="td_asklineSize" format="dimension"/>
 		<attr name="td_askfillColor" format="color"/>
 		<attr name="td_pointColor" format="color"/>
-		<attr name="td_pointSize" format="integer"/>
+		<attr name="td_pointSize" format="dimension"/>
 		<attr name="td_pricelineColor" format="color"/>
 		<attr name="td_curlineColor" format="color"/>
 		<attr name="td_focusLineColor" format="color"/>

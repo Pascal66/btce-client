@@ -18,13 +18,13 @@
         DChart:dp_infoSize="12sp"
         DChart:dp_textColor="#FFD3D3D3"
         DChart:dp_bidlineColor="#FF75B103"
-        DChart:dp_bidlineSize="3"
+        DChart:dp_bidlineSize="2dp"
         DChart:dp_bidfillColor="#7F75B103"
         DChart:dp_asklineColor="#FF4E8CD9"
-        DChart:dp_asklineSize="3"
+        DChart:dp_asklineSize="2dp"
         DChart:dp_askfillColor="#7F4E8CD9"
         DChart:dp_pointColor="#FF00FF00"
-        DChart:dp_pointSize="10"
+        DChart:dp_pointSize="8dp"
         DChart:dp_focusLineColor="#FFFFFFFF" />
 
     <TextView

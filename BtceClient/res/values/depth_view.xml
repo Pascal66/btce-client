@@ -8,13 +8,13 @@
 		<attr name="dp_infoColor" format="color"/>
 		<attr name="dp_infoSize" format="dimension"/>
 		<attr name="dp_bidlineColor" format="color"/>
-		<attr name="dp_bidlineSize" format="integer"/>
+		<attr name="dp_bidlineSize" format="dimension"/>
 		<attr name="dp_bidfillColor" format="color"/>
 		<attr name="dp_asklineColor" format="color"/>
-		<attr name="dp_asklineSize" format="integer"/>
+		<attr name="dp_asklineSize" format="dimension"/>
 		<attr name="dp_askfillColor" format="color"/>
 		<attr name="dp_pointColor" format="color"/>
-		<attr name="dp_pointSize" format="integer"/>
+		<attr name="dp_pointSize" format="dimension"/>
 		<attr name="dp_focusLineColor" format="color"/>
 	</declare-styleable>
 </resources>

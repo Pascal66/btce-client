@@ -175,7 +175,7 @@ public class TradesView extends View {
 		bid_line_color = array.getColor(R.styleable.TradesView_td_bidlineColor,
 				0XFF75B103);
 		bid_line_size = array
-				.getColor(R.styleable.TradesView_td_bidlineSize, 3);
+				.getDimensionPixelSize(R.styleable.TradesView_td_bidlineSize, 3);
 		bid_fill_color = array.getColor(R.styleable.TradesView_td_bidfillColor,
 				0X7F75B103);
 		ask_line_color = array.getColor(R.styleable.TradesView_td_asklineColor,
@@ -185,12 +185,12 @@ public class TradesView extends View {
 		cur_line_color = array.getColor(R.styleable.TradesView_td_curlineColor,
 				0XFFFF0000);
 		ask_line_size = array
-				.getColor(R.styleable.TradesView_td_asklineSize, 3);
+				.getDimensionPixelSize(R.styleable.TradesView_td_asklineSize, 3);
 		ask_fill_color = array.getColor(R.styleable.TradesView_td_askfillColor,
 				0X7F4E8CD9);
 		point_color = array.getColor(R.styleable.TradesView_td_pointColor,
 				0XFF00FF00);
-		point_size = array.getInteger(R.styleable.TradesView_td_pointSize, 10);
+		point_size = array.getDimensionPixelSize(R.styleable.TradesView_td_pointSize, 10);
 		focus_line_color = array.getColor(
 				R.styleable.TradesView_td_focusLineColor, 0XFFFFFFFF);
 		// mPaint.setColor(textColor);
