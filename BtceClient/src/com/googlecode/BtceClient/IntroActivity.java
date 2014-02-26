@@ -1239,6 +1239,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				long test = System.currentTimeMillis() / 1000 / 1800 * 1800;
 				if (24 * 60 * 60 <= test - last_time) {
 					m_params.chart_start_time = last_time;
+					m_params.custom_site = 0;
 				}
 
 				m_params.method = BTCEHelper.btce_methods.ORDERS_UPDATE;
@@ -1641,6 +1642,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				m_params.reset();
 				m_params.chart_start_time = m_dbmgr
 						.get_last_chart_time(m_params.pair);
+				m_params.custom_site = 0;
 				m_params.method = BTCEHelper.btce_methods.ORDERS_UPDATE;
 				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())
 						.execute());
@@ -1692,6 +1694,7 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				if (24 * 60 * 60 <= (System.currentTimeMillis() / 1000 / 1800 * 1800 - last_time)
 						&& 1 < obj.getJSONArray("chart_data").length()) {
 					m_params.chart_start_time = last_time;
+					m_params.custom_site = 0;
 				}
 				m_params.method = BTCEHelper.btce_methods.ORDERS_UPDATE;
 				btce_tasks.add((BTCETask) new BTCETask(m_params.getparams())

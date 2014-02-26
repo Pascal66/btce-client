@@ -119,6 +119,7 @@ public class BTCEHelper {
 		long his_end;
 		int order_active;
 		long chart_start_time;
+		int custom_site;
 
 		public btce_params() {
 			reset();
@@ -143,6 +144,7 @@ public class BTCEHelper {
 			his_since = his_end = order_active = -1;
 			asc = false;
 			chart_start_time = 0;
+			custom_site = 0;
 		}
 
 		public btce_params setpair(String pair) {
@@ -179,7 +181,10 @@ public class BTCEHelper {
 			// params.pair.equals("btc_usd"))
 			// return this.btceUSD_bitcoincharts(params.chart_start_time);
 			if (0 != params.chart_start_time)
-				return orders_update_sae(params.pair, params.chart_start_time);
+				// return orders_update_sae(params.pair,
+				// params.chart_start_time);
+				return orders_update_custom(params.pair,
+						params.chart_start_time, params.custom_site, 480);
 			useCookie = true;
 			return this.orders_update_exchange(params.pair);
 		case BTCE_UPDATE:
@@ -363,14 +368,29 @@ public class BTCEHelper {
 	}
 
 	protected String orders_update_sae(String pair, long start_time) {
+		return orders_update_custom(pair, start_time, 0, 480);
+	}
+
+	protected String orders_update_gae(String pair, long start_time) {
+		return orders_update_custom(pair, start_time, 1, 480);
+	}
+
+	protected String orders_update_custom(String pair, long start_time,
+			int site, long number) {
 		assert (all_pairs.containsKey(pair));
-		Log.e("update", "update form sae: start:" + start_time);
+		final String log_words[] = { "sae", "gae" };
+		final String urls[] = { "http://btcefetch.sinaapp.com/candle/pair/%s/",
+				"http://btcandle.appspot.com/btce/%s/" };
+		if (site >= urls.length)
+			site = 0;
+		Log.e("update", String.format("update form %s: start:%d",
+				log_words[site], start_time));
 		List<NameValuePair> parameters = new ArrayList<NameValuePair>();
 		parameters.add(new BasicNameValuePair("pair", pair));
 		parameters.add(new BasicNameValuePair("start", "" + start_time));
-		parameters.add(new BasicNameValuePair("num", "480"));
-		return downloadFromServer("http://btcefetch.sinaapp.com/candle/pair/"
-				+ pair + "/", null, parameters);
+		parameters.add(new BasicNameValuePair("num", "" + number));
+		return downloadFromServer(String.format(urls[site], pair), null,
+				parameters);
 	}
 
 	protected String getInfo() {
