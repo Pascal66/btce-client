@@ -101,6 +101,7 @@ public class CandleStickView extends View {
 			Locale.UK);
 	Date temp_date = new Date();
 	Path price_path = new Path();
+	boolean reciprocal = false;
 
 	public static class ChartItem {
 		long time = 0;
@@ -209,6 +210,14 @@ public class CandleStickView extends View {
 		else
 			m_items = items;
 		last_k_index = m_items.size();
+		if (reciprocal) {
+			for (ChartItem item : m_items) {
+				item.open = 1 / item.open;
+				item.close = 1 / item.close;
+				item.high = 1 / item.high;
+				item.low = 1 / item.low;
+			}
+		}
 		this.invalidate();
 		return m_items.size();
 	}

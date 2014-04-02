@@ -28,7 +28,14 @@ public class BTCEPairs extends HashMap<String, pair_values> {
 		this.put("nvc_usd", new pair_values("29", 3));// checked
 		this.put("xpm_btc", new pair_values("30", 5));// checked
 		this.put("ppc_usd", new pair_values("31", 3));// checked
-
+		this.put("eur_rur", new pair_values("32", 3));// no check
+		this.put("btc_cnh", new pair_values("33", 3));// no check
+		this.put("ltc_cnh", new pair_values("34", 3));// no check
+		this.put("usd_cnh", new pair_values("35", 3));// no check
+		this.put("btc_gbp", new pair_values("36", 3));// no check
+		this.put("ltc_gbp", new pair_values("37", 3));// no check
+		this.put("gbp_usd", new pair_values("38", 3));// no check
+		
 		trade_depth_pairs = new HashMap<String, String>();
 		// trade_depth_pairs.put("btc_usd", "1");
 		// trade_depth_pairs.put("ltc_btc", "10");

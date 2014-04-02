@@ -8,7 +8,7 @@ import android.util.Log;
 public class DBDepthHelper extends SQLiteOpenHelper {
 
 	private static String DATABASE_NAME = "depth.db";
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 5;
 
 	public DBDepthHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -29,9 +29,9 @@ public class DBDepthHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// TODO Auto-generated method stub
-		if (4 > oldVersion) {
+		if (5 > oldVersion) {
 			onCreate(db);
-			oldVersion = 4;
+			oldVersion = 5;
 		}
 	}
 
