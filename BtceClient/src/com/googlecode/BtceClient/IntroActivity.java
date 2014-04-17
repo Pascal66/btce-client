@@ -41,6 +41,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.GestureDetector.OnGestureListener;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -1208,11 +1209,14 @@ public class IntroActivity extends Activity implements OnGestureListener,
 		@Override
 		public void onClick(View v) {
 			if (true) {
-				Toast.makeText(
+				Toast toast = Toast.makeText(
 						getApplicationContext(),
 						IntroActivity.this.getResources().getString(
 								R.string.update_info_ing)
-								+ m_params.pair, Toast.LENGTH_SHORT).show();
+								+ m_params.pair, Toast.LENGTH_SHORT);
+				toast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 0,
+						-10);
+				toast.show();
 				update_statusStr(
 						System.currentTimeMillis() / 1000,
 						IntroActivity.this.getResources().getString(
@@ -1399,9 +1403,10 @@ public class IntroActivity extends Activity implements OnGestureListener,
 					getApplicationContext()));
 			// if (!isfront())
 			showDefaultNotification(m_params.pair + ": " + m_ticker.last);
-			Toast.makeText(getApplicationContext(),
-					m_params.pair + ": " + m_ticker.last, Toast.LENGTH_SHORT)
-					.show();
+			Toast toast = Toast.makeText(getApplicationContext(), m_params.pair
+					+ ": " + m_ticker.last, Toast.LENGTH_SHORT);
+			toast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 0, -10);
+			toast.show();
 			update_statusStr(System.currentTimeMillis() / 1000, this
 					.getResources().getString(R.string.ticker_ok));
 		} catch (JSONException e) {

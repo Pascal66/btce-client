@@ -102,6 +102,7 @@ public class CandleStickView extends View {
 	Date temp_date = new Date();
 	Path price_path = new Path();
 	boolean reciprocal = false;
+	boolean relative_time = false;
 
 	public static class ChartItem {
 		long time = 0;
@@ -349,12 +350,24 @@ public class CandleStickView extends View {
 	public Vector<ChartItem> translate_items(Vector<ChartItem> original) {
 		if (original.isEmpty())
 			return original;
+		long last_time = original.lastElement().time;
 		Vector<ChartItem> rtvalue = new Vector<ChartItem>();
 		ChartItem new_item = new ChartItem();
 		for (int i = 0; i < original.size() - 1; ++i) {
 			if (0 == new_item.time) {
-				new_item.time = original.get(i).time / (k_times * 1800)
-						* (k_times * 1800);
+				if (relative_time) {
+					// new_item.time = last_time
+					// - ((last_time - original.get(i).time)
+					// / (k_times * 1800) + 1) * (k_times * 1800);
+					long mod_temp = (last_time - original.get(i).time)
+							% (k_times * 1800);
+					new_item.time = 0 == mod_temp ? original.get(i).time
+							: original.get(i).time - k_times * 1800 + mod_temp;
+				} else {
+					new_item.time = original.get(i).time / (k_times * 1800)
+							* (k_times * 1800);
+				}
+
 				new_item.open = original.get(i).open;
 				new_item.high = original.get(i).high;
 				new_item.low = original.get(i).low;
@@ -379,20 +392,29 @@ public class CandleStickView extends View {
 				continue;
 			}
 		}
-		int j = original.size() - 1;
+
 		if (0 != new_item.time) {
-			new_item.high = Math.max(original.get(j).high, new_item.high);
-			new_item.low = Math.min(original.get(j).low, new_item.low);
+			new_item.high = Math
+					.max(original.lastElement().high, new_item.high);
+			new_item.low = Math.min(original.lastElement().low, new_item.low);
 		} else {
-			new_item.time = original.get(j).time / (k_times * 1800)
-					* (k_times * 1800);
-			new_item.open = original.get(j).open;
-			new_item.high = original.get(j).high;
-			new_item.low = original.get(j).low;
+			if (relative_time) {
+				long mod_temp = (last_time - original.lastElement().time)
+						% (k_times * 1800);
+				new_item.time = 0 == mod_temp ? original.lastElement().time
+						: original.lastElement().time - k_times * 1800
+								+ mod_temp;
+			} else {
+				new_item.time = original.lastElement().time / (k_times * 1800)
+						* (k_times * 1800);
+			}
+			new_item.open = original.lastElement().open;
+			new_item.high = original.lastElement().high;
+			new_item.low = original.lastElement().low;
 		}
-		new_item.close = original.get(j).close;
-		new_item.volume += original.get(j).volume;
-		new_item.volume_currency += original.get(j).volume_currency;
+		new_item.close = original.lastElement().close;
+		new_item.volume += original.lastElement().volume;
+		new_item.volume_currency += original.lastElement().volume_currency;
 		new_item.w_price = (0 == Double.compare(new_item.volume, 0.0) || (0 == Double
 				.compare(new_item.volume_currency, 0.0))) ? new_item.close
 				: new_item.volume_currency / new_item.volume;
