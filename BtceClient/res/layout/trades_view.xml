@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.googlecode.BtceClient.ResizeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.spdffxyp.view.ResizeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:TChart="http://schemas.android.com/apk/res/com.googlecode.BtceClient"
     android:id="@+id/root_layout"
     android:layout_width="fill_parent"
@@ -10,7 +10,7 @@
         android:id="@+id/tradeschart_view"
         android:layout_width="fill_parent"
         android:layout_height="240dp"
-        class="com.googlecode.BtceClient.TradesView"
+        class="com.spdffxyp.view.TradesView"
         TChart:td_bgColor="#FF000000"
         TChart:td_frameColor="#FF00FFFF"
         TChart:td_gridColor="#FF00FFFF"
@@ -42,4 +42,4 @@
         android:layout_height="wrap_content" >
     </ListView>
 
-</com.googlecode.BtceClient.ResizeLayout>
+</com.spdffxyp.view.ResizeLayout>

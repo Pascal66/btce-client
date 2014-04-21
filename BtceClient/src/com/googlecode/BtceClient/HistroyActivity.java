@@ -11,8 +11,13 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.btce.api.BTCEHelper;
+import com.btce.api.BTCEPairs;
 import com.googlecode.BtceClient.R;
-import com.googlecode.BtceClient.BTCEHelper.btce_params;
+import com.spdffxyp.util.LimitingList;
+import com.btce.api.BTCEHelper.btce_params;
+import com.btce.database.DBManager.trade_his_item;
+import com.btce.database.DBManager.trans_his_item;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -93,28 +98,6 @@ public class HistroyActivity extends Activity {
 	// private List<String> str_trans_status;
 	// private List<String> str_trade_types;
 	// private List<String> str_trade_yours;
-
-	static class trade_his_item {
-		int id;
-		String pair;
-		String type;
-		double amount;
-		double rate;
-		int order_id;
-		boolean is_your_order;
-		long time;
-		boolean checked = false;
-	}
-
-	static class trans_his_item {
-		int id;
-		int type;
-		double amount;
-		String currency;
-		String desc;
-		int status;
-		long time;
-	}
 
 	<T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
 		List<T> list = new ArrayList<T>(c);

@@ -12,7 +12,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.googlecode.BtceClient.R;
-import com.googlecode.BtceClient.BTCEHelper.btce_params;
+import com.spdffxyp.util.LimitingList;
+import com.btce.api.BTCEHelper;
+import com.btce.api.BTCEHelper.btce_params;
+import com.btce.api.BTCEPairs;
+import com.btce.database.DBManager.order_info;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -69,16 +73,6 @@ public class OrdersViewActivity extends Activity {
 
 	enum Direction {
 		LEFT, RIGHT;
-	}
-
-	static class order_info {
-		int id;
-		String pair;
-		String type;
-		double amount;
-		double rate;
-		long time;
-		int status;
 	}
 
 	<T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {

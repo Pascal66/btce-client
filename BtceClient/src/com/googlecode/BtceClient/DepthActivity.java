@@ -12,7 +12,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.googlecode.BtceClient.R;
-import com.googlecode.BtceClient.BTCEHelper.btce_params;
+import com.spdffxyp.util.LimitingList;
+import com.spdffxyp.view.DepthView;
+import com.spdffxyp.view.ResizeLayout;
+import com.btce.api.BTCEHelper.btce_params;
+import com.btce.api.BTCEHelper;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

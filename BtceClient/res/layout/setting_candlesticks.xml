@@ -25,6 +25,21 @@
         <requestFocus />
     </EditText>
 
+    <EditText
+        android:id="@+id/basetime"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="basetime"
+        android:inputType="numberSigned"
+        android:selectAllOnFocus="true" />
+
+    <CheckBox
+        android:id="@+id/relative"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Relative Time" />
+    
     <CheckBox
         android:id="@+id/vol_bar"
         android:layout_width="fill_parent"

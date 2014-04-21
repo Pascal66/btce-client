@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.googlecode.BtceClient;
+package com.spdffxyp.util;
 
 /**
  * Performs spline interpolation given a set of control points.
@@ -25,7 +25,7 @@ public class Spline {
 	private float[] mX;
 	private float[] mY;
 	private float[] mM;
-	float left, right, top, bottom;
+	public float left, right, top, bottom;
 
 	public Spline(float[] x, float[] y) {
 		reset(x, y);

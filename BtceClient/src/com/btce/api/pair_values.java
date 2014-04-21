@@ -1,8 +1,8 @@
-package com.googlecode.BtceClient;
+package com.btce.api;
 
 public class pair_values {
-	String sequence;
-	int fraction;
+	public String sequence;
+	public int fraction;
 
 	pair_values(String sequence, int fraction) {
 		this.sequence = sequence;

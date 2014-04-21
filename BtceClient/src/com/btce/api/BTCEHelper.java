@@ -1,4 +1,4 @@
-package com.googlecode.BtceClient;
+package com.btce.api;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -70,7 +70,7 @@ public class BTCEHelper {
 	private byte[] buff = new byte[1024];
 	private static final BTCEPairs all_pairs = new BTCEPairs();
 
-	enum btce_methods {
+	public enum btce_methods {
 		FEE, TICKER, TRADES, DEPTH, ORDERS_UPDATE, BTCE_UPDATE, GET_INFO, TRANS_HISTORY, TRADE_HISTORY, ORDER_LIST, ACTIVE_ORDERS, TRADE, CANCEL_ORDER, UNKNOWN
 	}
 
@@ -86,7 +86,7 @@ public class BTCEHelper {
 	// formatter8.setGroupingUsed(false);
 	// }
 
-	BTCEHelper(CookieStore ck) {
+	public BTCEHelper(CookieStore ck) {
 		formatter8.setMaximumFractionDigits(8);
 		formatter8.setGroupingUsed(false);
 		formatterx.setMaximumFractionDigits(8);
@@ -95,31 +95,31 @@ public class BTCEHelper {
 		useCookie = false;
 	}
 
-	static class btce_params implements Cloneable {
-		String secret;
-		String key;
-		String proxy_host;
-		int proxy_port;
-		int save_port;
-		String proxy_username;
-		String proxy_passwd;
+	public static class btce_params implements Cloneable {
+		public String secret;
+		public String key;
+		public String proxy_host;
+		public int proxy_port;
+		public int save_port;
+		public String proxy_username;
+		public String proxy_passwd;
 		private long nonce = System.currentTimeMillis() / 1000;
-		String pair;
-		btce_methods method;
-		boolean sell;
-		double trade_price;
-		double trade_amount;
-		int order_id;
+		public String pair;
+		public btce_methods method;
+		public boolean sell;
+		public double trade_price;
+		public double trade_amount;
+		public int order_id;
 		int his_from;
-		int his_count;
-		int his_from_id;
-		int his_end_id;
-		boolean asc;
+		public int his_count;
+		public int his_from_id;
+		public int his_end_id;
+		public boolean asc;
 		long his_since;
 		long his_end;
-		int order_active;
-		long chart_start_time;
-		int custom_site;
+		public int order_active;
+		public long chart_start_time;
+		public int custom_site;
 
 		public btce_params() {
 			reset();

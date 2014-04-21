@@ -8,7 +8,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
 import com.googlecode.BtceClient.R;
+import com.spdffxyp.util.LimitingList;
 
 public class LogViewActivity extends Activity {
 

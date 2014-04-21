@@ -27,7 +27,11 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.googlecode.BtceClient.BTCEHelper.btce_params;
+import com.btce.api.BTCEHelper;
+import com.btce.api.BTCEHelper.btce_params;
+import com.spdffxyp.util.LimitingList;
+import com.spdffxyp.view.ResizeLayout;
+import com.spdffxyp.view.TradesView;
 
 public class TradesActivity extends Activity {
 	static final private int UPDATE_ID = Menu.FIRST;

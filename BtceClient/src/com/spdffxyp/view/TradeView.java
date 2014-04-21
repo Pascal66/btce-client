@@ -1,12 +1,14 @@
-package com.googlecode.BtceClient;
+package com.spdffxyp.view;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.googlecode.BtceClient.TradesView.OnDoubleClickListener;
-import com.googlecode.BtceClient.TradesView.trades_item;
+import com.spdffxyp.util.Spline;
+import com.spdffxyp.view.TradesView.OnDoubleClickListener;
+import com.btce.database.DBManager.trades_item;
+import com.googlecode.BtceClient.R;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -24,11 +26,11 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class TradeView extends View {
-	Spline spline;
+	public Spline spline;
 	double price_max, price_min, amount_max, currency_total;
 	int trade_num;
 	List<trades_item> m_orders_items = new ArrayList<trades_item>();
-	List<trades_item> m_active_orders = new ArrayList<trades_item>();
+	public List<trades_item> m_active_orders = new ArrayList<trades_item>();
 	double fector;
 	double min_coin = 0.1;
 	boolean is_sell = false;
@@ -70,7 +72,7 @@ public class TradeView extends View {
 
 	int last_touch_index = -1;
 	double tap_price_min = 0, tap_price_max = 0;
-	trades_item double_click_item = new trades_item();
+	public trades_item double_click_item = new trades_item();
 	public static int LONG_PRESS_TIME = 500; // Time in miliseconds
 	final Handler _handler = new Handler();
 	Vibrator vibra = null;

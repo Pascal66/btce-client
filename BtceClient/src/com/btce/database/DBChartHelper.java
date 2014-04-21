@@ -1,8 +1,8 @@
-package com.googlecode.BtceClient;
+package com.btce.database;
 
 import java.util.Vector;
 
-import com.googlecode.BtceClient.HistroyActivity.trans_his_item;
+import com.btce.api.BTCEPairs;
 
 import android.content.Context;
 import android.database.Cursor;

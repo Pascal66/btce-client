@@ -2,7 +2,7 @@
  * http://stackoverflow.com/questions/9272384/how-add-textview-in-middle-of-seekbar-thumb
  * thanks
  */
-package com.googlecode.BtceClient;
+package com.spdffxyp.view;
 
 import java.text.DecimalFormat;
 

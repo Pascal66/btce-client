@@ -1,4 +1,4 @@
-package com.googlecode.BtceClient;
+package com.spdffxyp.util;
 
 import java.util.LinkedList;
 

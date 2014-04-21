@@ -1,4 +1,4 @@
-package com.googlecode.BtceClient;
+package com.spdffxyp.view;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -26,6 +26,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.util.Log;
 
+import com.btce.database.DBManager.ChartItem;
 import com.googlecode.BtceClient.R;
 
 public class CandleStickView extends View {
@@ -44,7 +45,7 @@ public class CandleStickView extends View {
 	}
 
 	Paint mPaint;
-	Vector<ChartItem> m_items = new Vector<ChartItem>();
+	public Vector<ChartItem> m_items = new Vector<ChartItem>();
 	// Vector<pairs> m_asks = new Vector<pairs>();
 	// Vector<pairs> m_bids = new Vector<pairs>();
 	// String test_data =
@@ -67,9 +68,9 @@ public class CandleStickView extends View {
 	DecimalFormat formatter2 = new DecimalFormat();
 	Rect r_chart = new Rect();
 	int num_rows = 4;// grid of this view
-	int k_times = 12;// candlestick period, k_times*30 minutes
-	boolean show_price_line = false;
-	boolean show_volume_bar = false;
+	public int k_times = 12;// candlestick period, k_times*30 minutes
+	public boolean show_price_line = false;
+	public boolean show_volume_bar = false;
 	Rect r_block = new Rect();
 	PathEffect dash_effects = new DashPathEffect(new float[] { 5, 5, 5, 5 }, 1); // dash
 																					// line
@@ -102,18 +103,8 @@ public class CandleStickView extends View {
 	Date temp_date = new Date();
 	Path price_path = new Path();
 	boolean reciprocal = false;
-	boolean relative_time = false;
-
-	public static class ChartItem {
-		long time = 0;
-		double open = 0;
-		double close = 0;
-		double high = 0;
-		double low = 0;
-		double volume = 0;
-		double volume_currency = 0;
-		double w_price = 0;
-	}
+	public boolean relative_time = false;
+	public long base_time = 0;
 
 	// private class pairs {
 	// double price = 0;
@@ -350,24 +341,16 @@ public class CandleStickView extends View {
 	public Vector<ChartItem> translate_items(Vector<ChartItem> original) {
 		if (original.isEmpty())
 			return original;
-		long last_time = original.lastElement().time;
 		Vector<ChartItem> rtvalue = new Vector<ChartItem>();
 		ChartItem new_item = new ChartItem();
+		if (relative_time) {
+			base_time = original.lastElement().time % (24*60*60) + 1800;
+					//k_times * 1800;
+		}
 		for (int i = 0; i < original.size() - 1; ++i) {
 			if (0 == new_item.time) {
-				if (relative_time) {
-					// new_item.time = last_time
-					// - ((last_time - original.get(i).time)
-					// / (k_times * 1800) + 1) * (k_times * 1800);
-					long mod_temp = (last_time - original.get(i).time)
-							% (k_times * 1800);
-					new_item.time = 0 == mod_temp ? original.get(i).time
-							: original.get(i).time - k_times * 1800 + mod_temp;
-				} else {
-					new_item.time = original.get(i).time / (k_times * 1800)
-							* (k_times * 1800);
-				}
-
+				new_item.time = (original.get(i).time - base_time) / (k_times * 1800)
+						* (k_times * 1800) + base_time;
 				new_item.open = original.get(i).open;
 				new_item.high = original.get(i).high;
 				new_item.low = original.get(i).low;
@@ -392,29 +375,20 @@ public class CandleStickView extends View {
 				continue;
 			}
 		}
-
+		int j = original.size() - 1;
 		if (0 != new_item.time) {
-			new_item.high = Math
-					.max(original.lastElement().high, new_item.high);
-			new_item.low = Math.min(original.lastElement().low, new_item.low);
+			new_item.high = Math.max(original.get(j).high, new_item.high);
+			new_item.low = Math.min(original.get(j).low, new_item.low);
 		} else {
-			if (relative_time) {
-				long mod_temp = (last_time - original.lastElement().time)
-						% (k_times * 1800);
-				new_item.time = 0 == mod_temp ? original.lastElement().time
-						: original.lastElement().time - k_times * 1800
-								+ mod_temp;
-			} else {
-				new_item.time = original.lastElement().time / (k_times * 1800)
-						* (k_times * 1800);
-			}
-			new_item.open = original.lastElement().open;
-			new_item.high = original.lastElement().high;
-			new_item.low = original.lastElement().low;
+			new_item.time = (original.get(j).time - base_time) / (k_times * 1800)
+					* (k_times * 1800) + base_time;
+			new_item.open = original.get(j).open;
+			new_item.high = original.get(j).high;
+			new_item.low = original.get(j).low;
 		}
-		new_item.close = original.lastElement().close;
-		new_item.volume += original.lastElement().volume;
-		new_item.volume_currency += original.lastElement().volume_currency;
+		new_item.close = original.get(j).close;
+		new_item.volume += original.get(j).volume;
+		new_item.volume_currency += original.get(j).volume_currency;
 		new_item.w_price = (0 == Double.compare(new_item.volume, 0.0) || (0 == Double
 				.compare(new_item.volume_currency, 0.0))) ? new_item.close
 				: new_item.volume_currency / new_item.volume;

@@ -67,11 +67,18 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
-import com.googlecode.BtceClient.OrdersViewActivity.order_info;
+import com.btce.api.BTCEHelper;
+import com.btce.api.BTCEPairs;
+import com.btce.database.DBManager.order_info;
 import com.googlecode.BtceClient.R;
-import com.googlecode.BtceClient.BTCEHelper.btce_params;
-import com.googlecode.BtceClient.ResizeLayout.OnResizeListener;
-import com.googlecode.BtceClient.TradesView.trades_item;
+import com.btce.api.BTCEHelper.btce_params;
+import com.spdffxyp.view.ResizeLayout.OnResizeListener;
+import com.spdffxyp.util.LimitingList;
+import com.spdffxyp.view.CandleStickView;
+import com.spdffxyp.view.DepthView;
+import com.spdffxyp.view.ResizeLayout;
+import com.spdffxyp.view.TradesView;
+import com.btce.database.DBManager.trades_item;
 
 /**
  * @author spdffxyp <spdffxyp@gmail.com>
@@ -257,6 +264,11 @@ public class IntroActivity extends Activity implements OnGestureListener,
 				((TextView) candle_view.findViewById(R.id.period))
 						.setText(""
 								+ ((MyApp) getApplicationContext()).app_candlestick_period);
+				((TextView) candle_view.findViewById(R.id.basetime))
+				.setText(""
+						+ ((MyApp) getApplicationContext()).app_candlestick_basetime);
+				((CheckBox) candle_view.findViewById(R.id.relative))
+				.setChecked(((MyApp) getApplicationContext()).show_relative_time);
 				((CheckBox) candle_view.findViewById(R.id.vol_bar))
 						.setChecked(((MyApp) getApplicationContext()).show_volume_bar);
 				((CheckBox) candle_view.findViewById(R.id.price_line))
@@ -363,6 +375,15 @@ public class IntroActivity extends Activity implements OnGestureListener,
 			} catch (NumberFormatException e) {
 				((MyApp) getApplicationContext()).app_candlestick_period = 1;
 			}
+			try {
+				((MyApp) getApplicationContext()).app_candlestick_basetime = Integer
+						.parseInt(((TextView) dlg.findViewById(R.id.basetime))
+								.getText().toString());
+			} catch (NumberFormatException e) {
+				((MyApp) getApplicationContext()).app_candlestick_basetime = 0;
+			}
+			((MyApp) getApplicationContext()).show_relative_time = ((CheckBox) dlg
+					.findViewById(R.id.relative)).isChecked();
 			((MyApp) getApplicationContext()).show_volume_bar = ((CheckBox) dlg
 					.findViewById(R.id.vol_bar)).isChecked();
 			((MyApp) getApplicationContext()).show_price_line = ((CheckBox) dlg
@@ -575,7 +596,9 @@ public class IntroActivity extends Activity implements OnGestureListener,
 	void initialCandleView() {
 		kchart_view.show_price_line = ((MyApp) getApplicationContext()).show_price_line;
 		kchart_view.show_volume_bar = ((MyApp) getApplicationContext()).show_volume_bar;
+		kchart_view.relative_time = ((MyApp) getApplicationContext()).show_relative_time;
 		kchart_view.k_times = ((MyApp) getApplicationContext()).app_candlestick_period;
+		kchart_view.base_time = ((MyApp) getApplicationContext()).app_candlestick_basetime * 1800;
 		order_num = m_dbmgr.get_order_active();
 		((MyApp) getApplicationContext()).app_trans_num = m_dbmgr
 				.get_trans_count();

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.googlecode.BtceClient.R;
-import com.googlecode.BtceClient.BTCEHelper.btce_params;
+import com.btce.api.BTCEHelper.btce_params;
 
 import android.app.Activity;
 import android.app.AlertDialog;

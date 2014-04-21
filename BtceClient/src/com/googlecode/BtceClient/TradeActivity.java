@@ -12,9 +12,15 @@ import java.util.Vector;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.googlecode.BtceClient.BTCEHelper.btce_params;
-import com.googlecode.BtceClient.OrdersViewActivity.order_info;
-import com.googlecode.BtceClient.TradesView.trades_item;
+import com.btce.api.BTCEHelper;
+import com.btce.api.BTCEPairs;
+import com.btce.api.BTCEHelper.btce_params;
+import com.googlecode.BtceClient.DBManager.auto_order_item;
+import com.spdffxyp.util.LimitingList;
+import com.spdffxyp.view.SeekBarWithText;
+import com.spdffxyp.view.TradeView;
+import com.btce.database.DBManager.order_info;
+import com.btce.database.DBManager.trades_item;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -95,19 +101,6 @@ public class TradeActivity extends Activity {
 	private static final int MSG_CHART_DBCLK = 258;
 	private InputHandler mHandler = new InputHandler();
 	private InputMethodManager im_ctrl;
-
-	public static class auto_order_item {
-		long id;
-		String name;
-		float x[] = new float[5];
-		float y[] = new float[5];
-		int type;
-		int piece;
-		int from;
-		int to;
-		int cur;
-		double sleep;
-	}
 
 	void initial_trades_timer() {
 		if (null != timer_trades)

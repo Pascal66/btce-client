@@ -1,11 +1,11 @@
-package com.googlecode.BtceClient;
+package com.btce.api;
 
 import java.util.HashMap;
 
 public class BTCEPairs extends HashMap<String, pair_values> {
 	public HashMap<String, String> trade_depth_pairs;
 
-	BTCEPairs() {
+	public BTCEPairs() {
 		// this.put("all pairs", "0");
 		this.put("btc_usd", new pair_values("1", 3));// checked
 		this.put("ltc_btc", new pair_values("10", 5));// checked

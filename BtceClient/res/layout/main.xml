@@ -11,7 +11,7 @@
     android:outAnimation="@anim/push_left_out"
     android:persistentDrawingCache="animation" >
 
-    <com.googlecode.BtceClient.ResizeLayout
+    <com.spdffxyp.view.ResizeLayout
         android:id="@+id/root_layout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -21,7 +21,7 @@
             android:id="@+id/candlestick_view"
             android:layout_width="fill_parent"
             android:layout_height="200dp"
-            class="com.googlecode.BtceClient.CandleStickView"
+            class="com.spdffxyp.view.CandleStickView"
             KChart:bgColor="#000000"
             KChart:block_downColor="#7FDC143C"
             KChart:block_lineColor="#00FF7F"
@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content" >
             </ListView>
         </LinearLayout>
-    </com.googlecode.BtceClient.ResizeLayout>
+    </com.spdffxyp.view.ResizeLayout>
 
     <LinearLayout
         android:id="@+id/chart_layout"
@@ -110,7 +110,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            class="com.googlecode.BtceClient.DepthView"
+            class="com.spdffxyp.view.DepthView"
             DChart:dp_askfillColor="#7F4E8CD9"
             DChart:dp_asklineColor="#FF4E8CD9"
             DChart:dp_asklineSize="2dp"
@@ -132,7 +132,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            class="com.googlecode.BtceClient.TradesView"
+            class="com.spdffxyp.view.TradesView"
             TChart:td_askfillColor="#7F4E8CD9"
             TChart:td_asklineColor="#FF4E8CD9"
             TChart:td_asklineSize="1dp"

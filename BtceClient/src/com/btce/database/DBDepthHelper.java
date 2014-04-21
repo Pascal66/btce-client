@@ -1,4 +1,6 @@
-package com.googlecode.BtceClient;
+package com.btce.database;
+
+import com.btce.api.BTCEPairs;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
